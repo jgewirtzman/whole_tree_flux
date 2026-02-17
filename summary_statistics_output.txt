@@ -1,0 +1,72 @@
+========================================================================
+FIELD DATA SUMMARY (Harvard Forest + Yale Myers Forest)
+========================================================================
+
+Total measurements:  141
+Trees:               7
+Species:             5  (Acer rubrum, Nyssa sylvatica, Quercus rubra, Quercus velutina, Tsuga canadensis)
+
+Measurements by component:
+
+branch   leaf   stem 
+    11     21    109 
+
+Mean CH4 flux < 2 m:   0.8796 nmol m-2 s-1  (n=26)
+Mean CH4 flux >= 2 m:  0.2572 nmol m-2 s-1  (n=115)
+Ratio (below/above):   3.4x
+
+Stem measurements >= 2 m:    83
+  Negative (uptake):          5  (6.0%)
+
+Per-tree summary (all components, >= 2 m):
+  Acer rubrum               tag=321071    n= 25  neg= 1 (4.0%)
+  Acer rubrum               tag=5         n= 15  neg= 1 (6.7%)
+  Nyssa sylvatica           tag=2         n= 26  neg= 6 (23.1%)
+  Quercus rubra             tag=300607    n= 17  neg= 0 (0.0%)
+  Quercus velutina          tag=YMF_1     n=  6  neg= 0 (0.0%)
+  Tsuga canadensis          tag=321902    n= 13  neg= 0 (0.0%)
+  Tsuga canadensis          tag=4         n= 13  neg= 4 (30.8%)
+
+Median CH4 flux (leaf): 0.00682 nmol m-2 s-1  (n=21)
+Median CH4 flux (branch): 0.06951 nmol m-2 s-1  (n=11)
+
+Stem measurements by height threshold:
+  >=  2 m:  7 trees  |   83 measurements  |  5 negative (6.0%)
+  >=  5 m:  7 trees  |   61 measurements  |  5 negative (8.2%)
+  >= 10 m:  7 trees  |   31 measurements  |  4 negative (12.9%)
+
+========================================================================
+WU ET AL. (2024) SYNTHESIS
+========================================================================
+
+Total studies in compilation:      50
+Total observations:                1010
+
+Studies with >= 2 m measurements:  10  (20.0% of 50 studies)
+
+Observations at >= 2 m (from those studies):  127
+  Negative (uptake):  9  (7.1%)
+
+By study (>= 2 m):
+  Churkina 2018                        n= 13  neg= 1 (  7.7%)
+  Epron 2022                           n= 10  neg= 0 (  0.0%)
+  Gorgolewski 2023                     n=  2  neg= 0 (  0.0%)
+  Iddris 2021 JGR-B                    n= 44  neg= 5 ( 11.4%)
+  Machacova 2022                       n=  7  neg= 0 (  0.0%)
+  Moldaschl 2021                       n=  3  neg= 1 ( 33.3%)
+  Sjögersten 2020                     n= 20  neg= 0 (  0.0%)
+  Vainio 2022                          n= 10  neg= 2 ( 20.0%)
+  Wang 2016                            n=  2  neg= 0 (  0.0%)
+  van Haren 2021                       n= 16  neg= 0 (  0.0%)
+
+Studies with majority negative at >= 2 m: 0
+
+Studies and observations by height threshold:
+  >=  2 m:  10 of 50 studies (20.0%)  |  127 obs  |  9 negative ( 7.1%)
+  >=  5 m:   3 of 50 studies ( 6.0%)  |   12 obs  |  0 negative ( 0.0%)
+  >= 10 m:   0 of 50 studies ( 0.0%)  |    0 obs  |  0 negative ( 0.0%)
+  Max height in compilation: 8.0 m
+
+========================================================================
+DONE
+========================================================================
