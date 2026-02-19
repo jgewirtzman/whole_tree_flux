@@ -293,7 +293,7 @@ create_bar_panel <- function() {
     scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 25),
                        expand = expansion(mult = c(0, 0.05)),
                        name = "% of surface area captured") +
-    labs(y = "Measurement\nheight") +
+    labs(y = "Measurement height") +
     theme_classic(base_size = 11) +
     theme(legend.position  = c(0.75, 0.2),
           legend.background = element_blank(),
@@ -347,7 +347,7 @@ p_rates <- ggplot(rate_data, aes(x = compartment, y = flux_rate,
   scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     x = NULL,
-    y = expression("CH"[4]~"flux rate (nmol m"^{-2}~"s"^{-1}*")")
+    y = expression(atop("CH"[4]~"flux rate", "(nmol m"^{-2}~"s"^{-1}*")"))
   ) +
   theme_classic(base_size = 11) +
   theme(
@@ -372,7 +372,7 @@ p_area <- ggplot(rate_data, aes(x = compartment, y = area_index,
   scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
   labs(
     x = NULL,
-    y = expression("Area index (m"^{2}~"m"^{-2}*"ground)")
+    y = expression(atop("Area index", "(m"^{2}~"m"^{-2}*"ground)"))
   ) +
   theme_classic(base_size = 11) +
   theme(
