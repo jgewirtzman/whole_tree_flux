@@ -164,11 +164,9 @@ create_cone_panel <- function() {
               color = "black", linewidth = 0.6, linetype = "dashed") +
     geom_path(data = base_c, aes(x = x, y = y),
               color = "black", linewidth = 1.2) +
-    # Height annotations
-    annotate("text", x = xlim * 0.85, y = 2,  label = "2 m",
-             size = 3.5, fontface = "bold") +
-    annotate("text", x = xlim * 0.65, y = 10, label = "10 m",
-             size = 3.5, fontface = "bold") +
+    # Dashed reference lines at 2 m and 10 m (extend across from panel B)
+    geom_hline(yintercept = c(2, 10), color = "grey60",
+               linewidth = 0.4, linetype = "dashed") +
     scale_fill_identity() +
     coord_fixed(ratio = 0.5) +
     scale_x_continuous(limits = c(-xlim, xlim), name = NULL) +
@@ -207,7 +205,7 @@ create_capture_panel <- function(seg_range) {
                    "% of stem + branches"             = "#4682B4",
                    "% of stem + branches + leaves"    = "#2E8B57")
 
-  p <- ggplot(curves, aes(x = pct, y = height, color = category, linetype = category)) +
+  p <- ggplot(curves, aes(x = pct, y = height, color = category)) +
     geom_line(linewidth = 1.2, alpha = 0.85) +
     # Dashed horizontal reference lines
     geom_hline(yintercept = c(2, 10), color = "grey60",
@@ -215,15 +213,13 @@ create_capture_panel <- function(seg_range) {
     geom_vline(xintercept = 100, color = "grey60",
                linewidth = 0.4, linetype = "dotted") +
     scale_color_manual(values = cat_colors, name = NULL) +
-    scale_linetype_manual(values = c("solid", "longdash", "dotted"), name = NULL) +
     scale_x_continuous(breaks = seq(0, 100, 25), limits = c(0, 110),
                        name = "% of surface area captured") +
     scale_y_continuous(breaks = seq(0, 25, 5), limits = c(-0.5, 27),
                        name = NULL) +
     theme_minimal(base_size = 11) +
     theme(legend.position  = c(0.65, 0.15),
-          legend.background = element_rect(fill = alpha("white", 0.8),
-                                           color = NA),
+          legend.background = element_blank(),
           legend.text       = element_text(size = 9),
           legend.key.width  = unit(1.2, "cm"),
           axis.text         = element_text(size = 10),
@@ -235,7 +231,7 @@ create_capture_panel <- function(seg_range) {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 4. PANEL C: BAR CHART (% captured at 2 m and 10 m)
+# 4. PANEL C: BAR CHART (% captured at 2 m and 10 m) — horizontal bars
 # ═══════════════════════════════════════════════════════════════════════════════
 
 create_bar_panel <- function() {
@@ -248,26 +244,33 @@ create_bar_panel <- function() {
       pct       = as.numeric(pcts)
     )
   }))
+  # Reverse factor levels so stem-only plots on top within each group,
+  # but use breaks= in scale_fill_manual to keep legend in original order
   bar_data$category <- factor(bar_data$category,
-    levels = c("% of stem", "% of stem + branches", "% of stem + branches + leaves"))
+    levels = rev(c("% of stem", "% of stem + branches", "% of stem + branches + leaves")))
+  # Order: 2 m on bottom, 10 m on top
+  bar_data$threshold <- factor(bar_data$threshold, levels = c("2 m", "10 m"))
 
   cat_colors <- c("% of stem"                        = "#8B4513",
                    "% of stem + branches"             = "#4682B4",
                    "% of stem + branches + leaves"    = "#2E8B57")
 
-  p <- ggplot(bar_data, aes(x = threshold, y = pct, fill = category)) +
+  p <- ggplot(bar_data, aes(x = pct, y = threshold, fill = category)) +
     geom_col(position = position_dodge(width = 0.75), width = 0.65,
              color = "black", linewidth = 0.3) +
     geom_text(aes(label = paste0(round(pct, 1), "%")),
               position = position_dodge(width = 0.75),
-              vjust = -0.5, size = 3, fontface = "bold") +
-    scale_fill_manual(values = cat_colors, name = NULL) +
-    scale_y_continuous(limits = c(0, 75), breaks = seq(0, 75, 25),
+              hjust = -0.1, size = 3, fontface = "bold") +
+    scale_fill_manual(values = cat_colors, name = NULL,
+                      breaks = c("% of stem", "% of stem + branches",
+                                  "% of stem + branches + leaves")) +
+    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 25),
                        expand = expansion(mult = c(0, 0.05)),
                        name = "% of surface area captured") +
-    labs(x = "Maximum measurement height") +
+    labs(y = "Measurement\nheight") +
     theme_classic(base_size = 11) +
-    theme(legend.position = "bottom",
+    theme(legend.position  = c(0.75, 0.2),
+          legend.background = element_blank(),
           legend.text     = element_text(size = 9),
           axis.line       = element_line(linewidth = 0.3),
           axis.ticks      = element_line(linewidth = 0.3),
@@ -287,9 +290,9 @@ p_cone    <- cone_result$plot
 p_curves  <- create_capture_panel(cone_result$seg_pct_range)
 p_bars    <- create_bar_panel()
 
-# Layout: top row = cone + curves (matched y-axes), bottom row = bar chart
-combined <- (p_cone | p_curves) / p_bars +
-  plot_layout(heights = c(2, 1)) +
+# Layout: single row — cone | curves | bars (horizontal)
+combined <- (p_cone | p_curves | p_bars) +
+  plot_layout(widths = c(1, 1.5, 1.5)) +
   plot_annotation(tag_levels = "a",
                   tag_prefix = "(", tag_suffix = ")")
 
@@ -300,8 +303,8 @@ out_dir  <- file.path(base_dir, "figures")
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ggsave(file.path(out_dir, "figure_truncation.pdf"), combined,
-       width = 8, height = 9, units = "in")
+       width = 13, height = 5, units = "in")
 ggsave(file.path(out_dir, "figure_truncation.png"), combined,
-       width = 8, height = 9, units = "in", dpi = 300)
+       width = 13, height = 5, units = "in", dpi = 300)
 
 cat("Saved: figure_truncation.pdf/.png\n")

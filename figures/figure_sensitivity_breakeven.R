@@ -280,7 +280,7 @@ p_rates <- ggplot(rate_data, aes(x = compartment, y = flux_rate,
 p_area <- ggplot(rate_data, aes(x = compartment, y = area_index,
                                  fill = compartment)) +
   geom_col(width = 0.6, color = "grey30", linewidth = 0.3) +
-  geom_text(aes(label = sprintf("%.2f\n(%.1f%%)", area_index, area_pct)),
+  geom_text(aes(label = sprintf("%.2f", area_index)),
             vjust = -0.3, size = 2.8, color = "grey20") +
   scale_fill_manual(values = setNames(unname(compartment_colors), comp_labels),
                     guide = "none") +
@@ -337,9 +337,8 @@ p_budget <- ggplot(budget_plot, aes(x = 1, y = integrated, fill = compartment)) 
 scenarios$scenario <- factor(scenarios$scenario,
   levels = c("Double", "Cancel", "Flip"))
 
-p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required,
-                                      fill = scenario)) +
-  geom_col(width = 0.55, color = "grey30", linewidth = 0.3) +
+p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required)) +
+  geom_col(width = 0.55, fill = "grey70", color = "grey30", linewidth = 0.3) +
   geom_hline(yintercept = 0, linewidth = 0.6, color = "black") +
   # Observed empirical rate
   geom_hline(yintercept = F_gt2_observed, linewidth = 0.8,
@@ -351,7 +350,6 @@ p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required,
   geom_text(aes(label = sprintf("%.4f", F_gt2_required),
                 vjust = ifelse(F_gt2_required >= 0, -0.4, 1.4)),
             size = 3.2, color = "grey20") +
-  scale_fill_manual(values = scenario_colors, guide = "none") +
   scale_y_continuous(expand = expansion(mult = c(0.15, 0.15))) +
   labs(
     x = NULL,
