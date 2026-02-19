@@ -143,7 +143,7 @@ cat(sprintf("  Leaf:        mean = %.4f  median = %.4f  (n = %d)\n\n",
 # ═══════════════════════════════════════════════════════════════════════════════
 
 budget <- tibble(
-  compartment = c("Stem < 2 m", "Stem ≥ 2 m", "Branches", "Leaves"),
+  compartment = c("Stem < 2 m", "Stem > 2 m", "Branches", "Leaves"),
   flux_rate   = c(F_stem_lt2, F_stem_ge2, F_branch, F_leaf),
   area_index  = c(A_stem_lt2, A_stem_ge2, A_branch, A_leaf)
 ) %>%
@@ -225,7 +225,7 @@ cat(sprintf("  Ratio observed / cancel threshold:  %.1f×\n\n",
 # Compartment colors — consistent across panels
 compartment_colors <- c(
   "Stem < 2 m"  = "#8B4513",   # saddle brown
-  "Stem ≥ 2 m"  = "#D4A76A",   # light tan
+  "Stem > 2 m"  = "#D4A76A",   # light tan
   "Branches"    = "#4682B4",   # steel blue
   "Leaves"      = "#2E8B57"    # sea green
 )
@@ -237,11 +237,13 @@ scenario_colors <- c(
   "Flip"   = "#7B6BA1"     # muted purple
 )
 
-# ── Panel A: Per-tissue flux rates with area annotations ─────────────────────
+# ── Panel A: Per-tissue flux rates (top) and area indices (bottom) ────────────
+
+# Use plain ASCII labels to avoid encoding issues with ≥
+comp_labels <- c("Stem < 2 m", "Stem > 2 m", "Branches", "Leaves")
 
 rate_data <- tibble(
-  compartment = factor(c("Stem < 2 m", "Stem ≥ 2 m", "Branches", "Leaves"),
-                        levels = c("Stem < 2 m", "Stem ≥ 2 m", "Branches", "Leaves")),
+  compartment = factor(comp_labels, levels = comp_labels),
   flux_rate   = c(F_stem_lt2, F_stem_ge2, F_branch, F_leaf),
   area_index  = c(A_stem_lt2, A_stem_ge2, A_branch, A_leaf),
   area_pct    = c(100 * A_stem_lt2 / A_total,
@@ -250,16 +252,42 @@ rate_data <- tibble(
                   100 * A_leaf / A_total)
 )
 
+# Top row: flux rates
 p_rates <- ggplot(rate_data, aes(x = compartment, y = flux_rate,
                                   fill = compartment)) +
   geom_col(width = 0.6, color = "grey30", linewidth = 0.3) +
-  geom_text(aes(label = sprintf("%.3f\n(%.1f%% of area)", flux_rate, area_pct)),
+  geom_text(aes(label = sprintf("%.3f", flux_rate)),
             vjust = -0.3, size = 3, color = "grey20") +
-  scale_fill_manual(values = compartment_colors, guide = "none") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.25))) +
+  scale_fill_manual(values = setNames(unname(compartment_colors), comp_labels),
+                    guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     x = NULL,
-    y = expression("Mean CH"[4]~"flux rate (nmol m"^{-2}~"s"^{-1}*")")
+    y = expression("CH"[4]~"flux rate (nmol m"^{-2}~"s"^{-1}*")")
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.line  = element_line(linewidth = 0.3),
+    axis.ticks = element_line(linewidth = 0.3),
+    axis.text  = element_text(size = 10),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title = element_text(size = 10),
+    plot.margin = margin(10, 10, 2, 10)
+  )
+
+# Bottom row: area indices
+p_area <- ggplot(rate_data, aes(x = compartment, y = area_index,
+                                 fill = compartment)) +
+  geom_col(width = 0.6, color = "grey30", linewidth = 0.3) +
+  geom_text(aes(label = sprintf("%.2f\n(%.1f%%)", area_index, area_pct)),
+            vjust = -0.3, size = 2.8, color = "grey20") +
+  scale_fill_manual(values = setNames(unname(compartment_colors), comp_labels),
+                    guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(
+    x = NULL,
+    y = expression("Area index (m"^{2}~"m"^{-2}*"ground)")
   ) +
   theme_classic(base_size = 11) +
   theme(
@@ -268,14 +296,17 @@ p_rates <- ggplot(rate_data, aes(x = compartment, y = flux_rate,
     axis.text  = element_text(size = 10),
     axis.text.x = element_text(size = 9),
     axis.title = element_text(size = 10),
-    plot.margin = margin(10, 10, 10, 10)
+    plot.margin = margin(2, 10, 10, 10)
   )
+
+# Stack into panel A
+p_panel_a <- p_rates / p_area + plot_layout(heights = c(1, 1))
 
 # ── Panel B: Integrated budget (stacked bar) ─────────────────────────────────
 
 budget_plot <- budget
 budget_plot$compartment <- factor(budget_plot$compartment,
-  levels = c("Leaves", "Branches", "Stem ≥ 2 m", "Stem < 2 m"))
+  levels = c("Leaves", "Branches", "Stem > 2 m", "Stem < 2 m"))
 
 p_budget <- ggplot(budget_plot, aes(x = 1, y = integrated, fill = compartment)) +
   geom_col(width = 0.5, color = "grey30", linewidth = 0.3) +
@@ -337,7 +368,7 @@ p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required,
 
 # ── Combine ──────────────────────────────────────────────────────────────────
 
-combined <- (p_rates | p_budget | p_breakeven) +
+combined <- (p_panel_a | p_budget | p_breakeven) +
   plot_layout(widths = c(2, 1, 2)) +
   plot_annotation(
     tag_levels = "a",
