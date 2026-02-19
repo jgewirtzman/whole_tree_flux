@@ -81,6 +81,88 @@ tk2 <- calc_vtot_area(tk2)
 tk3 <- calc_vtot_area(tk3)
 
 # =============================================================================
+# 2b. Override leaf Areas with measured leaf surface areas (LAI meter)
+# =============================================================================
+# For leaf-type measurements, replace chamber-based surface area with actual
+# measured leaf area from LAI meter readings.
+#
+# Measured leaf areas (leaf_areas.csv) map to August EMS trees (LGR3):
+#   Hemlock 321902: Rep 1→11m, Rep 2→15m, Rep 3→6m
+#   Maple   321071: Rep 1→16m, Rep 2→18m, Rep 3→22m
+#   Oak     300607: Rep 1→16m, Rep 2→12m, Rep 3→8m
+#
+# July Swamp Rd trees (LGR1/LGR2) have no measured leaf areas:
+#   Tree 4 (hem): use Hemlock species average
+#   Tree 5 (rm):  use Maple species average
+#   Tree 2 (bg):  use overall average (no bg leaf areas exist)
+
+leaf_areas_path <- file.path(base_dir, "data processing", "leaf_areas.csv")
+leaf_areas <- read.csv(leaf_areas_path, stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
+# Normalise column names (handle BOM and spaces)
+names(leaf_areas) <- trimws(gsub("[^A-Za-z0-9_]", ".", names(leaf_areas)))
+names(leaf_areas) <- sub("^\\.+", "", names(leaf_areas))
+# Expected columns after cleanup: Tree, Flux.Rep, Area
+leaf_areas$Tree <- trimws(leaf_areas$Tree)
+
+# Build explicit UniqueID → measured area (cm²) lookup for August trees
+leaf_area_lookup <- c(
+  "321902 11 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Hemlock" & leaf_areas$Flux.Rep == 1],
+  "321902 15 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Hemlock" & leaf_areas$Flux.Rep == 2],
+  "321902 6 leaf 1"  = leaf_areas$Area[leaf_areas$Tree == "Hemlock" & leaf_areas$Flux.Rep == 3],
+  "321071 16 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Maple"   & leaf_areas$Flux.Rep == 1],
+  "321071 18 leaf 2" = leaf_areas$Area[leaf_areas$Tree == "Maple"   & leaf_areas$Flux.Rep == 2],
+  "321071 22 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Maple"   & leaf_areas$Flux.Rep == 3],
+  "300607 16 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Oak"     & leaf_areas$Flux.Rep == 1],
+  "300607 12 leaf 1" = leaf_areas$Area[leaf_areas$Tree == "Oak"     & leaf_areas$Flux.Rep == 2],
+  "300607 8 leaf 1"  = leaf_areas$Area[leaf_areas$Tree == "Oak"     & leaf_areas$Flux.Rep == 3]
+)
+
+# Species averages for July trees without measured leaf areas
+hem_avg <- mean(leaf_areas$Area[leaf_areas$Tree == "Hemlock"])
+maple_avg <- mean(leaf_areas$Area[leaf_areas$Tree == "Maple"])
+overall_avg <- mean(leaf_areas$Area)
+
+message("\nLeaf area overrides:")
+message("  Hemlock species avg: ", round(hem_avg, 1), " cm²")
+message("  Maple species avg:  ", round(maple_avg, 1), " cm²")
+message("  Overall avg (for bg): ", round(overall_avg, 1), " cm²")
+
+# Function to override Area for leaf measurements in a timing key
+override_leaf_area <- function(df) {
+  leaf_rows <- grepl("leaf", df$Type, ignore.case = TRUE)
+  if (!any(leaf_rows)) return(df)
+
+  for (i in which(leaf_rows)) {
+    uid <- trimws(df$UniqueID[i])
+    old_area <- df$Area[i]
+
+    if (uid %in% names(leaf_area_lookup)) {
+      # Direct lookup for August EMS trees
+      df$Area[i] <- leaf_area_lookup[uid]
+    } else {
+      # July Swamp Rd trees: use species average or overall average
+      tree_tag <- df$Tree_tag[i]
+      if (tree_tag == 4) {
+        df$Area[i] <- hem_avg       # Tree 4 = hemlock
+      } else if (tree_tag == 5) {
+        df$Area[i] <- maple_avg     # Tree 5 = red maple
+      } else if (tree_tag == 2) {
+        df$Area[i] <- overall_avg   # Tree 2 = black gum (no species data)
+      } else {
+        warning("No leaf area mapping for UniqueID: ", uid,
+                " (Tree_tag=", tree_tag, "). Keeping chamber area.")
+      }
+    }
+    message("  ", uid, ": ", round(old_area, 1), " → ", round(df$Area[i], 1), " cm²")
+  }
+  df
+}
+
+tk1 <- override_leaf_area(tk1)
+tk2 <- override_leaf_area(tk2)
+tk3 <- override_leaf_area(tk3)
+
+# =============================================================================
 # 3. Download and process Harvard Forest Fisher met data
 # =============================================================================
 
