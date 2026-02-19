@@ -54,7 +54,7 @@ By study (>= 2 m):
   Iddris 2021 JGR-B                    n= 44  neg= 5 ( 11.4%)
   Machacova 2022                       n=  7  neg= 0 (  0.0%)
   Moldaschl 2021                       n=  3  neg= 1 ( 33.3%)
-  Sjögersten 2020                     n= 20  neg= 0 (  0.0%)
+  Sj<U+00F6>gersten 2020                     n= 20  neg= 0 (  0.0%)
   Vainio 2022                          n= 10  neg= 2 ( 20.0%)
   Wang 2016                            n=  2  neg= 0 (  0.0%)
   van Haren 2021                       n= 16  neg= 0 (  0.0%)
