@@ -1,16 +1,7 @@
 # Whole-Tree Methane Flux
 
-This repository contains data, processing code, and figure-generating scripts for a study of methane (CH₄) fluxes across the full vertical profile of trees — from stem base to canopy. The work addresses the "truncation problem" in tree CH₄ flux research: most studies measure only near the ground (< 2 m), potentially overestimating whole-tree emissions.
+This repository contains data, processing code, and figure-generating scripts for a study of methane (CH₄) fluxes across the full vertical profile of trees — from stem base to canopy.
 
-## Study Sites
-
-- **Harvard Forest** (Petersham, MA) — 6 trees across 4 species measured in July–August 2023 using three LGR Ultraportable Greenhouse Gas Analyzers (UGGA) deployed simultaneously from a canopy lift and by arborist climbing.
-  - *Nyssa sylvatica* (Black Gum)
-  - *Acer rubrum* (Red Maple)
-  - *Quercus rubra* (Red Oak)
-  - *Tsuga canadensis* (Eastern Hemlock)
-
-- **Yale Myers Forest** (Eastford, CT) — 1 *Quercus velutina* (Black Oak) measured in October 2022 with stem flux chambers and trunk gas sampling via gas chromatography.
 
 ## Repository Structure
 
