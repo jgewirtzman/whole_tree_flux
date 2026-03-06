@@ -5,4 +5,9 @@
 .DS_Store
 .claude/
 Rplots.pdf
+
+# Manuscript/writeup files (not for public repos)
 manuscript.md
+*.qmd
+*_writeup.md
+*_writeup.qmd
