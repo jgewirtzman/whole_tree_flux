@@ -42,13 +42,14 @@ crop_to_aspect <- function(img, target_ratio) {
 # =============================================================================
 
 dat <- read.csv(file.path("data processing", "goFlux_reprocessing",
-                           "results", "canopy_flux_goFlux_compiled.csv"),
+                           "results", "canopy_flux_goFlux_compiled_with_mdf.csv"),
                 stringsAsFactors = FALSE)
 
 dat <- dat %>%
   filter(!(Species == "bg" & Tree_Tag == 3)) %>%
   mutate(Component = ifelse(Type == "leaf (shaded)", "leaf", Type)) %>%
-  filter(!is.na(CH4_best.flux), !is.na(Height_m))
+  filter(!is.na(CH4_best.flux), !is.na(Height_m)) %>%
+  mutate(detection = ifelse(CH4_below_MDF_wass90, "Below MDF", "Above MDF"))
 
 species_lookup <- c(bg = "Nyssa sylvatica", rm = "Acer rubrum",
                     ro = "Quercus rubra",   hem = "Tsuga canadensis")
@@ -80,14 +81,17 @@ theme_panel <- theme_classic(base_size = 10) +
 p_hf <- ggplot(dat, aes(x = Height_m, y = CH4_best.flux, color = Component)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey40",
              linewidth = 0.3) +
-  geom_point(size = 2.5, alpha = 0.8) +
+  geom_point(aes(shape = detection), size = 2.5, alpha = 0.8) +
   geom_smooth(data = dat %>% filter(Component == "stem"),
               method = "loess", se = TRUE, fill = "#8B4513",
               alpha = 0.10, linewidth = 0.6, na.rm = TRUE,
               show.legend = FALSE) +
   scale_color_manual(values = component_colors,
                      labels = c(stem = "Stem", branch = "Branch",
-                                leaf = "Leaf")) +
+                                leaf = "Leaf"),
+                     name = NULL) +
+  scale_shape_manual(values = c("Above MDF" = 16, "Below MDF" = 1),
+                     name = NULL) +
   facet_wrap(~ Tree_label, scales = "free", ncol = 3) +
   labs(y = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})),
        x = "Height (m)", tag = "a") +
@@ -96,14 +100,16 @@ p_hf <- ggplot(dat, aes(x = Height_m, y = CH4_best.flux, color = Component)) +
 
 # Extract legend as a standalone grob
 legend_plot <- ggplot(dat, aes(x = Height_m, y = CH4_best.flux,
-                               color = Component)) +
+                               color = Component, shape = detection)) +
   geom_point() +
   scale_color_manual(values = component_colors,
                      labels = c(stem = "Stem", branch = "Branch",
-                                leaf = "Leaf")) +
+                                leaf = "Leaf"),
+                     name = NULL) +
+  scale_shape_manual(values = c("Above MDF" = 16, "Below MDF" = 1),
+                     name = NULL) +
   theme_void() +
   theme(legend.position  = "bottom",
-        legend.title     = element_blank(),
         legend.text      = element_text(size = 9),
         legend.key.size  = unit(0.4, "cm"),
         legend.spacing.x = unit(0.2, "cm"))
@@ -128,6 +134,14 @@ ymf <- ymf %>%
   ) %>%
   filter(!is.na(Height_num), !is.na(CH4_best.flux))
 
+# Wassmann 90% MDF (YMF rolling-window CH4 precision = 1.241 ppb)
+ymf_ch4_precision <- 1.241
+ymf <- ymf %>%
+  mutate(
+    CH4_MDF_wass90 = (1.645 * ymf_ch4_precision) / CH4_nb.obs * CH4_flux.term,
+    detection = ifelse(abs(CH4_best.flux) < CH4_MDF_wass90, "Below MDF", "Above MDF")
+  )
+
 theme_ymf <- theme_classic(base_size = 10) +
   theme(
     plot.title  = element_text(face = "italic", size = 9, hjust = 0.5),
@@ -140,7 +154,9 @@ theme_ymf <- theme_classic(base_size = 10) +
 p_ymf <- ggplot(ymf, aes(x = Height_num, y = CH4_best.flux)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey40",
              linewidth = 0.3) +
-  geom_point(color = "#8B4513", size = 3, alpha = 0.8) +
+  geom_point(aes(shape = detection), color = "#8B4513", size = 3, alpha = 0.8) +
+  scale_shape_manual(values = c("Above MDF" = 16, "Below MDF" = 1),
+                     guide = "none") +
   geom_smooth(method = "loess", se = TRUE, color = "#8B4513",
               fill = "#8B4513", alpha = 0.10, linewidth = 0.6,
               na.rm = TRUE) +

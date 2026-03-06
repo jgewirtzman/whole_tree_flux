@@ -98,7 +98,7 @@ cat(sprintf("  Total > 2 m:    %.4f  (%4.1f%%)\n\n",
 # ═══════════════════════════════════════════════════════════════════════════════
 
 dat <- read.csv(file.path("data processing", "goFlux_reprocessing",
-                           "results", "canopy_flux_goFlux_compiled.csv"),
+                           "results", "canopy_flux_goFlux_compiled_with_mdf.csv"),
                 stringsAsFactors = FALSE)
 
 dat <- dat %>%
@@ -117,25 +117,38 @@ F_stem_ge2   <- mean(stem_ge2_dat$CH4_best.flux, na.rm = TRUE)
 F_branch     <- mean(branch_dat$CH4_best.flux, na.rm = TRUE)
 F_leaf       <- mean(leaf_dat$CH4_best.flux, na.rm = TRUE)
 
+# SE of the mean = SD / sqrt(n) for population-level uncertainty
+SE_stem_lt2  <- sd(stem_lt2_dat$CH4_best.flux, na.rm = TRUE) / sqrt(nrow(stem_lt2_dat))
+SE_stem_ge2  <- sd(stem_ge2_dat$CH4_best.flux, na.rm = TRUE) / sqrt(nrow(stem_ge2_dat))
+SE_branch    <- sd(branch_dat$CH4_best.flux, na.rm = TRUE)    / sqrt(nrow(branch_dat))
+SE_leaf      <- sd(leaf_dat$CH4_best.flux, na.rm = TRUE)      / sqrt(nrow(leaf_dat))
+
+# MDF detection fractions (Wassmann 90%)
+mdf_frac <- function(d) {
+  if ("CH4_below_MDF_wass90" %in% names(d)) {
+    sum(d$CH4_below_MDF_wass90, na.rm = TRUE) / nrow(d)
+  } else NA
+}
+
 cat("═══════════════════════════════════════════════════════════════════\n")
 cat("Empirical per-tissue CH₄ flux rates (nmol m⁻² s⁻¹)\n")
 cat("═══════════════════════════════════════════════════════════════════\n")
-cat(sprintf("  Stem <2 m:   mean = %.4f  median = %.4f  (n = %d)\n",
-            F_stem_lt2,
+cat(sprintf("  Stem <2 m:   mean = %.4f ± %.4f SE  median = %.4f  (n = %d, %.0f%% below MDF)\n",
+            F_stem_lt2, SE_stem_lt2,
             median(stem_lt2_dat$CH4_best.flux, na.rm = TRUE),
-            nrow(stem_lt2_dat)))
-cat(sprintf("  Stem ≥2 m:   mean = %.4f  median = %.4f  (n = %d)\n",
-            F_stem_ge2,
+            nrow(stem_lt2_dat), 100 * mdf_frac(stem_lt2_dat)))
+cat(sprintf("  Stem ≥2 m:   mean = %.4f ± %.4f SE  median = %.4f  (n = %d, %.0f%% below MDF)\n",
+            F_stem_ge2, SE_stem_ge2,
             median(stem_ge2_dat$CH4_best.flux, na.rm = TRUE),
-            nrow(stem_ge2_dat)))
-cat(sprintf("  Branch:      mean = %.4f  median = %.4f  (n = %d)\n",
-            F_branch,
+            nrow(stem_ge2_dat), 100 * mdf_frac(stem_ge2_dat)))
+cat(sprintf("  Branch:      mean = %.4f ± %.4f SE  median = %.4f  (n = %d, %.0f%% below MDF)\n",
+            F_branch, SE_branch,
             median(branch_dat$CH4_best.flux, na.rm = TRUE),
-            nrow(branch_dat)))
-cat(sprintf("  Leaf:        mean = %.4f  median = %.4f  (n = %d)\n\n",
-            F_leaf,
+            nrow(branch_dat), 100 * mdf_frac(branch_dat)))
+cat(sprintf("  Leaf:        mean = %.4f ± %.4f SE  median = %.4f  (n = %d, %.0f%% below MDF)\n\n",
+            F_leaf, SE_leaf,
             median(leaf_dat$CH4_best.flux, na.rm = TRUE),
-            nrow(leaf_dat)))
+            nrow(leaf_dat), 100 * mdf_frac(leaf_dat)))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. STAND-LEVEL CH₄ BUDGET
@@ -145,12 +158,17 @@ cat(sprintf("  Leaf:        mean = %.4f  median = %.4f  (n = %d)\n\n",
 budget <- tibble(
   compartment = c("Stem < 2 m", "Stem > 2 m", "Branches", "Leaves"),
   flux_rate   = c(F_stem_lt2, F_stem_ge2, F_branch, F_leaf),
+  flux_SE     = c(SE_stem_lt2, SE_stem_ge2, SE_branch, SE_leaf),
   area_index  = c(A_stem_lt2, A_stem_ge2, A_branch, A_leaf)
 ) %>%
   mutate(
-    integrated = flux_rate * area_index,              # nmol m⁻² ground s⁻¹
-    pct        = 100 * integrated / sum(integrated)   # % of stand total
+    integrated    = flux_rate * area_index,              # nmol m⁻² ground s⁻¹
+    integrated_SE = flux_SE * area_index,                # propagated SE
+    pct           = 100 * integrated / sum(integrated)   # % of stand total
   )
+
+# Total uncertainty via quadrature (independent components)
+total_integrated_SE <- sqrt(sum(budget$integrated_SE^2))
 
 # >2 m aggregate
 gt2_integrated <- sum(budget$integrated[budget$compartment != "Stem < 2 m"])
@@ -161,19 +179,20 @@ cat("═════════════════════════
 cat("Stand-level CH₄ budget (flux rate × area index)\n")
 cat("  Units: nmol CH₄ per m² ground per second\n")
 cat("═══════════════════════════════════════════════════════════════════\n")
-cat(sprintf("  %-15s  %12s  %12s  %16s  %8s\n",
-            "Compartment", "Flux rate", "Area index", "Integrated", "% total"))
-cat(strrep("─", 70), "\n")
+cat(sprintf("  %-15s  %12s  %8s  %12s  %16s  %10s  %8s\n",
+            "Compartment", "Flux rate", "± SE", "Area index", "Integrated", "± SE", "% total"))
+cat(strrep("─", 90), "\n")
 for (i in seq_len(nrow(budget))) {
   b <- budget[i, ]
-  cat(sprintf("  %-15s  %11.4f   %11.4f    %14.4f   %6.1f%%\n",
-              b$compartment, b$flux_rate, b$area_index, b$integrated, b$pct))
+  cat(sprintf("  %-15s  %11.4f  %7.4f   %11.4f    %14.4f  %9.4f   %6.1f%%\n",
+              b$compartment, b$flux_rate, b$flux_SE, b$area_index,
+              b$integrated, b$integrated_SE, b$pct))
 }
-cat(strrep("─", 70), "\n")
-cat(sprintf("  %-15s  %11s   %11.4f    %14.4f   %6.1f%%\n",
-            "TOTAL", "", A_total, total_integrated, 100))
-cat(sprintf("  %-15s  %11s   %11.4f    %14.4f   %6.1f%%\n\n",
-            "All > 2 m", "", A_gt2_total, gt2_integrated, gt2_pct))
+cat(strrep("─", 90), "\n")
+cat(sprintf("  %-15s  %11s  %7s   %11.4f    %14.4f  %9.4f   %6.1f%%\n",
+            "TOTAL", "", "", A_total, total_integrated, total_integrated_SE, 100))
+cat(sprintf("  %-15s  %11s  %7s   %11.4f    %14.4f   %8s   %6.1f%%\n\n",
+            "All > 2 m", "", "", A_gt2_total, gt2_integrated, "", gt2_pct))
 
 # Area-weighted mean flux across all >2 m surfaces
 F_gt2_observed <- gt2_integrated / A_gt2_total
@@ -245,6 +264,7 @@ comp_labels <- c("Stem < 2 m", "Stem > 2 m", "Branches", "Leaves")
 rate_data <- tibble(
   compartment = factor(comp_labels, levels = comp_labels),
   flux_rate   = c(F_stem_lt2, F_stem_ge2, F_branch, F_leaf),
+  flux_SE     = c(SE_stem_lt2, SE_stem_ge2, SE_branch, SE_leaf),
   area_index  = c(A_stem_lt2, A_stem_ge2, A_branch, A_leaf),
   area_pct    = c(100 * A_stem_lt2 / A_total,
                   100 * A_stem_ge2 / A_total,
@@ -256,11 +276,13 @@ rate_data <- tibble(
 p_rates <- ggplot(rate_data, aes(x = compartment, y = flux_rate,
                                   fill = compartment)) +
   geom_col(width = 0.6, color = "grey30", linewidth = 0.3) +
-  geom_text(aes(label = sprintf("%.3f", flux_rate)),
-            vjust = -0.3, size = 3, color = "grey20") +
+  geom_errorbar(aes(ymin = flux_rate - flux_SE, ymax = flux_rate + flux_SE),
+                width = 0.2, linewidth = 0.4) +
+  geom_text(aes(y = flux_rate + flux_SE, label = sprintf("%.2f", flux_rate)),
+            vjust = -0.3, size = 3.5, color = "grey20") +
   scale_fill_manual(values = setNames(unname(compartment_colors), comp_labels),
                     guide = "none") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
   labs(
     x = NULL,
     y = expression("CH"[4]~"flux rate (nmol m"^{-2}~"s"^{-1}*")")
@@ -281,7 +303,7 @@ p_area <- ggplot(rate_data, aes(x = compartment, y = area_index,
                                  fill = compartment)) +
   geom_col(width = 0.6, color = "grey30", linewidth = 0.3) +
   geom_text(aes(label = sprintf("%.2f", area_index)),
-            vjust = -0.3, size = 2.8, color = "grey20") +
+            vjust = -0.3, size = 3.5, color = "grey20") +
   scale_fill_manual(values = setNames(unname(compartment_colors), comp_labels),
                     guide = "none") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
@@ -310,9 +332,9 @@ budget_plot$compartment <- factor(budget_plot$compartment,
 
 p_budget <- ggplot(budget_plot, aes(x = 1, y = integrated, fill = compartment)) +
   geom_col(width = 0.5, color = "grey30", linewidth = 0.3) +
-  geom_text(aes(label = sprintf("%s\n%.1f%%", compartment, pct)),
+  geom_text(aes(label = sprintf("%s\n%.2f", compartment, integrated)),
             position = position_stack(vjust = 0.5),
-            size = 3, color = "white", fontface = "bold") +
+            size = 3.5, color = "white", fontface = "bold") +
   scale_fill_manual(values = compartment_colors, guide = "none") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
   labs(
@@ -337,19 +359,33 @@ p_budget <- ggplot(budget_plot, aes(x = 1, y = integrated, fill = compartment)) 
 scenarios$scenario <- factor(scenarios$scenario,
   levels = c("Double", "Cancel", "Flip"))
 
-p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required)) +
+# Median MDF (Wassmann 90%) for reference line on breakeven panel
+median_MDF <- median(dat$CH4_MDF_wass90, na.rm = TRUE)
+cat(sprintf("  Median Wassmann 90%% MDF: %.4f nmol m⁻² s⁻¹\n\n", median_MDF))
+
+# Use numeric x-axis to allow annotate("rect") for MDF band
+scenarios$scenario_x <- as.numeric(scenarios$scenario)
+
+p_breakeven <- ggplot(scenarios, aes(x = scenario_x, y = F_gt2_required)) +
+  # MDF detection threshold — dotted lines
+  geom_hline(yintercept = c(-median_MDF, median_MDF),
+             linetype = "dotted", color = "grey50", linewidth = 0.5) +
+  annotate("text", x = 3.55, y = median_MDF,
+           label = "MDF", size = 3.5, color = "grey50",
+           fontface = "italic", vjust = -0.4, hjust = 1) +
   geom_col(width = 0.55, fill = "grey70", color = "grey30", linewidth = 0.3) +
   geom_hline(yintercept = 0, linewidth = 0.6, color = "black") +
   # Observed empirical rate
   geom_hline(yintercept = F_gt2_observed, linewidth = 0.8,
              linetype = "dashed", color = "#C0392B") +
   annotate("text", x = 3.45, y = F_gt2_observed,
-           label = sprintf("Observed: %.4f", F_gt2_observed),
-           hjust = 1, vjust = -0.5, size = 3.2, color = "#C0392B",
+           label = sprintf("Observed: %.2f", F_gt2_observed),
+           hjust = 1, vjust = -0.5, size = 3.8, color = "#C0392B",
            fontface = "bold") +
-  geom_text(aes(label = sprintf("%.4f", F_gt2_required),
+  geom_text(aes(label = sprintf("%.2f", F_gt2_required),
                 vjust = ifelse(F_gt2_required >= 0, -0.4, 1.4)),
-            size = 3.2, color = "grey20") +
+            size = 3.8, color = "grey20") +
+  scale_x_continuous(breaks = 1:3, labels = levels(scenarios$scenario)) +
   scale_y_continuous(expand = expansion(mult = c(0.15, 0.15))) +
   labs(
     x = NULL,
@@ -364,10 +400,48 @@ p_breakeven <- ggplot(scenarios, aes(x = scenario, y = F_gt2_required)) +
     plot.margin = margin(10, 15, 10, 10)
   )
 
+# ── Panel B2: Dot-and-whisker (% of stand budget) ────────────────────────────
+
+# Convert integrated flux and SE to % of total budget
+dot_data <- budget %>%
+  select(compartment, integrated, integrated_SE) %>%
+  mutate(
+    pct_budget    = 100 * integrated / total_integrated,
+    pct_budget_SE = 100 * integrated_SE / total_integrated
+  ) %>%
+  mutate(compartment = factor(compartment, levels = comp_labels))
+
+p_dotwhisker <- ggplot(dot_data, aes(x = pct_budget, y = compartment,
+                                      color = compartment)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey60",
+             linewidth = 0.3) +
+  geom_pointrange(aes(xmin = pct_budget - pct_budget_SE,
+                      xmax = pct_budget + pct_budget_SE),
+                  size = 0.5, linewidth = 0.6) +
+  geom_text(aes(label = sprintf("%.1f \u00b1 %.1f%%", pct_budget, pct_budget_SE)),
+            vjust = -1, hjust = 0.5, size = 3.5, color = "grey20",
+            show.legend = FALSE) +
+  scale_color_manual(
+    values = setNames(unname(compartment_colors), comp_labels),
+    guide = "none") +
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.15))) +
+  labs(
+    x = "% of stand budget",
+    y = NULL
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.line  = element_line(linewidth = 0.3),
+    axis.ticks = element_line(linewidth = 0.3),
+    axis.text  = element_text(size = 10),
+    axis.title = element_text(size = 10),
+    plot.margin = margin(10, 10, 10, 15)
+  )
+
 # ── Combine ──────────────────────────────────────────────────────────────────
 
-combined <- (p_panel_a | p_budget | p_breakeven) +
-  plot_layout(widths = c(2, 1, 2)) +
+combined <- (p_panel_a | p_budget | p_dotwhisker | p_breakeven) +
+  plot_layout(widths = c(1, 1, 1, 1)) +
   plot_annotation(
     tag_levels = "a",
     tag_prefix = "(", tag_suffix = ")",
@@ -383,8 +457,8 @@ out_dir  <- file.path(base_dir, "figures")
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ggsave(file.path(out_dir, "figure_sensitivity_breakeven.pdf"), combined,
-       width = 12, height = 5.5, units = "in")
+       width = 14, height = 5.5, units = "in")
 ggsave(file.path(out_dir, "figure_sensitivity_breakeven.png"), combined,
-       width = 12, height = 5.5, units = "in", dpi = 300)
+       width = 14, height = 5.5, units = "in", dpi = 300)
 
 cat("Saved: figure_sensitivity_breakeven.pdf/.png\n")

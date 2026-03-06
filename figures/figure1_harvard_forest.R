@@ -11,7 +11,7 @@ library(dplyr)
 # ── Paths ────────────────────────────────────────────────────────────────────
 base_dir <- "/Users/jongewirtzman/My Drive/Research/whole_tree_flux"
 dat <- read.csv(file.path(base_dir, "data processing", "goFlux_reprocessing",
-                           "results", "canopy_flux_goFlux_compiled.csv"),
+                           "results", "canopy_flux_goFlux_compiled_with_mdf.csv"),
                 stringsAsFactors = FALSE)
 
 # ── Clean ────────────────────────────────────────────────────────────────────
@@ -24,6 +24,9 @@ dat <- dat %>% mutate(Component = ifelse(Type == "leaf (shaded)", "leaf", Type))
 
 # Keep valid fluxes / heights
 dat <- dat %>% filter(!is.na(CH4_best.flux), !is.na(Height_m))
+
+# MDF detection flag (Wassmann 90%, empirical precision)
+dat$detection <- ifelse(dat$CH4_below_MDF_wass90, "Below MDF", "Above MDF")
 
 # Species lookup
 species_lookup <- c(bg = "Nyssa sylvatica", rm = "Acer rubrum",
@@ -64,13 +67,15 @@ plot_theme <- theme_classic(base_size = 12) +
 p <- ggplot(dat, aes(x = Height_m, y = CH4_best.flux, color = Component)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black",
              linewidth = 0.4) +
-  geom_point(size = 2.5, alpha = 0.8) +
+  geom_point(aes(shape = detection), size = 2.5, alpha = 0.8) +
   geom_smooth(data = dat %>% filter(Component == "stem"),
               method = "loess", se = TRUE, fill = "#8B4513",
               alpha = 0.12, linewidth = 0.7, na.rm = TRUE,
               show.legend = FALSE) +
   scale_color_manual(values = component_colors,
                      labels = c(stem = "Stem", branch = "Branch", leaf = "Leaf")) +
+  scale_shape_manual(values = c("Above MDF" = 16, "Below MDF" = 1),
+                     name = "Detection") +
   facet_wrap(~ Tree_label, scales = "free", ncol = 3) +
   labs(y = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})),
        x = "Height (m)") +
@@ -90,3 +95,16 @@ ggsave(file.path(out_dir, "figure1_harvard_forest.png"), p,
 cat("Saved figure1_harvard_forest.pdf/.png\n")
 cat("Trees:", length(unique(dat$Tree_label)), "\n")
 cat("Observations:", nrow(dat), "\n")
+
+# MDF detection summary
+cat("\nMDF detection summary (Wassmann 90%):\n")
+mdf_summary <- dat %>%
+  group_by(Component) %>%
+  summarise(n = n(),
+            below_MDF = sum(CH4_below_MDF_wass90),
+            pct_below = round(100 * below_MDF / n, 1),
+            .groups = "drop")
+print(as.data.frame(mdf_summary))
+cat(sprintf("Overall: %d / %d (%.1f%%) below MDF\n",
+            sum(mdf_summary$below_MDF), sum(mdf_summary$n),
+            100 * sum(mdf_summary$below_MDF) / sum(mdf_summary$n)))

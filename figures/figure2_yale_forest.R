@@ -25,13 +25,26 @@ ymf <- ymf %>%
   ) %>%
   filter(!is.na(Height_num), !is.na(CH4_best.flux))
 
+# Wassmann 90% MDF: MDF = (z × empirical_SD_ppb) / t_sec × flux.term
+# YMF rolling-window CH4 precision = 1.241 ppb (from precision_comparison.csv)
+ymf_ch4_precision <- 1.241  # ppb
+ymf <- ymf %>%
+  mutate(
+    CH4_MDF_wass90 = (1.645 * ymf_ch4_precision) / CH4_nb.obs * CH4_flux.term,
+    below_MDF = abs(CH4_best.flux) < CH4_MDF_wass90,
+    detection = ifelse(below_MDF, "Below MDF", "Above MDF")
+  )
+
 # ── Aesthetics ───────────────────────────────────────────────────────────────
 
 plot_theme <- theme_classic(base_size = 12) +
   theme(
-    plot.title  = element_text(face = "italic", size = 12, hjust = 0.5),
-    axis.line   = element_line(linewidth = 0.3),
-    axis.ticks  = element_line(linewidth = 0.3)
+    plot.title     = element_text(face = "italic", size = 12, hjust = 0.5),
+    axis.line      = element_line(linewidth = 0.3),
+    axis.ticks     = element_line(linewidth = 0.3),
+    legend.position = "bottom",
+    legend.title    = element_text(size = 9),
+    legend.text     = element_text(size = 9)
   )
 
 # ── Plot ─────────────────────────────────────────────────────────────────────
@@ -39,7 +52,9 @@ plot_theme <- theme_classic(base_size = 12) +
 p <- ggplot(ymf, aes(x = Height_num, y = CH4_best.flux)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black",
              linewidth = 0.4) +
-  geom_point(color = "#8B4513", size = 3, alpha = 0.8) +
+  geom_point(aes(shape = detection), color = "#8B4513", size = 3, alpha = 0.8) +
+  scale_shape_manual(values = c("Above MDF" = 16, "Below MDF" = 1),
+                     name = "Detection") +
   geom_smooth(method = "loess", se = TRUE, color = "#8B4513",
               fill = "#8B4513", alpha = 0.12, linewidth = 0.7,
               na.rm = TRUE) +
@@ -61,3 +76,10 @@ ggsave(file.path(out_dir, "figure2_yale_forest.png"), p,
 
 cat("Saved figure2_yale_forest.pdf/.png\n")
 cat("Observations:", nrow(ymf), "\n")
+
+# MDF detection summary
+cat(sprintf("\nMDF detection summary (Wassmann 90%%, precision = %.3f ppb):\n",
+            ymf_ch4_precision))
+cat(sprintf("  Below MDF: %d / %d (%.1f%%)\n",
+            sum(ymf$below_MDF), nrow(ymf),
+            100 * sum(ymf$below_MDF) / nrow(ymf)))
