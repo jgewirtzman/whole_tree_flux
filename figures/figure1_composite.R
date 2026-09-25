@@ -49,7 +49,9 @@ dat <- dat %>%
   filter(!(Species == "bg" & Tree_Tag == 3)) %>%
   mutate(Component = ifelse(Type == "leaf (shaded)", "leaf", Type)) %>%
   filter(!is.na(CH4_best.flux), !is.na(Height_m)) %>%
-  mutate(detection = ifelse(CH4_below_MDF_wass90, "Below MDF", "Above MDF"))
+  # Detection flag: Empirical 95 % MDF (campaign MAD σ, z = 1.96, t in s),
+  # computed in 09_mdf_lod_comparison.R
+  mutate(detection = ifelse(CH4_below_MDF_wass95, "Below MDF", "Above MDF"))
 
 species_lookup <- c(bg = "Nyssa sylvatica", rm = "Acer rubrum",
                     ro = "Quercus rubra",   hem = "Tsuga canadensis")
@@ -77,6 +79,9 @@ theme_panel <- theme_classic(base_size = 10) +
     plot.tag         = element_text(size = 13, face = "bold"),
     plot.margin      = margin(2, 4, 2, 2)
   )
+
+# Arrange so leaf points plot on top (last) of stem points (#46 Jackie)
+dat <- dat %>% arrange(factor(Component, levels = c("stem", "branch", "leaf")))
 
 p_hf <- ggplot(dat, aes(x = Height_m, y = CH4_best.flux, color = Component)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey40",
@@ -125,7 +130,7 @@ p_legend <- tmp$grobs[[legend_idx[1]]]
 
 ymf <- read.csv(file.path("data processing", "goFlux_reprocessing",
                            "ymf_black_oak", "results",
-                           "ymf_black_oak_flux_compiled.csv"),
+                           "ymf_black_oak_flux_compiled_with_mdf.csv"),
                 stringsAsFactors = FALSE)
 
 ymf <- ymf %>%
@@ -134,13 +139,11 @@ ymf <- ymf %>%
   ) %>%
   filter(!is.na(Height_num), !is.na(CH4_best.flux))
 
-# Wassmann 90% MDF (YMF rolling-window CH4 precision = 1.241 ppb)
-ymf_ch4_precision <- 1.241
+# Detection flag: Empirical 95 % MDF from 09_mdf_lod_comparison.R
+# (campaign MAD σ of the YMF record, z = 1.96, t = closure length in s at
+# the 5 s logging interval)
 ymf <- ymf %>%
-  mutate(
-    CH4_MDF_wass90 = (1.645 * ymf_ch4_precision) / CH4_nb.obs * CH4_flux.term,
-    detection = ifelse(abs(CH4_best.flux) < CH4_MDF_wass90, "Below MDF", "Above MDF")
-  )
+  mutate(detection = ifelse(CH4_below_MDF_wass95, "Below MDF", "Above MDF"))
 
 theme_ymf <- theme_classic(base_size = 10) +
   theme(

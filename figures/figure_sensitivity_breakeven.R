@@ -123,10 +123,10 @@ SE_stem_ge2  <- sd(stem_ge2_dat$CH4_best.flux, na.rm = TRUE) / sqrt(nrow(stem_ge
 SE_branch    <- sd(branch_dat$CH4_best.flux, na.rm = TRUE)    / sqrt(nrow(branch_dat))
 SE_leaf      <- sd(leaf_dat$CH4_best.flux, na.rm = TRUE)      / sqrt(nrow(leaf_dat))
 
-# MDF detection fractions (Wassmann 90%)
+# MDF detection fractions (Empirical 95%: campaign MAD sigma, z = 1.96, t in s)
 mdf_frac <- function(d) {
-  if ("CH4_below_MDF_wass90" %in% names(d)) {
-    sum(d$CH4_below_MDF_wass90, na.rm = TRUE) / nrow(d)
+  if ("CH4_below_MDF_wass95" %in% names(d)) {
+    sum(d$CH4_below_MDF_wass95, na.rm = TRUE) / nrow(d)
   } else NA
 }
 
@@ -359,9 +359,9 @@ p_budget <- ggplot(budget_plot, aes(x = 1, y = integrated, fill = compartment)) 
 scenarios$scenario <- factor(scenarios$scenario,
   levels = c("Double", "Cancel", "Flip"))
 
-# Median MDF (Wassmann 90%) for reference line on breakeven panel
-median_MDF <- median(dat$CH4_MDF_wass90, na.rm = TRUE)
-cat(sprintf("  Median Wassmann 90%% MDF: %.4f nmol m⁻² s⁻¹\n\n", median_MDF))
+# Median MDF (Empirical 95%) for reference line on breakeven panel
+median_MDF <- median(dat$CH4_MDF_wass95, na.rm = TRUE)
+cat(sprintf("  Median Empirical 95%% MDF: %.4f nmol m⁻² s⁻¹\n\n", median_MDF))
 
 # Use numeric x-axis to allow annotate("rect") for MDF band
 scenarios$scenario_x <- as.numeric(scenarios$scenario)
