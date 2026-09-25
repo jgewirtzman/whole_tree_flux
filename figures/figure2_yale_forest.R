@@ -13,7 +13,7 @@ library(stringr)
 base_dir <- "/Users/jongewirtzman/My Drive/Research/whole_tree_flux"
 ymf <- read.csv(file.path(base_dir, "data processing", "goFlux_reprocessing",
                            "ymf_black_oak", "results",
-                           "ymf_black_oak_flux_compiled.csv"),
+                           "ymf_black_oak_flux_compiled_with_mdf.csv"),
                 stringsAsFactors = FALSE)
 
 # ── Clean ────────────────────────────────────────────────────────────────────
@@ -25,13 +25,14 @@ ymf <- ymf %>%
   ) %>%
   filter(!is.na(Height_num), !is.na(CH4_best.flux))
 
-# Wassmann 90% MDF: MDF = (z × empirical_SD_ppb) / t_sec × flux.term
-# YMF rolling-window CH4 precision = 1.241 ppb (from precision_comparison.csv)
-ymf_ch4_precision <- 1.241  # ppb
+# Empirical 95% MDF: MDF = (1.96 × campaign MAD σ) / t_sec × flux.term,
+# computed in 09_mdf_lod_comparison.R (t = closure length in seconds at the
+# 5 s YMF logging interval; σ from the whole YMF record).  Read the flag
+# rather than recomputing it here.
+ymf_ch4_precision <- ymf$mad_sd_CH4[1]  # ppb, for the summary printout
 ymf <- ymf %>%
   mutate(
-    CH4_MDF_wass90 = (1.645 * ymf_ch4_precision) / CH4_nb.obs * CH4_flux.term,
-    below_MDF = abs(CH4_best.flux) < CH4_MDF_wass90,
+    below_MDF = CH4_below_MDF_wass95,
     detection = ifelse(below_MDF, "Below MDF", "Above MDF")
   )
 
@@ -78,7 +79,7 @@ cat("Saved figure2_yale_forest.pdf/.png\n")
 cat("Observations:", nrow(ymf), "\n")
 
 # MDF detection summary
-cat(sprintf("\nMDF detection summary (Wassmann 90%%, precision = %.3f ppb):\n",
+cat(sprintf("\nMDF detection summary (Empirical 95%%, campaign MAD precision = %.3f ppb):\n",
             ymf_ch4_precision))
 cat(sprintf("  Below MDF: %d / %d (%.1f%%)\n",
             sum(ymf$below_MDF), nrow(ymf),

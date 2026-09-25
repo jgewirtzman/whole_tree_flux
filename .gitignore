@@ -11,3 +11,10 @@ manuscript.md
 *.qmd
 *_writeup.md
 *_writeup.qmd
+
+# Private working files (coauthor drafts, comment responses, writeups, worklogs)
+DRAFT_*.docx
+comment_responses.md
+WORKLOG_*.md
+*_writeup.docx
+*_writeup.pdf

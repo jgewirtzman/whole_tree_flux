@@ -52,9 +52,12 @@ plots_dir         <- file.path(reprocess_dir, "plots")
 # Volume addition: analyzer cell (0.070 L) + tubing (0.029 L)
 vtot_addition <- 0.099  # Liters
 
-# goFlux instrument precision for UGGA (GLA132 series)
+# goFlux instrument precision for the ABB/LGR GLA131-GGA Microportable UGGA
+# (1σ at 1 s; ABB GLA131-GGA datasheet 3KXG167001R1001 Rev. J)
 # c(CO2dry_ppm, CH4dry_ppb, H2O_ppm)
-ugga_prec <- c(0.2, 1.4, 50)
+# NOTE (2026-09): earlier runs used c(0.2, 1.4, 50) labelled "GLA132"; this only
+# feeds goFlux's own MDF column. 09_mdf_lod_comparison.R recomputes MDF post hoc.
+ugga_prec <- c(0.35, 0.9, 200)
 
 # Date format in raw LGR files (mm/dd/yyyy)
 lgr_date_format <- "mdy"

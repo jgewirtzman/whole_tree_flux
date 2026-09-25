@@ -25,8 +25,9 @@ dat <- dat %>% mutate(Component = ifelse(Type == "leaf (shaded)", "leaf", Type))
 # Keep valid fluxes / heights
 dat <- dat %>% filter(!is.na(CH4_best.flux), !is.na(Height_m))
 
-# MDF detection flag (Wassmann 90%, empirical precision)
-dat$detection <- ifelse(dat$CH4_below_MDF_wass90, "Below MDF", "Above MDF")
+# MDF detection flag: Empirical 95 % (campaign MAD sigma, z = 1.96, t in s;
+# from 09_mdf_lod_comparison.R)
+dat$detection <- ifelse(dat$CH4_below_MDF_wass95, "Below MDF", "Above MDF")
 
 # Species lookup
 species_lookup <- c(bg = "Nyssa sylvatica", rm = "Acer rubrum",
@@ -97,11 +98,11 @@ cat("Trees:", length(unique(dat$Tree_label)), "\n")
 cat("Observations:", nrow(dat), "\n")
 
 # MDF detection summary
-cat("\nMDF detection summary (Wassmann 90%):\n")
+cat("\nMDF detection summary (Empirical 95%):\n")
 mdf_summary <- dat %>%
   group_by(Component) %>%
   summarise(n = n(),
-            below_MDF = sum(CH4_below_MDF_wass90),
+            below_MDF = sum(CH4_below_MDF_wass95),
             pct_below = round(100 * below_MDF / n, 1),
             .groups = "drop")
 print(as.data.frame(mdf_summary))
