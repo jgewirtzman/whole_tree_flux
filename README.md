@@ -53,6 +53,7 @@ Gas fluxes are calculated using the [goFlux](https://github.com/Qepanna/goFlux) 
 | 02 | `02_import.R` | Import raw data via `goFlux::import2RData()` |
 | 03 | `03_build_auxfiles.R` | Build auxiliary files (UniqueID, Area, Vtot, Tcham, Pcham) from timing keys and Harvard Forest met data |
 | 03b | `03b_patch_manID_leaf_areas.R` | Patch leaf-type measurements with actual measured leaf areas (replaces chamber areas) |
+| 03c | `03c_patch_manID_vtot.R` | Sync `Vtot` in existing manID objects with the rebuilt auxfiles (when the analyzer/tubing volume in `00_setup.R` changes) |
 | 04 | `04_manual_id.R` | **Interactive** — manually identify gas concentration peaks in RStudio via `click.peak2()` |
 | 05 | `05_flux_calculation.R` | Calculate fluxes with `goFlux()` (linear and Hutchinson-Mosier models) and select best estimate |
 | 06 | `06_compile_results.R` | Merge flux results with field metadata; output `canopy_flux_goFlux_compiled.csv` |
@@ -61,7 +62,9 @@ Gas fluxes are calculated using the [goFlux](https://github.com/Qepanna/goFlux) 
 
 A parallel pipeline exists for Yale Myers Forest data in `ymf_black_oak/` (scripts prefixed `ymf_`).
 
-**Note:** Step 04 is interactive and requires RStudio. Steps 03b patches existing manID objects so that step 04 does not need to be re-run when leaf areas change.
+**Note:** Step 04 is interactive and requires RStudio. Steps 03b and 03c patch existing manID objects so that step 04 does not need to be re-run when leaf areas or the system volume change (`ymf_03b_patch_manID_vtot.R` does the same for the Yale Myers pipeline).
+
+**System volume:** `Vtot` = chamber volume + 0.057 L (0.028 L analyzer internal volume + 0.029 L tubing; `vtot_addition` in `00_setup.R`).
 
 ## Key Outputs
 

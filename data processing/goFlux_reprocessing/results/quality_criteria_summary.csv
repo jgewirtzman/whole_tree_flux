@@ -1,5 +1,5 @@
 "criterion","n_pass","n_total","pct_pass","label","category"
-"CH4 |flux| > MDF (manufacturer)",128,145,88.3,"128/145 (88.3%)","MDF threshold"
+"CH4 |flux| > MDF (manufacturer)",132,145,91,"132/145 (91%)","MDF threshold"
 "CH4 |flux| > MDF (Empirical 99%)",100,145,69,"100/145 (69%)","MDF threshold"
 "CH4 |flux| > MDF (Empirical 95%)",108,145,74.5,"108/145 (74.5%)","MDF threshold"
 "CH4 |flux| > MDF (Empirical 90%)",114,145,78.6,"114/145 (78.6%)","MDF threshold"
@@ -10,5 +10,5 @@
 "CH4 R<U+00B2> > 0.9",54,145,37.2,"54/145 (37.2%)","R<U+00B2> threshold"
 "CO2 R<U+00B2> > 0.7 (same meas.)",143,145,98.6,"143/145 (98.6%)","R<U+00B2> threshold"
 "CO2 R<U+00B2> > 0.9 (same meas.)",142,145,97.9,"142/145 (97.9%)","R<U+00B2> threshold"
-"CH4 SNR > 2 (empirical)",113,145,77.9,"113/145 (77.9%)","SNR threshold"
+"CH4 SNR > 2 (empirical)",114,145,78.6,"114/145 (78.6%)","SNR threshold"
 "CH4 SNR > 3 (empirical)",107,145,73.8,"107/145 (73.8%)","SNR threshold"
