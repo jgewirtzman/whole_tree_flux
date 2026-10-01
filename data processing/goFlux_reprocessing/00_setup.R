@@ -49,8 +49,15 @@ plots_dir         <- file.path(reprocess_dir, "plots")
 
 # --- Constants ---------------------------------------------------------------
 
-# Volume addition: analyzer cell (0.070 L) + tubing (0.029 L)
-vtot_addition <- 0.099  # Liters
+# Volume addition: analyzer internal volume (0.028 L) + tubing (0.029 L)
+# Lab convention shared across projects (see ch4-data-filtering 00_setup.R):
+# 0.028 L analyzer internal volume for both the ABB GLA131-GGA microportable
+# and the LI-7810.
+# NOTE (2026-09): earlier runs used 0.070 L, which is goFlux's example-auxfile
+# value for the larger LGR UGGA, not the GLA131 microportable units used here.
+analyzer_vol  <- 0.028  # Liters
+tubing_vol    <- 0.029  # Liters
+vtot_addition <- analyzer_vol + tubing_vol  # 0.057 L
 
 # goFlux instrument precision for the ABB/LGR GLA131-GGA Microportable UGGA
 # (1σ at 1 s; ABB GLA131-GGA datasheet 3KXG167001R1001 Rev. J)

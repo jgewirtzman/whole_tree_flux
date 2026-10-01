@@ -11,9 +11,9 @@ Measurements by component:
 branch   leaf   stem 
     11     21    109 
 
-Mean CH4 flux < 2 m:   0.8796 nmol m-2 s-1  (n=26)
-Mean CH4 flux >= 2 m:  0.2572 nmol m-2 s-1  (n=115)
-Ratio (below/above):   3.4x
+Mean CH4 flux < 2 m:   0.8390 nmol m-2 s-1  (n=26)
+Mean CH4 flux >= 2 m:  0.2384 nmol m-2 s-1  (n=115)
+Ratio (below/above):   3.5x
 
 Stem measurements >= 2 m:    83
   Negative (uptake):          5  (6.0%)
@@ -27,8 +27,8 @@ Per-tree summary (all components, >= 2 m):
   Tsuga canadensis          tag=321902    n= 13  neg= 0 (0.0%)
   Tsuga canadensis          tag=4         n= 13  neg= 4 (30.8%)
 
-Median CH4 flux (leaf): 0.00682 nmol m-2 s-1  (n=21)
-Median CH4 flux (branch): 0.06951 nmol m-2 s-1  (n=11)
+Median CH4 flux (leaf): 0.00906 nmol m-2 s-1  (n=21)
+Median CH4 flux (branch): 0.05618 nmol m-2 s-1  (n=11)
 
 Stem measurements by height threshold:
   >=  2 m:  7 trees  |   83 measurements  |  5 negative (6.0%)

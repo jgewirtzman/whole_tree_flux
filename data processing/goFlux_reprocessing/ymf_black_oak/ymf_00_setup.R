@@ -37,7 +37,7 @@ ymf_plots_dir   <- file.path(ymf_reprocess, "plots")
 # Chamber: Large stem (s6)
 ymf_chamber_vol  <- 2.30    # Liters
 ymf_chamber_area <- 446     # cm² (0.0446 m²)
-ymf_vtot         <- ymf_chamber_vol + vtot_addition  # 2.30 + 0.099 = 2.399 L
+ymf_vtot         <- ymf_chamber_vol + vtot_addition  # 2.30 + 0.057 = 2.357 L
 
 # Measurement date
 ymf_date <- as.Date("2022-10-04")
