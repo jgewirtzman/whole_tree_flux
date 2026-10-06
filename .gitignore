@@ -18,3 +18,9 @@ comment_responses.md
 WORKLOG_*.md
 *_writeup.docx
 *_writeup.pdf
+
+# Private Wu/Zhao synthesis comparison (third-party data, not for public repo)
+synthesis_merge/
+
+# Claude Code local instructions (private)
+CLAUDE.local.md
