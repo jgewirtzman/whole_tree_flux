@@ -181,19 +181,3 @@ pS <- ggplot() + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2
        caption = "Grey band: below 2 m (the usual sampling range). Coloured lines: each tree's basal (< 2 m) data extrapolated upward (forms may not increase with height).\nBlack line: mixed model of all trees' basal data (tree-level intercept and slope) extrapolated upward. Last panel: a saturated peat-swamp black gum measured to 3.6 m (reference only).") +
   th + theme(legend.box = "vertical", plot.caption = element_text(size = 7, hjust = 0))
 ggsave(file.path(ROOT, "scaling/fig_SI_extrapolation_fits.png"), pS, width = 230, height = 190, units = "mm", dpi = 300, bg = "white")
-# tree component vs soil
-T2 <- T %>% mutate(form = factor(ifelse(form == "measured", "Measured above 2 m", lab_form[form]),
-  levels = c("Measured above 2 m", "Exponential decay", "Linear, floored at zero", "Constant (top chamber)", "Constant (basal mean)", "Pooled decline", "Linear (unbounded)", "Zero above 2 m")))
-pT <- ggplot(T2, aes(woody_component, form)) +
-  annotate("rect", xmin = S_q[1], xmax = S_q[2], ymin = -Inf, ymax = Inf, fill = "#D6E6F2") + geom_vline(xintercept = S_mean, colour = "#0072B2", linewidth = 0.6) +
-  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-  geom_point(aes(colour = branch_rule, shape = area_set), position = position_jitter(height = 0.15, seed = 1), size = 1.8, alpha = 0.85) +
-  annotate("text", x = S_mean, y = 4.5, label = "Soil CH4, Jul–Aug\n(Jevon et al. 2023)\nmean and IQR", colour = "#0072B2", size = 2.6, hjust = 0.5) +
-  scale_colour_manual(values = c(measured_mean = "#E69F00", measured_median = "#009E73", equal_upper_stem = "#CC79A7"),
-                      labels = c(measured_mean = "branch: measured mean", measured_median = "branch: measured median", equal_upper_stem = "branch = upper stem"), name = NULL) +
-  scale_shape_manual(values = c(16, 2), name = NULL) + coord_cartesian(clip = "off") +
-  labs(x = expression(CH[4]~flux~(nmol~m^{-2}~ground~s^{-1})), y = "Stem above 2 m:",
-       title = "Woody-surface scenarios on the common five-tree cohort",
-       subtitle = "Per m² ground; leaves excluded (see separate analysis). Soil: same months, different years (2016–17 vs 2023).") + th +
-  theme(legend.box = "vertical", plot.subtitle = element_text(size = 7.5, colour = "grey30"))
-ggsave(file.path(ROOT, "scaling/fig_tree_component.png"), pT, width = 180, height = 120, units = "mm", dpi = 300, bg = "white")

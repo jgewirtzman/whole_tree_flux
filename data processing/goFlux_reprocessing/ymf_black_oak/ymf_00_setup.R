@@ -11,7 +11,7 @@ parent_setup <- file.path(
 source(parent_setup)
 
 # Also need readxl for Excel input
-if (!require("readxl", quietly = TRUE)) install.packages("readxl")
+if (!requireNamespace("readxl", quietly = TRUE)) stop("Restore renv.lock to install readxl; see README.md.")
 library(readxl)
 
 # --- YMF-specific paths ------------------------------------------------------

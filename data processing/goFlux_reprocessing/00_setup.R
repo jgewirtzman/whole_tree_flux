@@ -6,20 +6,10 @@
 
 # --- Package Installation and Loading ----------------------------------------
 
-if (!require("remotes", quietly = TRUE)) install.packages("remotes")
-
-# Install goFlux from GitHub if not already installed
-if (!require("goFlux", quietly = TRUE)) {
-  remotes::install_github("Qepanna/goFlux@aee8456e62a016b6b496eb669e7445b160e65a9d")
-}
-library(goFlux)
-
-# CRAN packages
-pkgs <- c("dplyr", "purrr", "readr", "lubridate", "openxlsx", "tidyr", "stringr")
-for (pkg in pkgs) {
-  if (!require(pkg, character.only = TRUE, quietly = TRUE)) install.packages(pkg)
-  library(pkg, character.only = TRUE)
-}
+pkgs <- c("goFlux", "dplyr", "purrr", "readr", "lubridate", "openxlsx", "tidyr", "stringr")
+missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing)) stop("Missing packages: ", paste(missing, collapse = ", "), ". Restore renv.lock; see README.md.")
+for (pkg in pkgs) library(pkg, character.only = TRUE)
 
 # --- Path Definitions --------------------------------------------------------
 

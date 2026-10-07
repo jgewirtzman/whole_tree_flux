@@ -239,6 +239,3 @@ top3 <- wrap_plots(p3a + labs(tag = "a"), p3b + labs(tag = "b"), nrow = 1) + plo
 # (A) tightened: forms legend in two rows, shorter figure
 f3 <- (wrap_elements(full = top3) / (wrap_plots((p3c + labs(tag = "c")) & thL, (p3d + labs(tag = "d")) & thL, nrow = 1, widths = c(1.35, 0.9)))) + plot_layout(heights = c(1, 0.85))
 ggsave(file.path(FD, "Figure3_v3c.png"), f3, width = 180, height = 165, units = "mm", dpi = 300, bg = "white")
-# (B) equal-proportion 2 x 2
-f3e <- (wrap_elements(full = top3) / (wrap_plots((p3c + labs(tag = "c")) & thL, (p3d + labs(tag = "d")) & thL, nrow = 1, widths = c(1, 1)))) + plot_layout(heights = c(1, 1))
-ggsave(file.path(FD, "Figure3_v3c_equal.png"), f3e, width = 180, height = 180, units = "mm", dpi = 300, bg = "white")

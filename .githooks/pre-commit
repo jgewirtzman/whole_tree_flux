@@ -1,0 +1,5 @@
+#!/bin/sh
+# The scientific code repository must not include private editorial files.
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+Rscript tests/public_files.R

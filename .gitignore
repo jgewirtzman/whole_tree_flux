@@ -66,3 +66,36 @@ manuscript_*.md
 
 # Internal coauthor-response calculations (superseded by public statistics).
 figures/comment_response_stats.R
+
+# Editorial tooling and all Word drafts belong outside the public repository.
+*.docx
+/build_manuscript.sh
+/manuscript_layout.lua
+/manuscript_reference.docx
+/prompt_for_*.md
+/scaling/11_manuscript_statistics.R
+/scaling/out/manuscript_*.csv
+
+# Superseded code/figures retained locally; the active workflow is in scaling/.
+/figures/
+/deprecated/
+/truncation/
+/data processing/Canopy_Fluxes.R
+/data processing/analysis (1).R
+/data processing/chamberflux_workflow (1).R
+/data processing/functions/
+
+# Rebuildable staging copies and optional QC exports.
+/data processing/goFlux_reprocessing/import/
+/data processing/goFlux_reprocessing/plots/
+/data processing/goFlux_reprocessing/RData/LGR*/
+/data processing/goFlux_reprocessing/ymf_black_oak/import/
+/data processing/goFlux_reprocessing/ymf_black_oak/plots/
+
+# Local dependency libraries and per-run provenance (not reference outputs).
+/renv/
+/.Rprofile
+/scaling/out/run_inputs.csv
+/scaling/out/run_metadata.txt
+
+/MANUSCRIPT_WORKFLOW.md
