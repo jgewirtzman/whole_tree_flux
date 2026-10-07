@@ -19,19 +19,24 @@ setup_path <- file.path(
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(setup_path)
 
+source("data processing/goFlux_reprocessing/precision_helpers.R")
+
 # --- Load manual ID results ---------------------------------------------------
 
 load(file.path(rdata_dir, "manID_LGR1.RData"))
 load(file.path(rdata_dir, "aux_LGR1.RData"))
 manID.LGR1 <- sync_manID(manID.LGR1, aux.LGR1)
+manID.LGR1 <- apply_precision(manID.LGR1, "LGR1", results_dir)
 save(manID.LGR1, file = file.path(rdata_dir, "manID_LGR1.RData"))
 load(file.path(rdata_dir, "manID_LGR2.RData"))
 load(file.path(rdata_dir, "aux_LGR2.RData"))
 manID.LGR2 <- sync_manID(manID.LGR2, aux.LGR2)
+manID.LGR2 <- apply_precision(manID.LGR2, "LGR2", results_dir)
 save(manID.LGR2, file = file.path(rdata_dir, "manID_LGR2.RData"))
 load(file.path(rdata_dir, "manID_LGR3.RData"))
 load(file.path(rdata_dir, "aux_LGR3.RData"))
 manID.LGR3 <- sync_manID(manID.LGR3, aux.LGR3)
+manID.LGR3 <- apply_precision(manID.LGR3, "LGR3", results_dir)
 save(manID.LGR3, file = file.path(rdata_dir, "manID_LGR3.RData"))
 
 # =============================================================================
@@ -39,8 +44,8 @@ save(manID.LGR3, file = file.path(rdata_dir, "manID_LGR3.RData"))
 # =============================================================================
 
 message("\n=== LGR1: Calculating fluxes ===")
-CO2_flux.LGR1 <- goFlux(manID.LGR1, "CO2dry_ppm", prec = ugga_prec[1])
-CH4_flux.LGR1 <- goFlux(manID.LGR1, "CH4dry_ppb", prec = ugga_prec[2])
+CO2_flux.LGR1 <- goFlux_at_interval(manID.LGR1, "CO2dry_ppm")
+CH4_flux.LGR1 <- goFlux_at_interval(manID.LGR1, "CH4dry_ppb")
 
 message("LGR1: Selecting best flux estimates...")
 CO2_best.LGR1 <- best.flux(CO2_flux.LGR1, flux_criteria)
@@ -54,8 +59,8 @@ message("LGR1: ", nrow(CO2_best.LGR1), " CO2 fluxes, ",
 # =============================================================================
 
 message("\n=== LGR2: Calculating fluxes ===")
-CO2_flux.LGR2 <- goFlux(manID.LGR2, "CO2dry_ppm", prec = ugga_prec[1])
-CH4_flux.LGR2 <- goFlux(manID.LGR2, "CH4dry_ppb", prec = ugga_prec[2])
+CO2_flux.LGR2 <- goFlux_at_interval(manID.LGR2, "CO2dry_ppm")
+CH4_flux.LGR2 <- goFlux_at_interval(manID.LGR2, "CH4dry_ppb")
 
 message("LGR2: Selecting best flux estimates...")
 CO2_best.LGR2 <- best.flux(CO2_flux.LGR2, flux_criteria)
@@ -69,8 +74,8 @@ message("LGR2: ", nrow(CO2_best.LGR2), " CO2 fluxes, ",
 # =============================================================================
 
 message("\n=== LGR3: Calculating fluxes ===")
-CO2_flux.LGR3 <- goFlux(manID.LGR3, "CO2dry_ppm", prec = ugga_prec[1])
-CH4_flux.LGR3 <- goFlux(manID.LGR3, "CH4dry_ppb", prec = ugga_prec[2])
+CO2_flux.LGR3 <- goFlux_at_interval(manID.LGR3, "CO2dry_ppm")
+CH4_flux.LGR3 <- goFlux_at_interval(manID.LGR3, "CH4dry_ppb")
 
 message("LGR3: Selecting best flux estimates...")
 CO2_best.LGR3 <- best.flux(CO2_flux.LGR3, flux_criteria)

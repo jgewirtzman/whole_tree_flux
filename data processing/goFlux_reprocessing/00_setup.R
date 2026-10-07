@@ -54,8 +54,8 @@ vtot_addition <- analyzer_vol + tubing_vol  # 0.057 L
 # (1σ at 1 s; ABB GLA131-GGA datasheet 3KXG167001R1001 Rev. J)
 # c(CO2dry_ppm, CH4dry_ppb, H2O_ppm)
 # Precision also controls HM curvature constraints and model selection. Pass it
-# explicitly to goFlux; imported/cached precision columns may predate this setting.
-# The empirical MDF is computed separately in 09_mdf_lod_comparison.R.
+# as import defaults only. Before fitting, apply_precision() replaces the CH4
+# and CO2 fields with 1.96 x empirical group sigma; H2O keeps its import default.
 ugga_prec <- c(0.35, 0.9, 200)
 
 # Date format in raw LGR files (mm/dd/yyyy)

@@ -9,11 +9,12 @@
 # Volume convention (lab convention, 2026-09-30): Vtot = chamber volume (diurnal_volumes.csv, which already includes cap
 #   and tubing: "Two.tube.Volume" 0.063 L) + 0.028 L analyzer cell. Area = surfarea (m2) x 1e4 cm2.
 # Tcham/Pcham: Fisher station (HF001, hf001-10-15min-m.csv; EST -> EDT) at the field (iPad) time.
-# MDF: empirical 95 % reference method of 09_mdf_lod_comparison.R: MDF = 1.96 x sigma / t x flux.term, sigma = campaign
-#   MAD of first differences / sqrt(2) (per run of constant logging interval).
+# MDF: empirical 95 % reference method of 09_mdf_lod_comparison.R: MDF = 1.96 x sigma / t x flux.term, sigma = median closure second-difference
+#   precision per analyzer x field day x logging interval (precision_helpers.R).
 # Run: LANG=en_US.UTF-8 Rscript "data processing/goFlux_reprocessing/diurnal_blackgum/bg_run.R"  (from whole_tree_flux/)
 # =============================================================================
 suppressPackageStartupMessages({library(goFlux); library(dplyr); library(readr); library(lubridate); library(tidyr)})
+source("data processing/goFlux_reprocessing/precision_helpers.R")
 BG <- "data processing/goFlux_reprocessing/diurnal_blackgum"   # run from the repository root
 RAW <- file.path(BG, "raw/diurnal/diurnal_final"); STAGE <- file.path(BG, "import"); RES <- file.path(BG, "results")
 for (d in c(STAGE, RES)) dir.create(d, showWarnings = FALSE, recursive = TRUE)
@@ -63,31 +64,22 @@ nwin <- manID %>% group_by(UniqueID) %>% summarise(n = sum(flag == 1), .groups =
 cat("windows with data:", sum(nwin$n > 10), "of", nrow(auxfile), "| points per window", paste(range(nwin$n), collapse = "-"), "\n")
 miss <- setdiff(auxfile$UniqueID, nwin$UniqueID[nwin$n > 10]); if (length(miss)) cat("WINDOWS WITHOUT DATA:", paste(miss, collapse = ", "), "\n")
 
-## 5. fluxes
-CH4 <- best.flux(goFlux(manID, "CH4dry_ppb", prec = ugga_prec[2]), flux_criteria); CO2 <- best.flux(goFlux(manID, "CO2dry_ppm", prec = ugga_prec[1]), flux_criteria)
+## 5. Empirical precision and fluxes, using every closure at each analyzer-day interval
+manID <- apply_precision(manID, "BG_LGR2", RES)
+CH4 <- best.flux(goFlux_at_interval(manID, "CH4dry_ppb"), flux_criteria)
+CO2 <- best.flux(goFlux_at_interval(manID, "CO2dry_ppm"), flux_criteria)
+noise <- read.csv(file.path(RES, "precision_closures_BG_LGR2.csv")) %>%
+  filter(gas == "CH4") %>% select(UniqueID, field_day, dt_s, t_sec, sigma_CH4_ppb = sigma_group)
 
-## 6. empirical MDF (09_mdf_lod_comparison.R reference method)
-# sigma: the canopy campaigns used the campaign MAD of first differences of the whole record, but here closures with
-# concentration rises of up to ~50 ppb s-1 dominate the record, so raw first differences measure the trend, not noise
-# (whole-record value reported for comparison). Instead: within each closure, first differences of the residuals from a
-# linear fit (trend removed), MAD / sqrt(2). Campaign sigma = median across the low-flux closures (>= 3 m), because
-# curvature in high-flux closures leaves structure in linear residuals; the all-closure median is reported too.
-dtv <- diff(as.numeric(imp$POSIX.time)); runs <- abs(dtv - median(dtv)) < 0.2
-sigma_all <- mad(diff(imp$CH4dry_ppb)[runs], constant = 1.4826) / sqrt(2)
-sig_cl <- manID %>% filter(flag == 1) %>% group_by(UniqueID) %>%
-  summarise(s = mad(diff(resid(lm(CH4dry_ppb ~ Etime))), constant = 1.4826) / sqrt(2), .groups = "drop")
-hts <- setNames(fd$`Height (m)`, fd$UniqueID); sigma_allcl <- median(sig_cl$s)
-sigma_ch4 <- median(sig_cl$s[hts[sig_cl$UniqueID] >= 3])
-cat("sigma CH4: whole-record first differences", round(sigma_all, 3), "ppb; detrended, all closures", round(sigma_allcl, 3), "ppb; detrended, closures >= 3 m (used)", round(sigma_ch4, 3),
-    "ppb (closure range", paste(round(range(sig_cl$s), 2), collapse = "-"), ")\n")
+## 6. Empirical MDF, identical to the threshold used inside the fits
 out <- fd %>% select(UniqueID, VolumeID, Position, height_m = `Height (m)`, chamber = `Chamber Type`, start_field = `Start (iPad)`, Notes) %>%
   left_join(CH4 %>% transmute(UniqueID, CH4_best.flux = best.flux, CH4_model = model, CH4_quality.check = quality.check,
                               CH4_flux.term = flux.term, nb.obs, CH4_LM.r2 = LM.r2), by = "UniqueID") %>%
   left_join(CO2 %>% transmute(UniqueID, CO2_best.flux = best.flux, CO2_model = model), by = "UniqueID") %>%
-  left_join(manID %>% filter(flag == 1) %>% group_by(UniqueID) %>% summarise(t_sec = as.numeric(diff(range(POSIX.time)), units = "secs") + median(diff(as.numeric(POSIX.time))), .groups = "drop"), by = "UniqueID") %>%
-  mutate(CH4_MDF_emp95 = 1.96 * sigma_ch4 / t_sec * CH4_flux.term, CH4_below_MDF = abs(CH4_best.flux) < CH4_MDF_emp95,
-         sigma_CH4_ppb = sigma_ch4)
+  left_join(noise, by = "UniqueID") %>%
+  mutate(CH4_MDF_emp95 = qnorm(.975) * sigma_CH4_ppb / t_sec * CH4_flux.term,
+         CH4_below_MDF = abs(CH4_best.flux) < CH4_MDF_emp95)
 write_csv(out, file.path(RES, "blackgum_flux_compiled_with_mdf.csv")); save(manID, CH4, CO2, auxfile, file = file.path(RES, "blackgum_goflux.RData"))
-cat("sigma CH4 (ppb):", round(sigma_ch4, 3), "| fluxes:", sum(!is.na(out$CH4_best.flux)), "| below MDF:", sum(out$CH4_below_MDF, na.rm = TRUE), "\n")
+cat("sigma CH4 (ppb):", paste(round(unique(out$sigma_CH4_ppb), 3), collapse = ", "), "| fluxes:", sum(!is.na(out$CH4_best.flux)), "| below MDF:", sum(out$CH4_below_MDF, na.rm = TRUE), "\n")
 print(out %>% group_by(height_m) %>% summarise(n = n(), mean = mean(CH4_best.flux, na.rm = TRUE), median = median(CH4_best.flux, na.rm = TRUE),
   min = min(CH4_best.flux, na.rm = TRUE), neg = sum(CH4_best.flux < 0, na.rm = TRUE), below_mdf = sum(CH4_below_MDF, na.rm = TRUE)))

@@ -18,6 +18,7 @@ source("scripts/workflow.R")
 mode <- if ("--flux-only" %in% args) "flux" else if ("--scaling-only" %in% args) "scaling" else "full"
 inputs <- check_workflow(mode)
 if ("--check" %in% args) quit(status = 0)
+sys.source("tests/precision_checks.R", envir = new.env(parent = globalenv()))
 input_md5 <- tools::md5sum(inputs)
 Sys.setenv(FLUX_LEGACY_QC = "0")
 flux_steps <- c(

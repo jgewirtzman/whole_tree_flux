@@ -12,11 +12,14 @@ source(file.path(
   ".",
   "data processing", "goFlux_reprocessing", "ymf_black_oak", "ymf_00_setup.R"))
 
+source("data processing/goFlux_reprocessing/precision_helpers.R")
+
 # --- Load manual ID results ---------------------------------------------------
 
 load(file.path(ymf_rdata_dir, "manID_YMF.RData"))
 load(file.path(ymf_rdata_dir, "aux_YMF.RData"))
 manID.YMF <- sync_manID(manID.YMF, aux.YMF)
+manID.YMF <- apply_precision(manID.YMF, "YMF", ymf_results_dir)
 save(manID.YMF, file = file.path(ymf_rdata_dir, "manID_YMF.RData"))
 
 # =============================================================================
@@ -24,10 +27,10 @@ save(manID.YMF, file = file.path(ymf_rdata_dir, "manID_YMF.RData"))
 # =============================================================================
 
 message("\n=== YMF: Calculating CO2 fluxes ===")
-CO2_flux.YMF <- goFlux(manID.YMF, "CO2dry_ppm", prec = ugga_prec[1])
+CO2_flux.YMF <- goFlux_at_interval(manID.YMF, "CO2dry_ppm")
 
 message("=== YMF: Calculating CH4 fluxes ===")
-CH4_flux.YMF <- goFlux(manID.YMF, "CH4dry_ppb", prec = ugga_prec[2])
+CH4_flux.YMF <- goFlux_at_interval(manID.YMF, "CH4dry_ppb")
 
 message("\nYMF: Selecting best flux estimates...")
 CO2_best.YMF <- best.flux(CO2_flux.YMF, flux_criteria)

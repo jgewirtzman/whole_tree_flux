@@ -46,8 +46,8 @@ Use `--help` for all options. `--flux-only` and `--scaling-only` cannot be combi
 | Prediction/observation comparison | `scaling/04_main_figures.R` | SI ratio figure and `global_demo_v3.csv` |
 | Main figures and profile SI | `scaling/08_figures_v3c.R` | `scaling/v3c/` |
 | Tree weighting sensitivity | `scaling/09_tree_weighting.R` | `tree_weighting.csv` |
-| Basal/upper and wetland reference summaries | `scaling/10_basal_by_site_and_blackgum.R` | `tree_basal_upper_branch.csv`, `blackgum_scaling.csv` |
-| Summary statistics and filter sensitivity | `scaling/11_summary_statistics.R` | `summary_statistics.csv`, `component_summary.csv`, `filter_sensitivity_HF.csv` |
+| Basal/upper and wetland reference summaries | `scaling/10_basal_by_site_and_blackgum.R` | `tree_basal_upper_branch.csv`, `blackgum_scaling.csv`, `blackgum_component_budget.csv` and SI component-budget figure |
+| Summary statistics and filter sensitivity | `scaling/11_summary_statistics.R` | `summary_statistics.csv`, `component_summary.csv`, `filter_sensitivity_HF.csv`, `rate_area_tradeoff.csv` |
 
 All tabular scaling outputs are in `scaling/out/`. Historical version suffixes in the current figure paths are retained to keep existing references stable; the following table identifies the current set.
 
@@ -59,12 +59,14 @@ All tabular scaling outputs are in `scaling/out/`. Historical version suffixes i
 | S1 — profiles on an arcsinh axis | `scaling/v3c/FigS1_grid_asinh.png` |
 | S2 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
 | S3 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
+| S4 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
 
 Alternative raw/arcsinh profile renderings are also generated. Superseded figure pipelines and manuscript-building tools are not part of this public workflow.
 
 ## Data and assumptions
 
 - **Primary observations:** raw analyzer records, chamber timing keys, field metadata and leaf areas are under `data processing/`. Harvard Forest has 136 compiled rows, of which 134 are retained; Yale Myers has 9 compiled rows, of which 7 are retained. The filtering rules are in `scaling/00_load_field.R`.
+- **Detection limits:** a standalone helper estimates noise from second differences within closures, grouped by analyzer, field day and recorded interval. The same empirical threshold is used in flux fitting and MDF flags; diagnostics are exported alongside the flux tables. See [method details](docs/REPRODUCING.md#empirical-noise-and-detection-limits).
 - **Meteorology:** the Fisher station input (`hf001-10-15min-m.csv`) is the existing cached Harvard Forest HF001 data used for temperature and pressure. Source and replacement instructions are in [reproduction details](docs/REPRODUCING.md).
 - **Soil comparison:** [Jevon (2023), Mendeley Data V2](https://doi.org/10.17632/z6wybrtpyk.2), downloaded separately. July–August soil measurements are from different years than the tree campaign.
 - **Geometry:** sampled stem fluxes use measured diameters and frustum areas, ending at each highest stem chamber. Stand scaling and capture use an illustrative 23 m cone; the black gum scenario uses 15.8 m. Sullivan et al. (2017), Table 6 supplies height proxies, not a taper law. Shared definitions are in `scaling/analysis_helpers.R`.
@@ -76,6 +78,7 @@ Global products are sensitivity scenarios, **not global flux estimates**. Ground
 ## Check changes
 
 ```sh
+Rscript tests/precision_checks.R  # Noise estimator, trend/gap handling and fitting durations
 Rscript tests/analysis_checks.R   # Units, clocks, geometry, cohorts, metadata and totals
 Rscript tests/public_files.R     # No private/editorial files in the public Git index
 ```

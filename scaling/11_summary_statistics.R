@@ -49,3 +49,12 @@ filter_totals<-filter_rows %>% group_by(filter) %>% summarise(total=sum(integrat
 metrics<-c(metrics,filter_total_min=min(filter_totals$total),filter_total_max=max(filter_totals$total))
 write_csv(tibble(metric=names(metrics),value=as.numeric(metrics)),file.path(OUT,"summary_statistics.csv"))
 print(cs); print(metrics)
+
+# Quantify the rate-area tradeoff without treating four assigned compartment
+# areas as independent ecological observations. F_required = basal budget / A.
+basal <- areas[areas$comp=="stem_lo",]
+tradeoff <- areas %>% mutate(area_relative_to_basal=area/basal$area,
+  rate_relative_to_basal=mean/basal$mean,
+  integrated_relative_to_basal=(mean*area)/(basal$mean*basal$area),
+  rate_matching_basal=basal$mean*basal$area/area)
+write_csv(tradeoff,file.path(OUT,"rate_area_tradeoff.csv"))

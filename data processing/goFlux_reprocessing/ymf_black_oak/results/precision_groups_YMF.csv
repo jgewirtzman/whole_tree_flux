@@ -1,0 +1,3 @@
+"instrument","field_day","dt_s","gas","sigma","n_closures","n_diff2","ac1","zero_frac","sigma_d1c","d1c_ratio","check_ac1","check_repeated","check_ratio"
+"YMF","2022-10-04",5,"CH4",1.14395825018492,9,905,-0.67475630998802,0.00319148936170213,1.260648707829,1.10200587095309,FALSE,FALSE,FALSE
+"YMF","2022-10-04",5,"CO2",0.559873746783635,9,905,-0.559147711861346,0,0.645263434236093,1.1525159697932,FALSE,FALSE,FALSE

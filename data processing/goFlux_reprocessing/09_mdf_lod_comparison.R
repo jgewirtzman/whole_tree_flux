@@ -4,13 +4,13 @@
 # and save updated compiled results.
 #
 # Three approaches (convention settled for the companion guidelines paper):
-#   1. Manufacturer / goFlux (Christiansen et al. 2015; goFlux package):
+#   1. Manufacturer comparison (Christiansen et al. 2015; legacy `goflux` suffix):
 #      MDF = datasheet_precision / t × flux.term            (k = 1)
 #   2. Empirical (REFERENCE method; column suffix `wass*` kept for
 #      compatibility, labelled "Empirical 95 %"):
 #      MDF = z × σ_campaign / t × flux.term,  z = qnorm(0.975) = 1.96
-#      σ_campaign = MAD(first differences) × 1.4826 / √2, computed ONCE over
-#      the whole continuous imported record of each analyzer/campaign.
+#      σ_campaign = median closure MAD(second differences) / √6 (MAD scaled
+#      by 1.4826), per analyzer x field day x logging interval.
 #   3. ×3 t-crit variant (per-closure σ; column suffix `chr*`):
 #      MDF = (σ_Allan_per_meas × 3 × t_α) / t × flux.term
 #      NOTE: Christiansen et al. (2015) define MDF = precision / enclosure
@@ -21,8 +21,9 @@
 # logging interval), NOT nb.obs.  Logging intervals differ by analyzer:
 #   LGR1 = 1 s, LGR2 = 10 s, LGR3 = 1 s, LGR3-YMF = 5 s.
 #
-# Empirical precision is derived three ways (all kept in the comparison table):
-#   - Campaign MAD of first differences (global per-instrument; used for MDF)
+# Empirical precision is derived four ways (all kept in the comparison table):
+#   - Second differences per closure, group median (reference MDF)
+#   - Campaign MAD of first differences (legacy comparison only)
 #   - Allan deviation within each measurement window (per-measurement)
 #   - Rolling window minimum-slope-and-noise scan (global per-instrument)
 #
@@ -37,6 +38,7 @@ setup_path <- file.path(
   ".",
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(setup_path)
+source("data processing/goFlux_reprocessing/precision_helpers.R")
 
 # =============================================================================
 # Step A: Load data
@@ -116,8 +118,9 @@ message("\n=== Computing Allan deviation per measurement ===")
 #
 #   σ_Allan = SD(δ) / sqrt(2)
 #
-# recovers the 1-sigma instrument noise regardless of the trend shape --
-# no model fitting required.  This is the standard Allan deviation at τ = 1 s.
+# estimates white noise around a linear trend. Curvature or variable slopes
+# can inflate it; this SD-based first-difference diagnostic is not the reference
+# estimator, and the recorded interval is not always 1 s.
 allan_sd <- function(x) {
   diffs <- diff(x)
   if (length(diffs) < 2) return(NA_real_)
@@ -302,7 +305,7 @@ message("\n--- Rolling window precision estimates (bottom 5% quietest windows) -
 print(rw_results)
 
 # =============================================================================
-# Step B, Method 3: Campaign σ from MAD of first differences (REFERENCE)
+# Step B, Method 3: legacy whole-record first-difference comparison
 # =============================================================================
 
 message("\n=== Campaign precision: MAD of first differences ===")
@@ -311,7 +314,7 @@ message("\n=== Campaign precision: MAD of first differences ===")
 # deviation (× 1.4826 for normal consistency) so that real concentration
 # jumps (chamber placement, purging, gaps between campaigns) do not inflate
 # the estimate.  Computed ONCE over the whole continuous imported record of
-# each analyzer/campaign; this is the σ that enters the Empirical MDF.
+# each analyzer/campaign; retained only for comparison with earlier outputs.
 precision_mad <- function(x, constant = 1.4826) {
   x <- x[!is.na(x)]
   d <- diff(x)
@@ -362,7 +365,8 @@ rownames(mad_results) <- NULL
 
 # Attach logging interval and datasheet spec-equivalent at that interval
 # (white-noise assumption: σ_dt = σ_1s / sqrt(dt)) so 5–10 s loggers are
-# compared fairly against the 1 s datasheet figure.
+# compared under an explicitly hypothetical interval-averaging assumption.
+# Timestamp spacing alone does not establish averaging; empirical sigma needs no rescaling.
 prec_co2 <- 0.35  # ppm, GLA131 datasheet (1σ, 1 s)
 prec_ch4 <- 0.9   # ppb, GLA131 datasheet (1σ, 1 s)
 
@@ -385,6 +389,15 @@ for (i in seq_len(nrow(rw_results))) {
           "spec-equiv CO2 = ", round(mad_results$spec_equiv_CO2[i], 4), " ppm, ",
           "spec-equiv CH4 = ", round(mad_results$spec_equiv_CH4[i], 4), " ppb")
 }
+
+# Reference group precision is computed within closures, then grouped by day and interval.
+noise_all <- bind_rows(lapply(c("LGR1", "LGR2", "LGR3", "YMF"), function(inst) {
+  estimate_precision(get(paste0("manID.", inst)), inst, warn = FALSE)$closures
+}))
+noise_ref <- noise_all %>%
+  select(UniqueID, instrument, field_day, dt_s, gas, sigma_group) %>%
+  pivot_wider(names_from = gas, values_from = sigma_group, names_prefix = "empirical_sd_")
+stopifnot(!anyDuplicated(noise_ref$UniqueID))
 
 # =============================================================================
 # Step C: Compute three MDF approaches
@@ -419,25 +432,28 @@ compute_mdf_all <- function(compiled, allan_df, closure_df, rw_df, mad_df) {
                     rw_df[, c("instrument", "flat_sd_CO2", "flat_sd_CH4")],
                     by = "instrument", all.x = TRUE)
 
-  # Merge campaign MAD precision per instrument (used for Empirical MDF)
+  # Merge legacy whole-record MAD precision (comparison only)
   compiled <- merge(compiled,
                     mad_df[, c("instrument", "mad_sd_CO2", "mad_sd_CH4")],
                     by = "instrument", all.x = TRUE)
 
   compiled <- compiled %>%
+    left_join(noise_ref, by = c("UniqueID", "instrument", "dt_s"))
+  stopifnot(all(is.finite(compiled$empirical_sd_CH4)), all(is.finite(compiled$empirical_sd_CO2)))
+  compiled <- compiled %>%
     mutate(
-      # --- Approach 1: goFlux / manufacturer precision (k = 1, 1 s spec) ---
+      # --- Approach 1: manufacturer comparison (k = 1, 1 s spec) ---
       CO2_MDF_goflux = prec_co2 / t_sec * CO2_flux.term,
       CH4_MDF_goflux = prec_ch4 / t_sec * CH4_flux.term,
 
-      # --- Approach 2: Empirical (z × campaign MAD σ) at 99/95/90% ---
+      # --- Approach 2: Empirical (z × median closure second-difference σ) at 99/95/90% ---
       # 95 % is the reference method; `wass` suffix kept for compatibility
-      CO2_MDF_wass99 = (z_mult["99"] * mad_sd_CO2) / t_sec * CO2_flux.term,
-      CH4_MDF_wass99 = (z_mult["99"] * mad_sd_CH4) / t_sec * CH4_flux.term,
-      CO2_MDF_wass95 = (z_mult["95"] * mad_sd_CO2) / t_sec * CO2_flux.term,
-      CH4_MDF_wass95 = (z_mult["95"] * mad_sd_CH4) / t_sec * CH4_flux.term,
-      CO2_MDF_wass90 = (z_mult["90"] * mad_sd_CO2) / t_sec * CO2_flux.term,
-      CH4_MDF_wass90 = (z_mult["90"] * mad_sd_CH4) / t_sec * CH4_flux.term,
+      CO2_MDF_wass99 = (z_mult["99"] * empirical_sd_CO2) / t_sec * CO2_flux.term,
+      CH4_MDF_wass99 = (z_mult["99"] * empirical_sd_CH4) / t_sec * CH4_flux.term,
+      CO2_MDF_wass95 = (z_mult["95"] * empirical_sd_CO2) / t_sec * CO2_flux.term,
+      CH4_MDF_wass95 = (z_mult["95"] * empirical_sd_CH4) / t_sec * CH4_flux.term,
+      CO2_MDF_wass90 = (z_mult["90"] * empirical_sd_CO2) / t_sec * CO2_flux.term,
+      CH4_MDF_wass90 = (z_mult["90"] * empirical_sd_CH4) / t_sec * CH4_flux.term,
 
       # --- Approach 3: ×3 t-crit variant (per-closure SD × 3 × t_α) ---
       df_meas = pmax(n_meas_pts - 2, 1),
@@ -539,7 +555,7 @@ print_mdf_summary <- function(out, dataset_name) {
       col <- paste0(gas, "_MDF_", method)
       if (col %in% names(out)) {
         label <- switch(method,
-          goflux = "goFlux (manufacturer)",
+          goflux = "Manufacturer (1σ)",
           wass99 = "Empirical 99%", wass95 = "Empirical 95%", wass90 = "Empirical 90%",
           chr99  = "x3 t-crit 99%", chr95 = "x3 t-crit 95%", chr90 = "x3 t-crit 90%")
         message(sprintf("    MDF range (%-20s): %s - %s", label,
@@ -551,7 +567,7 @@ print_mdf_summary <- function(out, dataset_name) {
     # Detection rates
     message("    --- % below detection ---")
     below_g <- paste0(gas, "_below_MDF_goflux")
-    message(sprintf("    goFlux (manufacturer):    %d / %d (%.1f%%)",
+    message(sprintf("    Manufacturer (1σ):    %d / %d (%.1f%%)",
             sum(out[[below_g]], na.rm = TRUE), n_valid,
             100 * mean(out[[below_g]], na.rm = TRUE)))
 
@@ -604,7 +620,7 @@ write.xlsx(ymf_out,
 # --- Save precision summary ---
 
 # Rows: datasheet (1 s), datasheet spec-equivalent at each instrument's
-# logging interval, campaign MAD (reference σ for the Empirical MDF),
+# logging interval (hypothetical averaging), legacy campaign MAD,
 # rolling window and median Allan deviation (comparison only).
 precision_summary <- data.frame(
   source = c("GLA131 manufacturer (1σ, 1s)",
@@ -617,7 +633,7 @@ precision_summary <- data.frame(
                         mad_results$mad_sd_CH4, rw_results$flat_sd_CH4),
   dt_s   = c(1, mad_results$dt_s, mad_results$dt_s, mad_results$dt_s),
   method = c("Datasheet",
-             rep("Datasheet spec-equivalent at dt (spec/sqrt(dt))", nrow(mad_results)),
+             rep("Datasheet if interval-averaged (spec/sqrt(dt))", nrow(mad_results)),
              rep("Campaign MAD (first differences)", nrow(mad_results)),
              rep("Rolling window (bottom 5%)", nrow(rw_results))),
   stringsAsFactors = FALSE
@@ -664,7 +680,11 @@ allan_summary <- data.frame(
   stringsAsFactors = FALSE
 )
 
-precision_summary <- rbind(precision_summary, allan_summary)
+reference_summary <- noise_ref %>% group_by(instrument, field_day, dt_s) %>%
+  summarise(CO2_precision_ppm = first(empirical_sd_CO2), CH4_precision_ppb = first(empirical_sd_CH4), .groups = "drop") %>%
+  transmute(source = paste(instrument, field_day), CO2_precision_ppm, CH4_precision_ppb, dt_s,
+            method = "Reference: median closure second differences")
+precision_summary <- rbind(precision_summary, allan_summary, as.data.frame(reference_summary))
 
 # Rename for display
 precision_summary$source <- sub("^GLA131.*", "GLA131 spec", precision_summary$source)
@@ -785,7 +805,7 @@ inst_display <- c("LGR1" = "LGR1", "LGR2" = "LGR2",
 
 # --- Plot 1: Allan deviation distributions per instrument ---
 # Jittered points + boxplot, with manufacturer spec (dashed line), campaign
-# MAD σ (square; the σ used for the Empirical MDF) and rolling-window
+# MAD σ (square; legacy comparison only) and rolling-window
 # estimate (diamond) as reference. All in legend.
 
 allan_hf_long <- allan_hf %>%
@@ -894,10 +914,11 @@ prec_bar_data <- precision_summary %>%
     gas = ifelse(gas == "CO2_precision_ppm", "CO2", "CH4"),
     method = factor(method,
                     levels = c("Datasheet",
-                               "Datasheet spec-equivalent at dt (spec/sqrt(dt))",
+                               "Datasheet if interval-averaged (spec/sqrt(dt))",
                                "Campaign MAD (first differences)",
                                "Rolling window (bottom 5%)",
-                               "Allan deviation (median)"))
+                               "Allan deviation (median)",
+                               "Reference: median closure second differences"))
   )
 
 for (g in c("CO2", "CH4")) {
@@ -912,10 +933,11 @@ for (g in c("CO2", "CH4")) {
                   aes(x = source, y = precision, fill = method)) +
     geom_col(position = "dodge", width = 0.7, alpha = 0.85) +
     scale_fill_manual(values = c("Datasheet" = "#D6604D",
-                                 "Datasheet spec-equivalent at dt (spec/sqrt(dt))" = "#F4A582",
+                                 "Datasheet if interval-averaged (spec/sqrt(dt))" = "#F4A582",
                                  "Campaign MAD (first differences)" = "#1B7837",
                                  "Rolling window (bottom 5%)" = "#4393C3",
-                                 "Allan deviation (median)" = "#2166AC")) +
+                                 "Allan deviation (median)" = "#2166AC",
+                                 "Reference: median closure second differences" = "#762A83")) +
     labs(y = gas_expr, x = NULL, fill = "Method",
          title = paste0(g, " precision: manufacturer vs. empirical")) +
     guides(fill = guide_legend(nrow = 3, byrow = TRUE)) +

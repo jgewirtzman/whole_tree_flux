@@ -7,7 +7,7 @@
 #     in the HF ForestGEO plot (Sullivan et al. 2017; a proxy, not measured in Black Gum Swamp).
 source("scaling/00_load_field.R")
 source("scaling/analysis_helpers.R")
-suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages({library(readr); library(ggplot2)})
 TM <- F %>% filter(component == "stem") %>% mutate(z = ifelse(height_m < 2, "basal", "upper")) %>% group_by(tree, z, height_m) %>%
   summarise(f = mean(flux), .groups = "drop") %>% group_by(tree, z) %>% summarise(f = mean(f), .groups = "drop") %>% tidyr::pivot_wider(names_from = z, values_from = f) %>%
   left_join(F %>% filter(component == "branch") %>% group_by(tree) %>% summarise(branch = mean(flux), nbranch = n()), by = "tree") %>%
@@ -45,9 +45,39 @@ cat(sprintf("black gum-like stem above 2 m: %.1f-%.1f Tg/yr (all H, forms); exp/
   min(G$Tg), max(G$Tg), min(G$Tg[G$form != "const_top"]), max(G$Tg[G$form != "const_top"]), mean(up_all), mean(up_all) * SAI_up * A_fw * 0.506))
 write_csv(G, file.path(ROOT, "scaling/out/blackgum_scaling.csv"))
 
-## ---- add branches to the wetland scenario: no wetland branch data, so the HF branch rates (tree-weighted mean and
+## ---- add branches to the wetland scenario: branches were not measured on this tree, so the HF branch rates (tree-weighted mean and
 ## observation median, 03_tree_component.R) are used as conservative stand-ins; branch area 1.70 m2 m-2 (W&W 1967)
 RT <- read_csv(file.path(ROOT, "scaling/out/stand_rates_HF.csv"), show_col_types = FALSE)
 br_mean <- RT$mean[RT$comp == "branch"]; br_med <- median(F$flux[F$component == "branch" & !grepl("YMF", F$tree)])
 for (bf in c(br_med, br_mean)) cat(sprintf("branches at %.3f nmol m-2 s-1 x 1.70 x %.2f M km2: %.2f Tg/yr\n", bf, A_fw, bf * 1.70 * A_fw * 0.506))
 cat(sprintf("stem above 2 m + branches: %.1f-%.1f Tg/yr\n", min(G$Tg) + br_med * 1.70 * A_fw * 0.506, max(G$Tg) + br_mean * 1.70 * A_fw * 0.506))
+
+## ---- SI component budget: same stem scenarios, with explicitly assigned branches.
+# No branch or leaf flux was measured on this reference tree. This is a woody
+# budget illustration; leaves are omitted, not assumed to have zero exchange.
+BGCOMP <- tidyr::crossing(G, branch_rule = c("Upland median", "Upland tree mean")) %>%
+  mutate(branch_rate = ifelse(branch_rule == "Upland median", br_med, br_mean),
+    stem_lo = mean_flux_below2 * .45 * f_below,
+    stem_up = mean_flux_above2 * .45 * (1-f_below), branch = branch_rate * 1.70) %>%
+  select(form, branch_rule, stem_lo, stem_up, branch) %>%
+  tidyr::pivot_longer(c(stem_lo,stem_up,branch), names_to="component", values_to="integrated") %>%
+  group_by(form,branch_rule) %>% mutate(total=sum(integrated),share_pct=100*integrated/total) %>% ungroup()
+write_csv(BGCOMP,file.path(ROOT,"scaling/out/blackgum_component_budget.csv"))
+BGCOMP <- BGCOMP %>% mutate(form=factor(form,c("zero_above_top","exp","const_top"),
+  c("Zero above\n3.6 m","Exponential\ndecay","Constant above\n3.6 m")),
+  component=factor(component,c("branch","stem_up","stem_lo"),c("Branches (assigned)","Stem ≥ 2 m","Stem < 2 m")))
+cols<-c("Stem < 2 m"="#8B4513","Stem ≥ 2 m"="#D4A76A","Branches (assigned)"="#4682B4")
+p <- ggplot(BGCOMP,aes(form,share_pct,fill=component))+
+  geom_col(width=.62,colour="white",linewidth=.3)+
+  geom_text(aes(label=ifelse(component=="Branches (assigned)","",sprintf("%.1f%%",share_pct))),position=position_stack(vjust=.5),
+    size=3,colour="white",fontface="bold")+
+  geom_text(data=filter(BGCOMP,component=="Branches (assigned)"),
+    aes(y=103,label=sprintf("%.1f%%",share_pct)),colour="#31648C",size=3,fontface="bold")+
+  facet_wrap(~branch_rule,nrow=1)+scale_fill_manual(values=cols,breaks=names(cols),name=NULL)+
+  scale_y_continuous(limits=c(0,106),breaks=seq(0,100,25),expand=c(0,0))+
+  labs(x="Assumed flux above the highest stem chamber",y="Share of woody-surface methane flux (%)")+
+  theme_classic(base_size=10,base_family="Helvetica")+
+  theme(legend.position="bottom",strip.background=element_blank(),strip.text=element_text(face="bold"),
+        axis.text.x=element_text(size=9),legend.text=element_text(size=9))
+ggsave(file.path(ROOT,"scaling/v3c/FigS4_blackgum_budget.png"),p,width=7.2,height=4.7,dpi=320,bg="white")
+ggsave(file.path(ROOT,"scaling/v3c/FigS4_blackgum_budget.pdf"),p,width=7.2,height=4.7,device=cairo_pdf)
