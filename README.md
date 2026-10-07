@@ -29,6 +29,7 @@ whole_tree_flux/
 │   ├── stats_wu_above2m_slopes.R
 │   └── summary_statistics_output.txt # Key manuscript numbers
 │
+├── scaling/                          # Ground-to-canopy analyses for the GRL manuscript (see below)
 ├── truncation/                       # Truncation analysis and tree geometry
 │   ├── figure_truncation.R           # Standalone truncation figure
 │   ├── figure_truncation_combined.R  # Combined 7-panel truncation + sensitivity
@@ -36,7 +37,6 @@ whole_tree_flux/
 │
 ├── deprecated/                       # Superseded scripts and figures
 │
-├── 1-s2.0-S0168192324000911-mmc2.xlsx  # Wu et al. (2024) synthesis data
 ├── IMG_5926_edited.jpg               # Field photo: canopy lift
 ├── IMG_6437.jpg                      # Field photo: arborist climbing
 └── whole_tree_flux.Rproj
@@ -66,13 +66,40 @@ A parallel pipeline exists for Yale Myers Forest data in `ymf_black_oak/` (scrip
 
 **System volume:** `Vtot` = chamber volume + 0.057 L (0.028 L analyzer internal volume + 0.029 L tubing; `vtot_addition` in `00_setup.R`).
 
+## Ground-to-canopy analyses for the GRL manuscript (`scaling/`)
+
+Run every script from the repository root (paths are relative). Inputs are the compiled flux files above, the black gum
+results below, and the Harvard Forest soil fluxes of Jevon (2023), which are not redistributed here (see
+`scaling/soil_jevon2023/README.md`).
+
+| Script | What it does | Main outputs |
+|---|---|---|
+| `00_load_field.R` | Loads the Harvard Forest and Yale Myers fluxes (one row per measurement) | object `F` |
+| `01_flux_form_test.R` | Extrapolates each tree's basal (< 2 m) stem fluxes upward with six forms and scores them against the measured fluxes ≥ 2 m (bootstrap) | `out/form_test_*.csv` |
+| `03_tree_component.R` | Stem area from measured diameters; tree-weighted rates for the six Harvard Forest trees; woody-surface scenarios vs same-month soil flux; leaves; mixed model | `out/stand_rates_HF.csv`, `out/tree_component.csv`, `fig_SI_extrapolation_fits.png` |
+| `04_main_figures.R` | Predicted/measured ratio figure (SI) and global scenario table | `Figure2_v3.png`, `out/global_demo_v3.csv` |
+| `08_figures_v3c.R` | Main Figures 1–3 and the SI profile figure | `v3c/Fig1_D_photos_plus_B.png` (Fig. 1), `v3c/Figure2_v3c.png` (Fig. 2), `v3c/Figure3_v3c.png` (Fig. 3), `v3c/FigureS_profiles_asinh.png` (Fig. S1) |
+| `09_tree_weighting.R` | Pooled vs tree-weighted means; leave-one-tree-out | `out/tree_weighting.csv` |
+| `10_basal_by_site_and_blackgum.R` | Basal vs upper-stem fluxes by tree; black gum share of stem flux above 2 m and the wetland scenario | `out/tree_basal_upper_branch.csv`, `out/blackgum_scaling.csv` |
+
+Global numbers produced by these scripts are scenarios that show sensitivity to assumptions, not estimates.
+
+## Black Gum Swamp reference tree (`data processing/goFlux_reprocessing/diurnal_blackgum/`)
+
+One *Nyssa sylvatica* in a saturated peat swamp at Harvard Forest, 28–29 August 2024, 105 closures at 0.25–3.6 m.
+`bg_run.R` processes the raw analyzer files (`raw/diurnal/diurnal_final/LGR2/`) with goFlux using the field start and end
+times, the chamber volumes and the Fisher station met data (HF001), and writes
+`results/blackgum_flux_compiled_with_mdf.csv`.
+
 ## Key Outputs
 
 - `data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled.csv` — Harvard Forest compiled fluxes (141 measurements)
 - `data processing/goFlux_reprocessing/ymf_black_oak/results/ymf_black_oak_flux_compiled.csv` — Yale Myers Forest compiled fluxes
 - `figures/summary_statistics_output.txt` — Key manuscript statistics
 
-## Figures
+## Figures (earlier draft; superseded by `scaling/08_figures_v3c.R`)
+
+The Wu et al. (2024) reanalysis scripts need the Wu et al. (2024) supplementary table (Agricultural and Forest Meteorology 350:109976, Appendix A), which is not redistributed here.
 
 | Figure | Script(s) | Description |
 |--------|-----------|-------------|

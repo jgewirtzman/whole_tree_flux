@@ -1,0 +1,9 @@
+tree,Site,Species,date,soil_T,VWC,microsite
+EMS hem 321902,EMS,hem,08-17-2023,18.2,27.4/33.7/37.4,upland
+EMS rm 321071,EMS,rm,"08-17-2023, 08-16-2023","17.5, 17.7, 18, 17.8",sat/sat/sat,saturated soil (wetland-like)
+EMS ro 300607,EMS,ro,08-17-2023,18.2,19.5/23.1/25.4,upland
+Swamp Rd bg 2,Swamp Rd,bg,07-18-2023,na,na/na/na,wetland margin (Swamp Rd)
+Swamp Rd hem 4,Swamp Rd,hem,07-19-2023,na,38.4/33.3/17.1,wetland margin (Swamp Rd)
+Swamp Rd rm 5,Swamp Rd,rm,07-19-2023,17.5,43/2.353 s/2.358 s,wetland margin (Swamp Rd)
+YMF black oak,Yale Myers,qv,10-04-2022,NA,NA,upland
+Black Gum Swamp bg (2024),Black Gum Swamp,bg,08-28/29-2024,NA,saturated peat (site),wetland (saturated peat swamp)

@@ -24,3 +24,38 @@ synthesis_merge/
 
 # Claude Code local instructions (private)
 CLAUDE.local.md
+
+# --- Analysis outputs and inputs that are not redistributed ---
+# superseded drafts kept locally only
+scaling/archive/
+scaling/FigureS4_v3.*
+scaling/fig_form_test.png
+scaling/fig_tree_component.png
+# third-party data: download instructions in the folder README
+scaling/soil_jevon2023/*
+!scaling/soil_jevon2023/README.md
+1-s2.0-S0168192324000911-mmc2.xlsx
+# black gum: regenerable staging files and large intermediates
+data processing/goFlux_reprocessing/diurnal_blackgum/import/
+data processing/goFlux_reprocessing/diurnal_blackgum/results/*.RData
+data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/fisher_met_09012024.csv
+data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/output/
+data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/*.numbers
+# private literature compilation (database paper) and manuscript planning notes
+grl_ge2m/
+GRL_REVISED_OUTLINE.md
+NOTES_global_estimates_for_GRL.md
+STATUS_TRACKER.md
+comment_responses_APPROVAL_LIST.md
+.git-manuscript/
+ms-git.sh
+# figure drafts and options (final figures are listed in the README)
+scaling/v3c/Fig1_A_*.png
+scaling/v3c/Fig1_B_*.png
+scaling/v3c/Fig1_C_*.png
+scaling/v3c/Fig1_D_photos_plus_B_logd.png
+scaling/v3c/Fig1d_truncation_options.png
+scaling/v3c/Figure3_v3c_equal.png
+# earlier field-processing scripts copied with the black gum raw data (superseded by bg_run.R)
+data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/functions/
+data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/diurnal_flux_processing.R
