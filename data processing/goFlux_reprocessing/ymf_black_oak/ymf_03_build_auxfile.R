@@ -164,7 +164,7 @@ ymf_field_data <- tk %>%
     Height_m       = `Height (m)`,
     Chamber        = Chamber,
     Stem_Temp_C    = `Stem Temperature`,
-    Stem_Diam_mm   = `Stem Diameter`,
+    Stem_Diam_mm   = `Stem Diameter`,  # NOTE: values are cm (38.5-46), not mm; column name kept because tree-methanogens 01_compile_datasets.R reads it (maps to stem_diam_cm)
     Air_Temp_C     = `Air Temp`,
     Notes          = Notes,
     sys_start      = sys_start,
