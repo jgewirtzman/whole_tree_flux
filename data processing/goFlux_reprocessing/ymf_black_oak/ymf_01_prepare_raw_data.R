@@ -4,7 +4,7 @@
 # =============================================================================
 
 source(file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "ymf_black_oak", "ymf_00_setup.R"))
 
 # --- Stage f-files ------------------------------------------------------------

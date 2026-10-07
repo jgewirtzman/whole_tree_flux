@@ -34,7 +34,7 @@
 
 # Source setup
 setup_path <- file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(setup_path)
 
@@ -682,6 +682,7 @@ message("  HF: ", file.path(results_dir, "canopy_flux_goFlux_compiled_with_mdf.c
 message("  YMF: ", file.path(ymf_out_dir, "ymf_black_oak_flux_compiled_with_mdf.csv"))
 message("  Precision: ", file.path(results_dir, "precision_comparison.csv"))
 
+if (Sys.getenv("FLUX_LEGACY_QC", "1") == "1") {
 # =============================================================================
 # Step F: Quality criteria summary table + heatmap
 # =============================================================================
@@ -1674,3 +1675,5 @@ message("\n--- Total integrated CH4 budget by filter ---")
 print(as.data.frame(budget_by_filter))
 
 message("\nStep I complete.")
+
+}

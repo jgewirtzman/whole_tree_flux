@@ -1,0 +1,15 @@
+metric,value
+n,141
+ntree,7
+mdf_median,0.0242438174171585
+basal_upper_ratio,2.5551409845118935
+ratio_lo,0.6753126411713404
+ratio_hi,7.5073261794306045
+paired_W,21
+paired_p,0.29687500000000006
+upper5_n,61
+upper5_neg,5
+upper10_n,31
+upper10_neg,4
+filter_total_min,0.5027643508801709
+filter_total_max,0.5887085834224011

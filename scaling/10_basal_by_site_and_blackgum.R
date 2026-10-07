@@ -3,9 +3,10 @@
 #     each tree's mean above 2 m and branch flux.
 # (2) Black gum (saturated peat swamp, reference only, not in the stand scenarios): share of stem flux above 2 m and
 #     absolute flux above 2 m vs the upland trees, under extrapolation forms above the top chamber (3.6 m).
-#     Stem geometry: a cone (stem area density proportional to H - h), H = 15.8 m, the mean lidar canopy height of N. sylvatica
+#     Stem geometry: a cone (stem area density proportional to H - h), H = 15.8 m, the mean maximum lidar canopy height of N. sylvatica
 #     in the HF ForestGEO plot (Sullivan et al. 2017; a proxy, not measured in Black Gum Swamp).
 source("scaling/00_load_field.R")
+source("scaling/analysis_helpers.R")
 suppressPackageStartupMessages(library(readr))
 TM <- F %>% filter(component == "stem") %>% mutate(z = ifelse(height_m < 2, "basal", "upper")) %>% group_by(tree, z, height_m) %>%
   summarise(f = mean(flux), .groups = "drop") %>% group_by(tree, z) %>% summarise(f = mean(f), .groups = "drop") %>% tidyr::pivot_wider(names_from = z, values_from = f) %>%
@@ -26,7 +27,7 @@ up_upland <- TM %>% filter(site != "Swamp") %>% pull(upper); up_all <- TM$upper
 scen <- function(H, form) { h <- seq(0, H, 0.01); w <- (H - h)
   f <- switch(form, exp = a * exp(-b * h), const_top = ifelse(h <= max(bg$height_m), a * exp(-b * h), top), zero_above_top = ifelse(h <= max(bg$height_m), a * exp(-b * h), 0))
   c(share_above2 = sum((w * f)[h >= 2]) / sum(w * f), mean_flux_above2 = sum((w * f)[h >= 2]) / sum(w[h >= 2]), mean_flux_below2 = sum((w * f)[h < 2]) / sum(w[h < 2])) }
-BGS <- tidyr::crossing(H = 15.8, form = c("exp", "const_top", "zero_above_top")) %>% rowwise() %>% mutate(as_tibble(as.list(scen(H, form)))) %>% ungroup() %>%
+BGS <- tidyr::crossing(H = BLACKGUM_HEIGHT, form = c("exp", "const_top", "zero_above_top")) %>% rowwise() %>% mutate(as_tibble(as.list(scen(H, form)))) %>% ungroup() %>%
   mutate(ratio_vs_upland_upper = mean_flux_above2 / mean(up_upland), ratio_vs_all_upper = mean_flux_above2 / mean(up_all))
 write_csv(BGS, file.path(ROOT, "scaling/out/blackgum_scaling.csv"))
 cat(sprintf("\nblack gum fit a = %.1f, b = %.2f; top chamber (%.1f m) mean %.1f; upland trees' mean flux above 2 m %.3f (tree means: %s)\n",
@@ -36,7 +37,7 @@ print(BGS %>% mutate(across(where(is.numeric), ~ signif(.x, 3))), n = 30)
 ## ---- global illustration: black gum-like stem flux above 2 m over the forested wetland classes of GLWD v2
 # Forested classes 8,10,12,14,16,18,20,22,24,26,28 from Lehner et al. 2025 ESSD Table 3 (10^3 km2); forested = >= 10 % tree cover.
 FW <- c(428.8, 378.6, 805.2, 701.2, 72.5, 138.5, 37.3, 1410.4, 431.7, 803.5, 150.8); A_fw <- sum(FW) / 1000   # M km2
-f_below <- 0.188   # mean share of stem area below 2 m on our measured trees (03_tree_component.R)
+f_below <- cone_share_below(2,BLACKGUM_HEIGHT)
 SAI_up <- 0.45 * (1 - f_below)   # Whittaker & Woodwell 1967 stem area 0.45 m2 m-2 (temperate, closed canopy): illustrative
 G <- BGS %>% mutate(Tg = mean_flux_above2 * SAI_up * A_fw * 0.506)
 cat(sprintf("\nforested wetland area (GLWD v2) %.2f M km2; stem area above 2 m %.3f m2 m-2 ground (illustrative, full stocking)\n", A_fw, SAI_up))

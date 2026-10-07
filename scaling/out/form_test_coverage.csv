@@ -1,0 +1,8 @@
+tree,exp_eligible,reason
+EMS hem 321902,TRUE,eligible
+EMS rm 321071,TRUE,eligible
+EMS ro 300607,TRUE,eligible
+Swamp Rd bg 2,TRUE,eligible
+Swamp Rd hem 4,FALSE,nonpositive basal height mean; log-linear exponential unavailable
+Swamp Rd rm 5,TRUE,eligible
+YMF black oak,FALSE,nonpositive basal height mean; log-linear exponential unavailable

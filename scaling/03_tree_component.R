@@ -3,18 +3,19 @@
 # compared with same-month soil uptake at Harvard Forest; leaves treated separately; microsite table; black gum
 # (saturated peat swamp) as a wetland reference profile; mixed-model extrapolation from basal data.
 # Inputs: 00_load_field.R (field fluxes), out/form_test_scores.csv (01), black gum compiled fluxes, Jevon 2023 soil data.
-# Stem area: per tree from the stem diameters measured at each chamber height (field sheet DBH_cm column = local stem
-#   diameter), linearly interpolated, tapering to 0 at the tallest measured height (so above-2 m area is a LOWER bound).
+# Sampled stem flux means use measured diameters and physical height intervals.
+# Stand area is partitioned with the same Sullivan-height cone as the capture figure.
+# Applying sampled compartment rates to that area is the explicit stand scenario.
 # Woody area per m2 ground: Whittaker & Woodwell 1967 (stem 0.45, branch 1.70; LAI 4.5) or total woody area 3.07
-#   (Gauci 2024 temperate WAI; branch = 3.07 - stem). The share of stem area below 2 m comes from our own trees.
-# Branch flux: no relation with height in our 11 branch measurements (Spearman rho -0.15, p = 0.66), so one rate is
-#   applied to all branch area and its vertical distribution does not enter.
+#   (Gauci 2024 temperate WAI; branch = 3.07 - stem). These are scenario inputs.
+# One measured branch rate is applied to branch area; its vertical distribution is not estimated.
 # Soil: Jevon et al. 2023 (Prospect Hill, upland), July-August instantaneous fluxes 2016-17 (fluxes.csv, umol m-2 s-1).
 # Outputs: scaling/out/tree_component.csv, microsite.csv, mixed_model_pred.csv; figures fig_tree_component.png,
 #   fig_SI_extrapolation_fits.png
 # Run: LANG=en_US.UTF-8 Rscript scaling/03_tree_component.R   (from whole_tree_flux/)
 # =============================================================================
 source("scaling/00_load_field.R")
+source("scaling/analysis_helpers.R")
 suppressPackageStartupMessages({library(tidyr); library(ggplot2); library(readr); library(patchwork); library(lme4)})
 OUT <- file.path(ROOT, "scaling/out")
 num <- function(x) suppressWarnings(as.numeric(x))
@@ -32,42 +33,81 @@ micro <- bind_rows(micro, tibble(tree = "YMF black oak", Site = "Yale Myers", Sp
                    tibble(tree = "Black Gum Swamp bg (2024)", Site = "Black Gum Swamp", Species = "bg", date = "08-28/29-2024", soil_T = NA, VWC = "saturated peat (site)", microsite = "wetland (saturated peat swamp)"))
 write_csv(micro, file.path(OUT, "microsite.csv")); print(micro %>% select(tree, VWC, microsite), width = 200)
 
-## ---- stem area per tree from measured diameters
-geom <- hf %>% filter(Type == "stem") %>% transmute(tree = paste(Site, Species, Tree_Tag), h = Height_m, d = num(DBH_cm) / 100) %>% filter(!is.na(d)) %>%
-  group_by(tree, h) %>% summarise(d = mean(d), .groups = "drop")
-stem_area <- function(g) { top <- max(g$h); hh <- seq(0, top, by = 0.05)
-  dd <- approx(c(g$h, top + 1e-6), c(g$d, 0), xout = hh, rule = 2)$y   # taper to 0 just above the tallest chamber
-  a <- pi * dd * 0.05; c(below2 = sum(a[hh < 2]), above2 = sum(a[hh >= 2]), top = top) }
-SA <- bind_rows(lapply(split(geom, geom$tree), function(g) as.list(stem_area(g)) %>% as_tibble() %>% mutate(tree = g$tree[1]))) %>%
-  mutate(share_below2 = below2 / (below2 + above2))
-print(SA); f_below <- mean(SA$share_below2)
-cat(sprintf("share of stem area below 2 m (own trees, lower-bound tops): mean %.3f (range %.3f-%.3f); cone 26 m: %.3f\n",
-            f_below, min(SA$share_below2), max(SA$share_below2), 1 - (24 / 26)^2))
-
-## ---- per-area rates
-## Stand scenarios use the six Harvard Forest trees only (the Yale-Myers oak was a different site and season); each tree
-## counts once (tree-weighted means), for every compartment.
-HFT <- unique(F$tree[F$site != "Yale Myers" & !grepl("YMF", F$tree)])
-sc <- read_csv(file.path(OUT, "form_test_scores.csv"), show_col_types = FALSE) %>% filter(tree %in% HFT)
+## ---- measured geometry and integrated upper-stem profiles
+G <- load_geometry(F)
+HFT <- unique(F$tree[F$site != "Yale Myers"])
 FH <- F %>% filter(tree %in% HFT)
-tw <- function(d) d %>% group_by(tree, height_m) %>% summarise(f = mean(flux), .groups = "drop") %>% group_by(tree) %>% summarise(f = mean(f), .groups = "drop")
-stem_lo <- FH %>% filter(component == "stem", height_m < 2) %>% tw() %>% pull(f) %>% mean()
-upper <- bind_rows(sc %>% group_by(form) %>% summarise(f_up = mean(pred_cone, na.rm = TRUE), .groups = "drop"),
-                   sc %>% filter(form == "const_mean") %>% summarise(form = "measured", f_up = mean(obs_cone)))
-br <- FH %>% filter(component == "branch"); lf <- FH %>% filter(component == "leaf")
-BR <- c(measured_mean = mean(tw(br)$f), measured_median = median(br$flux))
-RATES <- tibble(comp = c("stem_lo", "stem_up", "branch", "leaf"),
-  mean = c(stem_lo, upper$f_up[upper$form == "measured"], BR[["measured_mean"]], mean(tw(lf)$f)),
-  se = c(sd(tw(filter(FH, component == "stem", height_m < 2))$f) / sqrt(length(HFT)), sd(filter(sc, form == "const_mean")$obs_cone) / sqrt(nrow(filter(sc, form == "const_mean"))),
-         sd(tw(br)$f) / sqrt(n_distinct(br$tree)), sd(tw(lf)$f) / sqrt(n_distinct(lf$tree))),
-  ntree = c(length(HFT), nrow(filter(sc, form == "const_mean")), n_distinct(br$tree), n_distinct(lf$tree)),
-  area = c(0.45 * f_below, 0.45 * (1 - f_below), 1.70, 4.5))
-write_csv(RATES, file.path(OUT, "stand_rates_HF.csv")); print(RATES)
-AREA <- tribble(~area_set, ~stem, ~branch, "Whittaker & Woodwell 1967", 0.45, 1.70, "Woody area index 3.07 (Gauci 2024 temperate)", 0.45, 2.62)
-T <- crossing(upper, AREA, branch_rule = c("measured_mean", "measured_median", "equal_upper_stem")) %>%
-  mutate(f_branch = ifelse(branch_rule == "equal_upper_stem", f_up, BR[branch_rule]),
-         stem_lo_g = stem_lo * stem * f_below, stem_up_g = f_up * stem * (1 - f_below), branch_g = f_branch * branch,
-         woody_component = stem_lo_g + stem_up_g + branch_g)
+sc <- read_csv(file.path(OUT, "form_test_scores.csv"), show_col_types=FALSE) %>% filter(tree %in% HFT)
+coverage <- read_csv(file.path(OUT, "form_test_coverage.csv"), show_col_types=FALSE)
+common_HF <- intersect(HFT, coverage$tree[coverage$exp_eligible])
+SA <- bind_rows(lapply(split(filter(G,tree %in% HFT), filter(G,tree %in% HFT)$tree),function(g) {
+  tibble(tree=g$tree[1],below2=sum(stem_grid(g,0,2)$area),above2=sum(stem_grid(g,2,g$top[1])$area),top=g$top[1])
+})) %>% mutate(share_below2=below2/(below2+above2),
+  scenario_height=CANOPY_HEIGHT,scenario_share_below2=cone_share_below(2,CANOPY_HEIGHT))
+write_csv(SA,file.path(OUT,"stem_geometry.csv"))
+component_rows <- function(d) {
+  bind_rows(lapply(split(d,d$tree),function(x) {
+    original <- if("source_tree" %in% names(x)) x$source_tree[1] else x$tree[1]
+    g <- filter(G,tree==original)
+    rate <- function(component,lower=NA,upper=NA) {
+      y <- x[x$component==component,,drop=FALSE]
+      if(is.finite(lower)) y<-y[y$height_m>=lower & y$height_m<upper,,drop=FALSE]
+      if(!nrow(y)) return(NA_real_)
+      h<-height_means(y)
+      if(component!="stem") return(mean(h$flux))
+      gr<-stem_grid(g,lower,min(upper,g$top[1]),h$height_m)
+      sum(profile_weights(h$height_m,gr)*h$flux)
+    }
+    tibble(tree=x$tree[1],source_tree=original,stem_lo=rate("stem",0,2),
+      stem_up=rate("stem",2,Inf),branch=rate("branch"),leaf=rate("leaf"),
+      share_below2=cone_share_below(2,CANOPY_HEIGHT))
+  }))
+}
+CR <- component_rows(FH)
+write_csv(CR,file.path(OUT,"tree_component_rates.csv"))
+comp_names<-c("stem_lo","stem_up","branch","leaf")
+summarize_stand <- function(cr) {
+  f<-vapply(comp_names,function(k)mean(cr[[k]],na.rm=TRUE),numeric(1))
+  below<-mean(cr$share_below2)
+  area<-c(.45*below,.45*(1-below),1.70,4.5)
+  val<-f*area
+  c(setNames(f,paste0("rate_",comp_names)),setNames(area,paste0("area_",comp_names)),
+    setNames(val,paste0("int_",comp_names)),setNames(100*val/sum(val),paste0("pct_",comp_names)),
+    total=sum(val),woody=sum(val[1:3]),cancel=unname(-val[1]/sum(area[-1])),flip=unname(-2*val[1]/sum(area[-1])),
+    upper_mean=sum(val[-1])/sum(area[-1]))
+}
+base<-summarize_stand(CR)
+set.seed(43)
+stand_boot<-t(replicate(N_BOOT,summarize_stand(component_rows(resample_trees(FH,HFT)))))
+# Some draws select no branch-measured tree. Retain NA for those terms rather than
+# treating unavailable branches as zero; report completeness for every interval.
+stand_ci<-bind_rows(lapply(names(base),function(k)tibble(metric=k,estimate=base[k],lo=ci95(stand_boot[,k])[1],
+  hi=ci95(stand_boot[,k])[2],valid_draws=sum(is.finite(stand_boot[,k])),total_draws=N_BOOT)))
+write_csv(stand_ci,file.path(OUT,"stand_uncertainty_HF.csv"))
+RATES<-tibble(comp=comp_names,mean=unname(base[paste0("rate_",comp_names)]),
+  se=vapply(comp_names,function(k)sd(CR[[k]],na.rm=TRUE)/sqrt(sum(is.finite(CR[[k]]))),numeric(1)),
+  ntree=vapply(comp_names,function(k)sum(is.finite(CR[[k]])),integer(1)),
+  area=unname(base[paste0("area_",comp_names)]),
+  lo=stand_ci$lo[match(paste0("rate_",comp_names),stand_ci$metric)],
+  hi=stand_ci$hi[match(paste0("rate_",comp_names),stand_ci$metric)])
+write_csv(RATES,file.path(OUT,"stand_rates_HF.csv")); print(RATES)
+# All cross-form scenarios use the same five eligible Harvard Forest trees,
+# including the measured benchmark, basal contribution and area partition.
+scc<-filter(sc,tree %in% common_HF)
+upper<-bind_rows(scc %>% group_by(form) %>% summarise(f_up=mean(pred_area),.groups="drop"),
+  scc %>% filter(form=="const_mean") %>% summarise(form="measured",f_up=mean(obs_area)))
+stopifnot(all(is.finite(upper$f_up)))
+CRc<-filter(CR,source_tree %in% common_HF)
+stem_lo<-mean(CRc$stem_lo); f_below<-mean(CRc$share_below2)
+br<-FH %>% filter(component=="branch",tree %in% common_HF)
+lf<-FH %>% filter(component=="leaf")
+tw<-tree_mean
+BR<-c(measured_mean=mean(CRc$branch,na.rm=TRUE),measured_median=median(br$flux))
+AREA<-tribble(~area_set,~stem,~branch,"Whittaker & Woodwell 1967",.45,1.70,"Woody area index 3.07 (Gauci 2024 temperate)",.45,2.62)
+T<-crossing(upper,AREA,branch_rule=c("measured_mean","measured_median","equal_upper_stem")) %>%
+  mutate(f_branch=ifelse(branch_rule=="equal_upper_stem",f_up,BR[branch_rule]),
+    stem_lo_g=stem_lo*stem*f_below,stem_up_g=f_up*stem*(1-f_below),branch_g=f_branch*branch,
+    woody_component=stem_lo_g+stem_up_g+branch_g,ntree=length(common_HF),cohort=paste(sort(common_HF),collapse="; "))
 ## ---- soil, same months (July-August), Jevon et al. 2023
 soil <- read.csv(file.path(ROOT, "scaling/soil_jevon2023/fluxes.csv")) %>% mutate(m = format(as.Date(date, "%m/%d/%y"), "%m"), f = CH4.flux * 1000) %>% filter(m %in% c("07", "08"))
 S_mean <- mean(soil$f); S_q <- quantile(soil$f, c(0.25, 0.75))
@@ -79,11 +119,11 @@ print(T %>% group_by(form) %>% summarise(woody_min = min(woody_component), woody
 ## ---- leaves, separately
 LV <- tibble(leaf_rule = c("measured mean", "measured median", "zero", "uptake at -1x mean leaf rate"), f = c(mean(lf$flux), median(lf$flux), 0, -mean(lf$flux))) %>%
   mutate(leaf_g = f * 4.5)
-cat("\nleaf term (LAI 4.5), nmol m-2 ground s-1; 19 of 21 leaf fluxes below MDF:\n"); print(LV)
+cat("\nleaf term (LAI 4.5), nmol m-2 ground s-1; leaf fluxes below MDF (see manuscript_statistics.csv):\n"); print(LV)
 
 ## ---- mixed model on basal (< 2 m) stem data, extrapolated (asinh scale; tree random intercept and slope)
 S <- F %>% filter(component == "stem") %>% mutate(y = asinh(flux / 0.01))
-m <- lmer(y ~ height_m + (height_m | tree), data = S %>% filter(height_m < 2), REML = TRUE, control = lmerControl(check.conv.singular = "ignore"))
+m <- lmer(y ~ height_m + (height_m | tree), data = S %>% filter(height_m < 2), REML = TRUE, control = lmerControl())
 fe <- fixef(m); cat("\nmixed model (basal data): fixed slope on asinh scale =", round(fe[2], 3), "per m\n")
 grid <- S %>% distinct(tree) %>% crossing(height_m = seq(0.3, 22, by = 0.1)) %>% left_join(S %>% group_by(tree) %>% summarise(hmax = max(height_m)), by = "tree") %>%
   filter(height_m <= hmax)
@@ -104,7 +144,7 @@ fpts <- read_csv(file.path(OUT, "form_test_points.csv"), show_col_types = FALSE)
 lines <- bind_rows(lapply(unique(fpts$tree), function(t) {
   lo <- F %>% filter(component == "stem", tree == t, height_m < 2) %>% group_by(height_m) %>% summarise(f = mean(flux), .groups = "drop")
   h <- lo$height_m; f <- lo$f; top <- f[which.max(h)]; lin <- coef(lm(f ~ h)); rising <- lin[2] > 0
-  ex <- if (all(f > 0)) coef(lm(log(f) ~ h)) else c(NA, NA); x <- seq(2, max(F$height_m[F$tree == t]), by = 0.1)
+  ex <- if (all(f > 0)) coef(lm(log(f) ~ h)) else c(NA, NA); x <- seq(2, max(F$height_m[F$tree == t & F$component == "stem"]), by = 0.1)
   bind_rows(tibble(form = "const_mean", y = mean(f)), tibble(form = "exp_decay", y = if (is.na(ex[1])) NA else if (ex[2] > 0) top else NA),
             tibble(form = "zero", y = 0)) %>% select(-y) %>% {NULL}
   bind_rows(tibble(tree = t, height_m = x, form = "const_mean", pred = mean(f)),
@@ -153,7 +193,7 @@ pT <- ggplot(T2, aes(woody_component, form)) +
                       labels = c(measured_mean = "branch: measured mean", measured_median = "branch: measured median", equal_upper_stem = "branch = upper stem"), name = NULL) +
   scale_shape_manual(values = c(16, 2), name = NULL) + coord_cartesian(clip = "off") +
   labs(x = expression(CH[4]~flux~(nmol~m^{-2}~ground~s^{-1})), y = "Stem above 2 m:",
-       title = "Tree woody-surface component (stems + branches), not an ecosystem budget",
+       title = "Woody-surface scenarios on the common five-tree cohort",
        subtitle = "Per m² ground; leaves excluded (see separate analysis). Soil: same months, different years (2016–17 vs 2023).") + th +
   theme(legend.box = "vertical", plot.subtitle = element_text(size = 7.5, colour = "grey30"))
 ggsave(file.path(ROOT, "scaling/fig_tree_component.png"), pT, width = 180, height = 120, units = "mm", dpi = 300, bg = "white")

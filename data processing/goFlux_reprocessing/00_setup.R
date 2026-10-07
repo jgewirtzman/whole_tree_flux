@@ -10,7 +10,7 @@ if (!require("remotes", quietly = TRUE)) install.packages("remotes")
 
 # Install goFlux from GitHub if not already installed
 if (!require("goFlux", quietly = TRUE)) {
-  remotes::install_github("Qepanna/goFlux")
+  remotes::install_github("Qepanna/goFlux@aee8456e62a016b6b496eb669e7445b160e65a9d")
 }
 library(goFlux)
 
@@ -23,7 +23,8 @@ for (pkg in pkgs) {
 
 # --- Path Definitions --------------------------------------------------------
 
-base_dir <- "/Users/jongewirtzman/My Drive/Research/whole_tree_flux"
+base_dir <- normalizePath(".", mustWork = TRUE)
+stopifnot(file.exists(file.path(base_dir, "whole_tree_flux.Rproj")))
 input_dir <- file.path(base_dir, "data processing", "input")
 reprocess_dir <- file.path(base_dir, "data processing", "goFlux_reprocessing")
 
@@ -62,8 +63,9 @@ vtot_addition <- analyzer_vol + tubing_vol  # 0.057 L
 # goFlux instrument precision for the ABB/LGR GLA131-GGA Microportable UGGA
 # (1σ at 1 s; ABB GLA131-GGA datasheet 3KXG167001R1001 Rev. J)
 # c(CO2dry_ppm, CH4dry_ppb, H2O_ppm)
-# NOTE (2026-09): earlier runs used c(0.2, 1.4, 50) labelled "GLA132"; this only
-# feeds goFlux's own MDF column. 09_mdf_lod_comparison.R recomputes MDF post hoc.
+# Precision also controls HM curvature constraints and model selection. Pass it
+# explicitly to goFlux; imported/cached precision columns may predate this setting.
+# The empirical MDF is computed separately in 09_mdf_lod_comparison.R.
 ugga_prec <- c(0.35, 0.9, 200)
 
 # Date format in raw LGR files (mm/dd/yyyy)
@@ -85,3 +87,21 @@ for (d in c(goflux_import_dir, rdata_dir, results_dir, plots_dir)) {
 }
 
 message("Setup complete. Base directory: ", base_dir)
+
+# Refresh metadata without changing manually selected measurement windows.
+# Called by every flux-calculation step, so rebuilding auxfiles cannot leave stale
+# areas, volumes, weather or precision in the cached manID objects.
+sync_manID <- function(manID, aux) {
+  stopifnot(!anyDuplicated(aux$UniqueID))
+  i <- match(manID$UniqueID, aux$UniqueID)
+  if (anyNA(i)) stop("Unmatched manID UniqueID in auxfile")
+  for (nm in c("Area", "Vtot", "Tcham", "Pcham")) {
+    stopifnot(all(is.finite(aux[[nm]])))
+    manID[[nm]] <- aux[[nm]][i]
+  }
+  stopifnot(all(manID$Area > 0), all(manID$Vtot > 0), all(manID$Pcham > 0), all(manID$Tcham > -273.15))
+  manID$CO2_prec <- ugga_prec[1]
+  manID$CH4_prec <- ugga_prec[2]
+  manID$H2O_prec <- ugga_prec[3]
+  manID
+}

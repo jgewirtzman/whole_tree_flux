@@ -38,9 +38,9 @@ cat("imported rows:", nrow(imp), "range:", format(range(imp$POSIX.time)), "\n")
 fd <- read.csv(file.path(RAW, "diurnal_updated.csv"), check.names = FALSE, stringsAsFactors = FALSE)
 vol <- read.csv(file.path(RAW, "diurnal_volumes.csv"), stringsAsFactors = FALSE) %>% transmute(VolumeID, Vch = Volume, Area_m2 = surfarea)
 met <- read.csv("data processing/goFlux_reprocessing/hf001-10-15min-m.csv", stringsAsFactors = FALSE) %>%
-  mutate(t = parse_date_time(datetime, c("ymd HM", "ymd_HM", "Ymd HM", "Ymd HMS"), tz = "EST") + hours(1)) %>% filter(!is.na(t)) %>%
+  mutate(t = parse_date_time(datetime, c("ymd HM", "ymd_HM", "Ymd HM", "Ymd HMS"), tz = "EST")) %>% filter(!is.na(t)) %>%
   filter(t >= as.POSIXct("2024-08-27", tz = "EST"), t <= as.POSIXct("2024-08-31", tz = "EST"))
-attr(met$t, "tzone") <- "UTC"
+met$t <- force_tz(with_tz(met$t, "America/New_York"), "UTC")
 aux <- fd %>% left_join(vol, by = "VolumeID") %>%
   mutate(start.time = as.POSIXct(updated_start, tz = "UTC"), end.time = as.POSIXct(updated_end, tz = "UTC"),
          field_time = as.POSIXct(`Start (iPad)`, tz = "UTC"))
@@ -64,7 +64,7 @@ cat("windows with data:", sum(nwin$n > 10), "of", nrow(auxfile), "| points per w
 miss <- setdiff(auxfile$UniqueID, nwin$UniqueID[nwin$n > 10]); if (length(miss)) cat("WINDOWS WITHOUT DATA:", paste(miss, collapse = ", "), "\n")
 
 ## 5. fluxes
-CH4 <- best.flux(goFlux(manID, "CH4dry_ppb"), flux_criteria); CO2 <- best.flux(goFlux(manID, "CO2dry_ppm"), flux_criteria)
+CH4 <- best.flux(goFlux(manID, "CH4dry_ppb", prec = ugga_prec[2]), flux_criteria); CO2 <- best.flux(goFlux(manID, "CO2dry_ppm", prec = ugga_prec[1]), flux_criteria)
 
 ## 6. empirical MDF (09_mdf_lod_comparison.R reference method)
 # sigma: the canopy campaigns used the campaign MAD of first differences of the whole record, but here closures with
@@ -84,7 +84,7 @@ out <- fd %>% select(UniqueID, VolumeID, Position, height_m = `Height (m)`, cham
   left_join(CH4 %>% transmute(UniqueID, CH4_best.flux = best.flux, CH4_model = model, CH4_quality.check = quality.check,
                               CH4_flux.term = flux.term, nb.obs, CH4_LM.r2 = LM.r2), by = "UniqueID") %>%
   left_join(CO2 %>% transmute(UniqueID, CO2_best.flux = best.flux, CO2_model = model), by = "UniqueID") %>%
-  left_join(manID %>% filter(flag == 1) %>% group_by(UniqueID) %>% summarise(t_sec = as.numeric(diff(range(POSIX.time))), .groups = "drop"), by = "UniqueID") %>%
+  left_join(manID %>% filter(flag == 1) %>% group_by(UniqueID) %>% summarise(t_sec = as.numeric(diff(range(POSIX.time)), units = "secs") + median(diff(as.numeric(POSIX.time))), .groups = "drop"), by = "UniqueID") %>%
   mutate(CH4_MDF_emp95 = 1.96 * sigma_ch4 / t_sec * CH4_flux.term, CH4_below_MDF = abs(CH4_best.flux) < CH4_MDF_emp95,
          sigma_CH4_ppb = sigma_ch4)
 write_csv(out, file.path(RES, "blackgum_flux_compiled_with_mdf.csv")); save(manID, CH4, CO2, auxfile, file = file.path(RES, "blackgum_goflux.RData"))

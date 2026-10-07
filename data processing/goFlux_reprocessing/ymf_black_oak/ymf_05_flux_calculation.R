@@ -9,22 +9,25 @@
 # =============================================================================
 
 source(file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "ymf_black_oak", "ymf_00_setup.R"))
 
 # --- Load manual ID results ---------------------------------------------------
 
 load(file.path(ymf_rdata_dir, "manID_YMF.RData"))
+load(file.path(ymf_rdata_dir, "aux_YMF.RData"))
+manID.YMF <- sync_manID(manID.YMF, aux.YMF)
+save(manID.YMF, file = file.path(ymf_rdata_dir, "manID_YMF.RData"))
 
 # =============================================================================
 # Calculate fluxes
 # =============================================================================
 
 message("\n=== YMF: Calculating CO2 fluxes ===")
-CO2_flux.YMF <- goFlux(manID.YMF, "CO2dry_ppm")
+CO2_flux.YMF <- goFlux(manID.YMF, "CO2dry_ppm", prec = ugga_prec[1])
 
 message("=== YMF: Calculating CH4 fluxes ===")
-CH4_flux.YMF <- goFlux(manID.YMF, "CH4dry_ppb")
+CH4_flux.YMF <- goFlux(manID.YMF, "CH4dry_ppb", prec = ugga_prec[2])
 
 message("\nYMF: Selecting best flux estimates...")
 CO2_best.YMF <- best.flux(CO2_flux.YMF, flux_criteria)

@@ -13,6 +13,7 @@
 # Run: LANG=en_US.UTF-8 Rscript scaling/08_figures_v3c.R   (from whole_tree_flux/)
 # =============================================================================
 source("scaling/00_load_field.R")
+source("scaling/analysis_helpers.R")
 suppressPackageStartupMessages({library(tidyr); library(ggplot2); library(readr); library(patchwork); library(jpeg); library(grid)})
 OUT <- file.path(ROOT, "scaling/out"); FD <- file.path(ROOT, "scaling/v3c"); dir.create(FD, showWarnings = FALSE)
 FONT <- "Helvetica"
@@ -59,7 +60,7 @@ prof <- function(d, layout = c("row", "grid"), xs = c("raw", "asinh")) {
   big <- if (layout == "row") 2.4 else 2.6
   p <- ggplot(d, aes(flux, height_m)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2, fill = "#F3F3F3") +
     geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-    geom_smooth(data = ~ filter(.x, component == "stem"), orientation = "y", method = "loess", formula = y ~ x, se = TRUE,
+    geom_smooth(data = ~ filter(.x, component == "stem"), orientation = "y", method = "loess", formula = y ~ x, se = FALSE,
                 colour = "grey25", fill = "grey60", alpha = 0.25, linewidth = 0.5, na.rm = TRUE) +
     geom_point(data = ~ filter(.x, !below_mdf), aes(flux, yp, fill = comp, shape = "above MDF"), colour = "white", size = big, stroke = 0.3) +
     geom_point(data = ~ filter(.x, below_mdf), aes(flux, yp, colour = comp, shape = "below MDF"), fill = "white", size = big - 0.3, stroke = 0.65) +
@@ -93,20 +94,50 @@ img <- function(f, cx = 0.5, cy = 0.5, asp = 2 / 3) { x <- readJPEG(file.path(RO
   c0 <- max(1, min(w - ww + 1, round(cx * w - ww / 2))); r0 <- max(1, min(h - hh + 1, round(cy * h - hh / 2)))
   x <- x[r0:(r0 + hh - 1), c0:(c0 + ww - 1), ]
   ggplot() + annotation_raster(x, 0, 1, 0, 1) + coord_fixed(asp, expand = FALSE, xlim = c(0, 1), ylim = c(0, 1)) + theme_void() + theme(plot.tag = element_text(size = 10, face = "bold")) }
-# panel d: stem fluxes of the seven upland trees in 2 m bands, band means ± SE
-NH <- P1m %>% filter(site != "Black Gum Swamp", component == "stem") %>% mutate(hb = cut(height_m, seq(0, 24, 2), right = FALSE, labels = paste0(seq(0, 22, 2), "–", seq(2, 24, 2))))
-NS <- NH %>% group_by(hb) %>% summarise(m = mean(flux), se = sd(flux) / sqrt(n()), n = n(), .groups = "drop"); write_csv(NS, file.path(OUT, "fig1_heightbin_means.csv"))
+# Height-band summaries count each tree once. Bootstrap entire trees, then
+# within-tree/height closures; re-estimate every basal denominator on each draw.
+height_summary <- function(d, breaks, relative=FALSE) {
+  x<-filter(d,component=="stem")
+  if(relative) {
+    bm<-x %>% filter(height_m<2) %>% group_by(tree,height_m) %>% summarise(f=mean(flux),.groups="drop") %>%
+      group_by(tree) %>% summarise(bm=mean(f),.groups="drop")
+    x<-left_join(x,bm,by="tree") %>% mutate(flux=flux/bm) %>% filter(height_m>=2)
+  }
+  x %>% mutate(bin=cut(height_m,breaks,right=FALSE)) %>% filter(!is.na(bin)) %>%
+    group_by(tree,bin,height_m) %>% summarise(f=mean(flux),.groups="drop") %>%
+    group_by(tree,bin) %>% summarise(f=mean(f),h=mean(height_m),.groups="drop") %>%
+    group_by(bin) %>% summarise(m=mean(f),h=mean(h),ntree=n(),.groups="drop")
+}
+abs_breaks<-seq(0,24,2); rel_breaks<-c(2,4,7,10,14,23)
+set.seed(44)
+HB<-bind_rows(lapply(seq_len(N_BOOT),function(b) {
+  d<-resample_trees(F)
+  bind_rows(height_summary(d,abs_breaks) %>% mutate(kind="absolute"),
+    height_summary(d,rel_breaks,TRUE) %>% mutate(kind="relative")) %>% mutate(b=b)
+}))
+add_bin_ci<-function(d,kind_value) {
+  ci<-HB %>% filter(kind==kind_value) %>% group_by(bin) %>%
+    summarise(lo=ci95(m)[1],hi=ci95(m)[2],valid_draws=sum(is.finite(m)),.groups="drop")
+  left_join(d,ci,by="bin")
+}
+NS<-add_bin_ci(height_summary(F,abs_breaks),"absolute") %>%
+  mutate(hb=factor(as.character(bin),levels=levels(cut(0,abs_breaks,right=FALSE)),labels=paste0(seq(0,22,2),"–",seq(2,24,2))))
+write_csv(NS,file.path(OUT,"fig1_heightbin_means.csv"))
+NH<-P1m %>% filter(site!="Black Gum Swamp",component=="stem") %>%
+  mutate(hb=cut(height_m,abs_breaks,right=FALSE,labels=paste0(seq(0,22,2),"–",seq(2,24,2))))
+binm<-add_bin_ci(height_summary(F,rel_breaks,TRUE),"relative")
+write_csv(binm,file.path(OUT,"fig3_relative_means.csv"))
 pd <- function(xs) {
   XM <- 3; d <- NH %>% mutate(clip = xs == "raw" & flux > XM, fx = ifelse(clip, XM, flux))
   p <- ggplot(d, aes(fx, hb)) + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
     geom_point(data = ~ filter(.x, !clip), aes(colour = comp, shape = below_mdf), position = position_jitter(height = 0.18, width = 0, seed = 3), size = 1, stroke = 0.4, alpha = 0.8) +
     geom_point(data = ~ filter(.x, clip), aes(colour = comp), shape = 62, size = 2.2) +
-    geom_errorbarh(data = NS, aes(xmin = m - se, xmax = m + se, y = hb), inherit.aes = FALSE, height = 0, linewidth = 0.5) +
+    geom_errorbarh(data = NS, aes(xmin = lo, xmax = hi, y = hb), inherit.aes = FALSE, height = 0, linewidth = 0.5) +
     geom_point(data = NS, aes(m, hb), inherit.aes = FALSE, shape = 23, fill = "white", colour = "black", size = 1.9, stroke = 0.5) +
     scale_colour_manual(values = CC, guide = "none") + scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1), guide = "none") +
     labs(x = if (xs == "raw") expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})) else expression(Stem~CH[4]~flux*","~arcsinh~scale), y = "Height (m)") +
     th + theme(axis.text.y = element_text(size = 6.5))
-  if (xs == "raw") p + scale_x_continuous(limits = c(-0.2, XM), breaks = seq(0, 3, 0.5), expand = expansion(mult = c(0.02, 0.03)))
+  if (xs == "raw") p + coord_cartesian(xlim = c(-0.2, XM)) + scale_x_continuous(breaks = seq(0, 3, 0.5), expand = expansion(mult = c(0.02, 0.03)))
   else p + scale_x_continuous(trans = tr_as, breaks = c(-0.1, 0, 0.1, 1, 10), labels = lab_sl) }
 for (xs in c("raw", "asinh")) {
   bot <- (img("IMG_5926_edited.jpg", 0.5, 0.45) | img("IMG_6437.jpg", 0.5, 0.5) | pd(xs)) + plot_layout(widths = c(1, 1, 0.9))
@@ -118,16 +149,16 @@ for (xs in c("raw", "asinh")) {
 ## ============================ Figure 2
 hf <- read.csv(file.path(DATA, "data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv")) %>%
   filter(!(Species == "bg" & Tree_Tag == 3), !is.na(CH4_best.flux), !is.na(Height_m)) %>% mutate(component = ifelse(Type == "leaf (shaded)", "leaf", Type))
-H <- 23   # canopy height: lidar heights of the dominant species in the HF ForestGEO plot, 20.0–22.9 m (Sullivan et al., 2017)
-# stand rates: six HF trees, tree-weighted (03_tree_component.R); stem area split from our own trees' diameters
+H <- CANOPY_HEIGHT  # shared Sullivan-height proxy for the stand scenario and capture figure
+# stand rates: six HF trees, tree-weighted (03_tree_component.R); same cone area split as below
 R <- read_csv(file.path(OUT, "stand_rates_HF.csv"), show_col_types = FALSE) %>% mutate(comp = factor(COMP, COMP), int = mean * area, pct = 100 * int / sum(int))
 write_csv(R, file.path(OUT, "fig2_stand_shares.csv")); print(R)
 mdf <- median(hf$CH4_MDF_wass95, na.rm = TRUE)
 FL <- "atop(Flux~per~unit~surface, (nmol~m^{-2}~s^{-1}))"; AL <- "atop(Surface~area, (m^2~m^{-2}~ground))"
 R2 <- R %>% transmute(comp, !!FL := mean, !!AL := area) %>% pivot_longer(-comp) %>%
-  left_join(R %>% transmute(comp, name = FL, se), by = c("comp", "name")) %>% mutate(name = factor(name, c(FL, AL)))
-p2a <- ggplot(R2, aes(comp, value, fill = comp)) + geom_col(width = 0.65) + geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2, linewidth = 0.3, na.rm = TRUE) +
-  geom_text(aes(y = value + ifelse(is.na(se), 0, se), label = ifelse(value < 0.1, sprintf("%.3f", value), sprintf("%.2f", value))), vjust = -0.5, size = 2.5) +
+  left_join(R %>% transmute(comp, name = FL, lo, hi), by = c("comp", "name")) %>% mutate(name = factor(name, c(FL, AL)))
+p2a <- ggplot(R2, aes(comp, value, fill = comp)) + geom_col(width = 0.65) + geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.2, linewidth = 0.3, na.rm = TRUE) +
+  geom_text(aes(y = ifelse(is.na(hi), value, hi), label = ifelse(value < 0.1, sprintf("%.3f", value), sprintf("%.2f", value))), vjust = -0.5, size = 2.5) +
   facet_wrap(~name, ncol = 1, scales = "free", strip.position = "left", labeller = label_parsed) + scale_fill_manual(values = CC, guide = "none") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.16))) + labs(x = NULL, y = NULL) + th +
   theme(strip.placement = "outside", strip.text = element_text(size = 7.5, hjust = 0.5), axis.text.x = element_text(size = 7))
@@ -140,11 +171,11 @@ p2c <- ggplot(cone) + geom_ribbon(aes(y = h, xmin = -r, xmax = r), orientation =
   geom_ribbon(data = cone %>% filter(h <= 2), aes(y = h, xmin = -r, xmax = r), orientation = "y", fill = CC[1]) +
   geom_hline(yintercept = c(2, 10), linetype = "22", linewidth = 0.3, colour = "grey40") + coord_cartesian(xlim = c(-0.35, 0.35)) +
   labs(x = NULL, y = "Height (m)") + th + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank())
-cap <- tibble(h = seq(0, H, 0.1)) %>% mutate(s = 1 - ((H - h) / H)^2, `Stem` = 100 * s, `Stem + branches` = 100 * s * 0.45 / 2.15, `All surfaces` = 100 * s * 0.45 / 6.65) %>%
+cap <- tibble(h = seq(0, H, 0.1)) %>% mutate(s = cone_share_below(h,H), `Stem` = 100 * s, `Stem + branches` = 100 * s * 0.45 / 2.15, `All surfaces` = 100 * s * 0.45 / 6.65) %>%
   select(-s) %>% pivot_longer(-h) %>% mutate(name = factor(name, c("Stem", "Stem + branches", "All surfaces")))
 p2d <- ggplot(cap, aes(value, h, colour = name)) + geom_hline(yintercept = c(2, 10), linetype = "22", linewidth = 0.3, colour = "grey40") + geom_path(linewidth = 0.8) +
   scale_colour_manual(values = c(Stem = CC[[2]], `Stem + branches` = CC[[3]], `All surfaces` = CC[[4]]), name = NULL) + guides(colour = guide_legend(ncol = 1)) +
-  labs(x = "Surface area below height (%)", y = NULL) + th +
+  labs(x = "Area represented by stem sampling\nbelow height (%)", y = NULL) + th +
   theme(legend.position = c(0.3, 0.98), legend.justification = c(0, 1), legend.background = element_blank())
 A_up <- sum(R$area[-1]); base <- R$int[1]; obs <- sum(R$int[-1]) / A_up
 TH <- tibble(what = factor(c("Double", "Cancel", "Flip"), c("Double", "Cancel", "Flip")), f = c(base, -base, -2 * base) / A_up)
@@ -152,11 +183,11 @@ p2e <- ggplot(TH, aes(as.numeric(what), f)) +
   annotate("rect", xmin = 0.4, xmax = 3.6, ymin = -mdf, ymax = mdf, fill = MDFFILL) +
   geom_hline(yintercept = 0, linewidth = 0.3) + geom_col(width = 0.55, fill = "grey35") +
   geom_hline(yintercept = obs, linetype = "dashed", colour = "black", linewidth = 0.6) +
-  annotate("text", x = 3.55, y = obs, label = "measured above 2 m", vjust = -0.5, hjust = 1, size = 2.6) +
+  annotate("text", x = 3.55, y = obs, label = "mean assigned to remaining surfaces", vjust = -0.5, hjust = 1, size = 2.6) +
   annotate("text", x = 3.55, y = mdf, label = "detection limit (median MDF)", vjust = -0.5, hjust = 1, size = 2.6, colour = "grey30") +
   scale_x_continuous(breaks = 1:3, labels = levels(TH$what), expand = c(0, 0)) +
   scale_y_continuous(breaks = seq(-0.04, 0.1, 0.02), limits = c(-0.04, 0.1), expand = c(0, 0)) +
-  labs(x = NULL, y = expression(atop(Uniform~flux~on~surfaces~above~2~m, (nmol~m^{-2}~s^{-1})))) + th
+  labs(x = NULL, y = expression(atop(Flux~on~surfaces~omitted~by~basal~sampling, (nmol~m^{-2}~s^{-1})))) + th
 f2 <- ((p2a | p2b) + plot_layout(widths = c(1.6, 0.6))) / ((p2c | p2d | p2e) + plot_layout(widths = c(0.45, 1, 1))) +
   plot_layout(heights = c(1, 1)) + plot_annotation(tag_levels = "a")
 ggsave(file.path(FD, "Figure2_v3c.png"), f2, width = 180, height = 180, units = "mm", dpi = 300, bg = "white")
@@ -174,15 +205,12 @@ p3a <- ggplot() + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 
   labs(x = "Flux relative to basal mean", y = "Height (m)") + th + guides(colour = guide_legend(ncol = 3), linetype = guide_legend(ncol = 3))
 nb <- F %>% filter(component == "stem") %>% group_by(tree) %>% mutate(bm = mean(tapply(flux[height_m < 2], height_m[height_m < 2], mean))) %>% ungroup() %>%
   mutate(rel = flux / bm) %>% filter(height_m >= 2) %>% mutate(hbin = cut(height_m, c(2, 4, 7, 10, 14, 23), right = FALSE))
-set.seed(1); binm <- nb %>% group_by(hbin) %>% summarise(h = mean(height_m), n = n(), m = mean(rel),
-  lo = quantile(replicate(2000, mean(sample(rel, replace = TRUE))), 0.025), hi = quantile(replicate(2000, mean(sample(rel, replace = TRUE))), 0.975), .groups = "drop")
-write_csv(binm, file.path(OUT, "fig3_relative_means.csv")); print(binm)
 p3b <- ggplot() + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2, fill = "#F3F3F3") + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
   geom_path(data = FORMS, aes(y, h, colour = form, linetype = form), linewidth = 0.5, alpha = 0.45) + scale_colour_manual(values = FORM_COL, guide = "none") +
   scale_linetype_manual(values = FORM_LT, guide = "none") +
   geom_point(data = nb, aes(rel, height_m), colour = CC[2], size = 0.9, alpha = 0.7) +
   geom_errorbarh(data = binm, aes(xmin = lo, xmax = hi, y = h), height = 0, linewidth = 0.6) + geom_point(data = binm, aes(m, h), size = 2.2) +
-  coord_cartesian(xlim = c(-1.2, 3), ylim = c(0, 22)) + labs(x = "Flux relative to basal mean", y = NULL) + th
+  coord_cartesian(xlim = range(c(-1.2, 3, binm$lo, binm$hi), na.rm=TRUE) + c(-0.1, 0.1), ylim = c(0, 22)) + labs(x = "Flux relative to basal mean", y = NULL) + th
 tc <- read_csv(file.path(OUT, "tree_component.csv"), show_col_types = FALSE)
 LAB <- c(measured = "Measured above 2 m", exp_decay = "Exponential decay", linear_zero = "Linear, floored at zero", const_top = "Constant (top chamber)",
          const_mean = "Constant (basal mean)", linear = "Linear (unbounded)", zero = "Zero above 2 m")
@@ -197,7 +225,7 @@ p3c <- ggplot(tc2, aes(woody_component, form)) +
   scale_colour_manual(values = BRC, labels = c(measured_mean = "measured mean", measured_median = "measured median", equal_upper_stem = "same as upper stem"), name = "Branch flux") +
   scale_shape_manual(values = c(16, 2), labels = c("Whittaker & Woodwell (1967)", "Gauci et al. (2024)"), name = "Woody area") +
   guides(colour = guide_legend(ncol = 1, title.position = "top", order = 1), shape = guide_legend(ncol = 1, title.position = "top", order = 2)) +
-  labs(x = expression(Woody~surface~CH[4]~(nmol~m^{-2}~ground~s^{-1})), y = NULL) + th
+  labs(x = expression(Woody~surface~CH[4]~(nmol~m^{-2}~ground~s^{-1})), y = NULL, subtitle = "Common five-tree cohort") + th
 WA <- c("90" = 90.4, "132" = 131.9, "207" = 206.6); WAC <- c("#D9B98A", "#A0703C", "#5C3A1A")
 gd <- tc %>% filter(form %in% names(LAB)) %>% mutate(wf = woody_component / (stem + branch)) %>% crossing(tibble(wa = names(WA), A = WA)) %>%
   mutate(Tg = wf * A * 0.506, form = factor(LAB[form], rev(LAB)), wa = factor(wa, names(WA)))

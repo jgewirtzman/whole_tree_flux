@@ -6,7 +6,7 @@
 
 # --- Load shared packages and constants from parent setup --------------------
 parent_setup <- file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(parent_setup)
 

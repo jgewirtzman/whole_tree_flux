@@ -18,7 +18,7 @@
 
 # Source setup (works both when source()'d and run interactively in RStudio)
 setup_path <- file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(setup_path)
 
@@ -191,10 +191,10 @@ met$datetime_est <- lubridate::parse_date_time(met$datetime,
                                                            "ymd_HM", "ymd_HMS"),
                                                 tz = "EST")
 
-# Convert EST to EDT (add 1 hour) then label as UTC to match our "fake UTC"
-# timestamps. EDT = EST + 1h. Our raw data is in local EDT but stored as UTC.
-met$datetime_utc <- met$datetime_est + lubridate::hours(1)
-attr(met$datetime_utc, "tzone") <- "UTC"
+# Preserve the station instant when converting EST to civil Eastern time, then
+# relabel that local clock as UTC to match the analyzer's deliberately naive clock.
+met$datetime_utc <- lubridate::force_tz(
+  lubridate::with_tz(met$datetime_est, "America/New_York"), "UTC")
 
 # Filter to relevant date ranges to speed up matching
 # LGR1/2: July 18-19, 2023; LGR3: August 16-17, 2023

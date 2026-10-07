@@ -12,7 +12,7 @@
 
 # Source setup
 setup_path <- file.path(
-  "/Users/jongewirtzman/My Drive/Research/whole_tree_flux",
+  ".",
   "data processing", "goFlux_reprocessing", "00_setup.R")
 source(setup_path)
 

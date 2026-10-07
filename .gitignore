@@ -59,3 +59,10 @@ scaling/v3c/Figure3_v3c_equal.png
 # earlier field-processing scripts copied with the black gum raw data (superseded by bg_run.R)
 data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/functions/
 data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/diurnal_flux_processing.R
+
+# Private backup drafts and transient Office lock files
+manuscript_*.md
+~$*.docx
+
+# Internal coauthor-response calculations (superseded by public statistics).
+figures/comment_response_stats.R
