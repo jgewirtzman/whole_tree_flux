@@ -28,94 +28,92 @@ tr <- scales::pseudo_log_trans(sigma = 0.01); lab_sl <- function(x) sub("-", "�
 SP <- c(hem = "T. canadensis", rm = "A. rubrum", ro = "Q. rubra", bg = "N. sylvatica", qv = "Q. velutina")
 micro <- read_csv(file.path(OUT, "microsite.csv"), show_col_types = FALSE) %>% select(tree, microsite)
 
-## ============================ Figure 1 versions
-bg <- read.csv(file.path(ROOT, "data processing/goFlux_reprocessing/diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv")) %>%
-  transmute(site = "Black Gum Swamp", tree = "Black Gum Swamp bg (2024)", species = "bg", component = "stem", height_m, flux = CH4_best.flux, below_mdf = CH4_below_MDF)
+## ============================ Figure 1 (main layout) and Figure S1 (grid), each on raw and arcsinh flux axes
+# Black Gum Swamp tree: collars (A, B, C) at each height were re-measured over the diel cycle (28-29 Aug 2024). The main
+# figure shows one diel mean per collar; the SI figure shows every closure.
+bg_all <- read.csv(file.path(ROOT, "data processing/goFlux_reprocessing/diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv")) %>%
+  mutate(collar = substr(Position, 1, 1))
+bg_raw <- bg_all %>% transmute(site = "Black Gum Swamp", tree = "Black Gum Swamp bg (2024)", species = "bg", component = "stem", height_m,
+                               flux = CH4_best.flux, below_mdf = CH4_below_MDF)
+bg_col <- bg_all %>% group_by(height_m, collar) %>% summarise(flux = mean(CH4_best.flux), mdf = mean(CH4_MDF_emp95), n = n(), .groups = "drop") %>%
+  transmute(site = "Black Gum Swamp", tree = "Black Gum Swamp bg (2024)", species = "bg", component = "stem", height_m, flux, below_mdf = abs(flux) < mdf, n)
+write_csv(bg_col, file.path(OUT, "blackgum_collar_diel_means.csv"))
 LAB1 <- tribble(~tree, ~lab, ~ord,
   "EMS hem 321902", 'italic("T. canadensis")~"1"', 1, "Swamp Rd hem 4", 'italic("T. canadensis")~"2"', 2, "EMS ro 300607", 'italic("Q. rubra")', 3,
   "EMS rm 321071", 'italic("A. rubrum")~"1"', 4, "Swamp Rd rm 5", 'italic("A. rubrum")~"2"', 5, "Swamp Rd bg 2", 'italic("N. sylvatica")', 6,
   "YMF black oak", 'atop(italic("Q. velutina"), "(Yale Myers)")', 7, "Black Gum Swamp bg (2024)", 'atop(italic("N. sylvatica"), "(swamp)")', 8)
-P1 <- bind_rows(F, bg) %>% left_join(LAB1, by = "tree") %>%
-  mutate(comp = factor(case_when(component == "stem" & height_m < 2 ~ COMP[1], component == "stem" ~ COMP[2], component == "branch" ~ COMP[3], TRUE ~ COMP[4]), COMP))
-stopifnot(!any(is.na(P1$lab)))
-lev1 <- LAB1$lab; P1$lab <- factor(P1$lab, lev1)
-XCAP <- c("EMS rm 321071" = 3.2)   # A. rubrum 1: one basal value (5.4) would compress the whole panel
-P1 <- P1 %>% group_by(tree, height_m) %>% mutate(k = rank(flux, ties.method = "first"), n = n(),
-  step = ifelse(site == "Black Gum Swamp", 0, pmin(0.25, 0.8 / pmax(n - 1, 1))), yp = height_m + (k - (n + 1) / 2) * step) %>% ungroup() %>%
-  mutate(cap = XCAP[tree], clip = !is.na(cap) & flux > cap, xp = ifelse(clip, cap, flux),
-         big = site != "Black Gum Swamp") %>% select(-k, -n, -step, -cap)
-med1 <- P1 %>% filter(component == "stem") %>% group_by(lab, height_m) %>% summarise(m = median(flux), .groups = "drop")
-base1 <- function(d, m) ggplot(d, aes(flux, height_m)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2, fill = "#F3F3F3") +
-  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-  # LOESS of stem flux on height, with 95% band, over each tree's measured range, drawn under the points
-  geom_smooth(data = ~ filter(.x, component == "stem"), aes(flux, height_m), orientation = "y", method = "loess", formula = y ~ x, se = TRUE,
-              colour = "grey25", fill = "grey60", alpha = 0.25, linewidth = 0.5, na.rm = TRUE) +
-  # points: x capped where a single basal value would compress a panel (drawn at the cap as ">"); points sharing a tree and
-  # chamber height are spread evenly in height (ordered by flux, at most ±0.4 m) rather than jittered at random
-  geom_point(data = ~ arrange(filter(.x, !below_mdf, !clip), comp), aes(xp, yp, fill = comp, shape = "above MDF", size = big), colour = "white", stroke = 0.3) +
-  geom_point(data = ~ arrange(filter(.x, below_mdf, !clip), comp), aes(xp, yp, colour = comp, shape = "below MDF", size = big), fill = "white", stroke = 0.6) +
-  geom_text(data = ~ filter(.x, clip), aes(xp, yp, colour = comp), label = ">", size = 3.2, fontface = "bold", show.legend = FALSE) +
-  geom_errorbarh(data = ~ filter(.x, site == "Black Gum Swamp") %>% group_by(lab, height_m) %>% summarise(lo = min(flux), hi = max(flux), .groups = "drop"),
-                 aes(xmin = lo, xmax = hi, y = height_m), inherit.aes = FALSE, height = 0, linewidth = 0.4, colour = "grey20") +
-  geom_point(data = ~ filter(.x, site == "Black Gum Swamp") %>% group_by(lab, height_m) %>% summarise(m = mean(flux), .groups = "drop"),
-             aes(m, height_m), inherit.aes = FALSE, shape = 23, fill = "white", colour = "black", size = 2, stroke = 0.5) +
-  scale_size_manual(values = c(`TRUE` = 2.4, `FALSE` = 1.1), guide = "none") +
-  scale_shape_manual(values = c("above MDF" = 21, "below MDF" = 21), name = NULL) +
-  scale_fill_manual(values = CC, name = NULL, drop = FALSE) + scale_colour_manual(values = CC, guide = "none", drop = FALSE) +
-  labs(x = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})), y = "Height (m)") + th +
-  guides(fill = guide_legend(nrow = 1, order = 1, override.aes = list(shape = 21, colour = "white", size = 3)),
-         shape = guide_legend(nrow = 1, order = 2, override.aes = list(fill = c("grey30", "white"), colour = c("white", "grey30"), size = 2.6, stroke = c(0.35, 0.7)))) +
-  theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 0.9), axis.line = element_blank(), panel.spacing.x = unit(1.5, "mm"))
-vA <- base1(P1, med1) + scale_x_continuous(trans = tr, breaks = c(-0.1, 0, 0.1, 1, 10, 100), labels = lab_sl) + facet_wrap(~lab, nrow = 1, scales = "free", labeller = label_parsed) +
-  theme(axis.text.x = element_text(size = 6, angle = 90, vjust = 0.5, hjust = 1))
+prep1 <- function(bg) { d <- bind_rows(F, bg %>% select(-any_of("n"))) %>% left_join(LAB1, by = "tree") %>%
+  mutate(comp = factor(case_when(component == "stem" & height_m < 2 ~ COMP[1], component == "stem" ~ COMP[2], component == "branch" ~ COMP[3], TRUE ~ COMP[4]), COMP),
+         lab = factor(lab, LAB1$lab))
+  stopifnot(!any(is.na(d$lab)))
+  # points sharing a tree and height are spread evenly in height (ordered by flux, at most ±0.4 m) in the main layout
+  d %>% group_by(tree, height_m) %>% mutate(k = rank(flux, ties.method = "first"), n = n(), step = pmin(0.25, 0.8 / pmax(n - 1, 1)),
+    yspread = height_m + (k - (n + 1) / 2) * step) %>% ungroup() %>% select(-k, -n, -step) }
+P1m <- prep1(bg_col); P1s <- prep1(bg_raw)
+ASC <- 0.01   # asinh(x / 0.01): linear within about ±0.01 nmol m-2 s-1, logarithmic beyond
+tr_as <- scales::trans_new("asinh01", function(x) asinh(x / ASC), function(y) sinh(y) * ASC)
 sq <- scales::trans_new("sq15", function(y) ifelse(y <= 15, y, 15 + (y - 15) / 3), function(z) ifelse(z <= 15, z, 15 + (z - 15) * 3))
-padx <- P1 %>% group_by(lab) %>% summarise(flux = -0.12 * max(abs(flux)), height_m = 0)
-vB <- base1(P1, med1) + geom_blank(data = padx) + geom_hline(yintercept = 15, linetype = "13", colour = "grey55", linewidth = 0.3) +
-  scale_y_continuous(trans = sq, limits = c(0, 22.5), breaks = c(0, 5, 10, 15, 20)) + facet_wrap(~lab, nrow = 1, scales = "free_x", labeller = label_parsed) +
-  theme(axis.text.x = element_text(size = 6, angle = 90, vjust = 0.5, hjust = 1))
-P1c <- P1 %>% filter(site != "Black Gum Swamp"); med1c <- med1 %>% filter(!grepl("swamp", as.character(lab))) %>% mutate(lab = droplevels(lab)); P1c$lab <- droplevels(P1c$lab)
-vC <- base1(P1c, med1c) + scale_y_continuous(limits = c(0, 22.5)) + scale_x_continuous(limits = c(-0.6, 2.6), breaks = c(0, 1, 2)) + facet_wrap(~lab, nrow = 1, labeller = label_parsed)
-for (v in list(list("Fig1_A_freeLogX", vA, 8), list("Fig1_B_fixedY_linearFreeX", vB, 8), list("Fig1_C_fixedY_fixedLinearX_noSwamp", vC, 7)))
-  ggsave(file.path(FD, paste0(v[[1]], ".png")), v[[2]], width = 190, height = 140, units = "mm", dpi = 300, bg = "white")
+prof <- function(d, layout = c("row", "grid"), xs = c("raw", "asinh")) {
+  layout <- match.arg(layout); xs <- match.arg(xs); spread <- layout == "row"
+  d <- d %>% mutate(yp = if (spread) yspread else height_m) %>% arrange(below_mdf, comp)
+  big <- if (layout == "row") 2.4 else 2.6
+  p <- ggplot(d, aes(flux, height_m)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2, fill = "#F3F3F3") +
+    geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
+    geom_smooth(data = ~ filter(.x, component == "stem"), orientation = "y", method = "loess", formula = y ~ x, se = TRUE,
+                colour = "grey25", fill = "grey60", alpha = 0.25, linewidth = 0.5, na.rm = TRUE) +
+    geom_point(data = ~ filter(.x, !below_mdf), aes(flux, yp, fill = comp, shape = "above MDF"), colour = "white", size = big, stroke = 0.3) +
+    geom_point(data = ~ filter(.x, below_mdf), aes(flux, yp, colour = comp, shape = "below MDF"), fill = "white", size = big - 0.3, stroke = 0.65) +
+    scale_shape_manual(values = c("above MDF" = 21, "below MDF" = 21), name = NULL) +
+    scale_fill_manual(values = CC, name = NULL, drop = FALSE) + scale_colour_manual(values = CC, guide = "none", drop = FALSE) +
+    labs(x = if (xs == "raw") expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})) else expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})*","~arcsinh~scale), y = "Height (m)") + th +
+    guides(fill = guide_legend(nrow = 1, order = 1, override.aes = list(shape = 21, colour = "white", size = 3)),
+           shape = guide_legend(nrow = 1, order = 2, override.aes = list(fill = c("grey30", "white"), colour = c("white", "grey30"), size = 2.6, stroke = c(0.3, 0.7)))) +
+    theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = if (layout == "row") 0.9 else 0.7), axis.line = element_blank(),
+          panel.spacing.x = unit(if (layout == "row") 1.5 else 3, "mm"))
+  if (xs == "raw") {
+    padx <- d %>% group_by(lab) %>% summarise(flux = -0.12 * max(abs(flux)), height_m = 0, yp = 0)
+    p <- p + geom_blank(data = padx)
+  } else {
+    p <- p + scale_x_continuous(trans = tr_as, breaks = if (layout == "row") c(0, 0.1, 1, 10, 100) else c(-0.1, 0, 0.1, 1, 10, 100),
+                                minor_breaks = c(-0.01, 0.01), labels = lab_sl) +
+      theme(panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.3), panel.grid.minor.x = element_line(colour = "grey95", linewidth = 0.25))
+  }
+  if (layout == "row") {
+    p <- p + geom_hline(yintercept = 15, linetype = "13", colour = "grey55", linewidth = 0.3) +
+      scale_y_continuous(trans = sq, limits = c(0, 22.5), breaks = c(0, 5, 10, 15, 20)) +
+      facet_wrap(~lab, nrow = 1, scales = if (xs == "raw") "free_x" else "fixed", labeller = label_parsed) +
+      theme(axis.text.x = element_text(size = 6, angle = 90, vjust = 0.5, hjust = 1))
+  } else {
+    p <- p + scale_y_continuous(limits = c(0, 22.5), breaks = seq(0, 20, 5)) +
+      facet_wrap(~lab, ncol = 4, scales = if (xs == "raw") "free_x" else "fixed", labeller = label_parsed) + theme(axis.text.x = element_text(size = 6.5))
+  }
+  p }
 img <- function(f, cx = 0.5, cy = 0.5, asp = 2 / 3) { x <- readJPEG(file.path(ROOT, f)); h <- dim(x)[1]; w <- dim(x)[2]
   ww <- min(w, round(h / asp)); hh <- round(ww * asp)
   c0 <- max(1, min(w - ww + 1, round(cx * w - ww / 2))); r0 <- max(1, min(h - hh + 1, round(cy * h - hh / 2)))
   x <- x[r0:(r0 + hh - 1), c0:(c0 + ww - 1), ]
   ggplot() + annotation_raster(x, 0, 1, 0, 1) + coord_fixed(asp, expand = FALSE, xlim = c(0, 1), ylim = c(0, 1)) + theme_void() + theme(plot.tag = element_text(size = 10, face = "bold")) }
-NH <- P1 %>% filter(site != "Black Gum Swamp", component == "stem") %>% mutate(hb = cut(height_m, seq(0, 24, 2), right = FALSE, labels = paste0(seq(0, 22, 2), "–", seq(2, 24, 2))))
+# panel d: stem fluxes of the seven upland trees in 2 m bands, band means ± SE
+NH <- P1m %>% filter(site != "Black Gum Swamp", component == "stem") %>% mutate(hb = cut(height_m, seq(0, 24, 2), right = FALSE, labels = paste0(seq(0, 22, 2), "–", seq(2, 24, 2))))
 NS <- NH %>% group_by(hb) %>% summarise(m = mean(flux), se = sd(flux) / sqrt(n()), n = n(), .groups = "drop"); write_csv(NS, file.path(OUT, "fig1_heightbin_means.csv"))
-pN_log <- ggplot(NH, aes(flux, hb)) + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-  geom_point(aes(colour = comp, shape = below_mdf), position = position_jitter(height = 0.18, width = 0, seed = 3), size = 0.9, stroke = 0.4, alpha = 0.8) +
-  geom_errorbarh(data = NS, aes(xmin = m - se, xmax = m + se, y = hb), inherit.aes = FALSE, height = 0, linewidth = 0.5) +
-  geom_point(data = NS, aes(m, hb), inherit.aes = FALSE, shape = 23, fill = "white", colour = "black", size = 1.8, stroke = 0.5) +
-  scale_colour_manual(values = CC, guide = "none") + scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1), guide = "none") +
-  scale_x_continuous(trans = tr, breaks = c(-0.1, 0, 0.1, 1, 5), labels = lab_sl) +
-  labs(x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})), y = "Height (m)") + th + theme(axis.text.y = element_text(size = 6.5))
-XM <- 3; NHl <- NH %>% mutate(clip = flux > XM, fx = pmin(flux, XM))
-pN_lin <- ggplot(NHl, aes(fx, hb)) + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-  geom_point(data = ~ filter(.x, !clip), aes(colour = comp, shape = below_mdf), position = position_jitter(height = 0.18, width = 0, seed = 3), size = 1, stroke = 0.4, alpha = 0.8) +
-  geom_point(data = ~ filter(.x, clip), aes(colour = comp), shape = 62, size = 2.2) +
-  geom_errorbarh(data = NS, aes(xmin = m - se, xmax = m + se, y = hb), inherit.aes = FALSE, height = 0, linewidth = 0.5) +
-  geom_point(data = NS, aes(m, hb), inherit.aes = FALSE, shape = 23, fill = "white", colour = "black", size = 1.9, stroke = 0.5) +
-  scale_colour_manual(values = CC, guide = "none") + scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1), guide = "none") +
-  scale_x_continuous(limits = c(-0.2, XM), breaks = seq(0, 3, 0.5), expand = expansion(mult = c(0.02, 0.03))) +
-  labs(x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})), y = "Height (m)") + th + theme(axis.text.y = element_text(size = 6.5))
-mk_lin <- function(XM) { d <- NH %>% mutate(clip = flux > XM, fx = pmin(flux, XM))
-  ggplot(d, aes(fx, hb)) + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
+pd <- function(xs) {
+  XM <- 3; d <- NH %>% mutate(clip = xs == "raw" & flux > XM, fx = ifelse(clip, XM, flux))
+  p <- ggplot(d, aes(fx, hb)) + geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
     geom_point(data = ~ filter(.x, !clip), aes(colour = comp, shape = below_mdf), position = position_jitter(height = 0.18, width = 0, seed = 3), size = 1, stroke = 0.4, alpha = 0.8) +
     geom_point(data = ~ filter(.x, clip), aes(colour = comp), shape = 62, size = 2.2) +
     geom_errorbarh(data = NS, aes(xmin = m - se, xmax = m + se, y = hb), inherit.aes = FALSE, height = 0, linewidth = 0.5) +
     geom_point(data = NS, aes(m, hb), inherit.aes = FALSE, shape = 23, fill = "white", colour = "black", size = 1.9, stroke = 0.5) +
     scale_colour_manual(values = CC, guide = "none") + scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 1), guide = "none") +
-    scale_x_continuous(limits = c(-0.2, XM), expand = expansion(mult = c(0.02, 0.03))) +
-    labs(title = paste("axis to", XM), x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})), y = "Height (m)") + th +
-    theme(axis.text.y = element_text(size = 6.5), plot.title = element_text(size = 8)) }
-cmp <- wrap_plots(lapply(seq(2, 5.5, 0.5), mk_lin), nrow = 2)
-ggsave(file.path(FD, "Fig1d_truncation_options.png"), cmp, width = 240, height = 130, units = "mm", dpi = 250, bg = "white")
-for (pv in list(list(pN_lin, "Fig1_D_photos_plus_B.png"), list(pN_log, "Fig1_D_photos_plus_B_logd.png"))) {
-bot <- (img("IMG_5926_edited.jpg", 0.5, 0.45) | img("IMG_6437.jpg", 0.5, 0.5) | pv[[1]]) + plot_layout(widths = c(1, 1, 0.9))
-vD <- vB / bot + plot_layout(heights = c(1, 0.42)) + plot_annotation(tag_levels = "a")
-ggsave(file.path(FD, pv[[2]]), vD, width = 190, height = 200, units = "mm", dpi = 300, bg = "white") }
+    labs(x = if (xs == "raw") expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})) else expression(Stem~CH[4]~flux*","~arcsinh~scale), y = "Height (m)") +
+    th + theme(axis.text.y = element_text(size = 6.5))
+  if (xs == "raw") p + scale_x_continuous(limits = c(-0.2, XM), breaks = seq(0, 3, 0.5), expand = expansion(mult = c(0.02, 0.03)))
+  else p + scale_x_continuous(trans = tr_as, breaks = c(-0.1, 0, 0.1, 1, 10), labels = lab_sl) }
+for (xs in c("raw", "asinh")) {
+  bot <- (img("IMG_5926_edited.jpg", 0.5, 0.45) | img("IMG_6437.jpg", 0.5, 0.5) | pd(xs)) + plot_layout(widths = c(1, 1, 0.9))
+  f1 <- prof(P1m, "row", xs) / bot + plot_layout(heights = c(1, 0.42)) + plot_annotation(tag_levels = "a")
+  ggsave(file.path(FD, sprintf("Fig1_main_%s.png", xs)), f1, width = 190, height = 200, units = "mm", dpi = 300, bg = "white")
+  ggsave(file.path(FD, sprintf("FigS1_grid_%s.png", xs)), prof(P1s, "grid", xs), width = 190, height = 190, units = "mm", dpi = 300, bg = "white")
+}
 
 ## ============================ Figure 2
 hf <- read.csv(file.path(DATA, "data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv")) %>%
@@ -216,23 +214,3 @@ ggsave(file.path(FD, "Figure3_v3c.png"), f3, width = 180, height = 165, units = 
 # (B) equal-proportion 2 x 2
 f3e <- (wrap_elements(full = top3) / (wrap_plots((p3c + labs(tag = "c")) & thL, (p3d + labs(tag = "d")) & thL, nrow = 1, widths = c(1, 1)))) + plot_layout(heights = c(1, 1))
 ggsave(file.path(FD, "Figure3_v3c_equal.png"), f3e, width = 180, height = 180, units = "mm", dpi = 300, bg = "white")
-
-## ============================ SI figure: Fig 1 profiles on an arcsinh flux axis (shared across trees), larger panels, true heights
-ASC <- 0.01   # asinh(x / 0.01): linear within about ±0.01 nmol m-2 s-1, logarithmic beyond
-tr_as <- scales::trans_new("asinh01", function(x) asinh(x / ASC), function(y) sinh(y) * ASC)
-PS <- P1 %>% arrange(below_mdf, comp)
-pS1 <- ggplot(PS, aes(flux, height_m)) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2, fill = "#F3F3F3") +
-  geom_vline(xintercept = 0, colour = "grey45", linewidth = 0.3) +
-  geom_point(data = ~ filter(.x, !below_mdf), aes(fill = comp, shape = "above MDF"), colour = "white", size = 2.6, stroke = 0.3) +
-  geom_point(data = ~ filter(.x, below_mdf), aes(colour = comp, shape = "below MDF"), fill = "white", size = 2.3, stroke = 0.7) +
-  scale_shape_manual(values = c("above MDF" = 21, "below MDF" = 21), name = NULL) +
-  scale_fill_manual(values = CC, name = NULL, drop = FALSE) + scale_colour_manual(values = CC, guide = "none", drop = FALSE) +
-  scale_x_continuous(trans = tr_as, breaks = c(-0.1, 0, 0.1, 1, 10, 100), minor_breaks = c(-0.01, 0.01), labels = lab_sl) +
-  scale_y_continuous(limits = c(0, 22.5), breaks = seq(0, 20, 5)) +
-  facet_wrap(~lab, ncol = 4, labeller = label_parsed) +
-  labs(x = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})*","~arcsinh~scale), y = "Height (m)") + th +
-  guides(fill = guide_legend(nrow = 1, order = 1, override.aes = list(shape = 21, colour = "white", size = 3)),
-         shape = guide_legend(nrow = 1, order = 2, override.aes = list(fill = c("grey30", "white"), colour = c("white", "grey30"), size = 2.6, stroke = c(0.3, 0.7)))) +
-  theme(panel.border = element_rect(fill = NA, colour = "black", linewidth = 0.7), axis.line = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey90", linewidth = 0.3), panel.grid.minor.x = element_line(colour = "grey95", linewidth = 0.25), axis.text.x = element_text(size = 6.5))
-ggsave(file.path(FD, "FigureS_profiles_asinh.png"), pS1, width = 190, height = 190, units = "mm", dpi = 300, bg = "white")

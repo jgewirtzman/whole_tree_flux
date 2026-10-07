@@ -78,7 +78,7 @@ results below, and the Harvard Forest soil fluxes of Jevon (2023), which are not
 | `01_flux_form_test.R` | Extrapolates each tree's basal (< 2 m) stem fluxes upward with six forms and scores them against the measured fluxes ≥ 2 m (bootstrap) | `out/form_test_*.csv` |
 | `03_tree_component.R` | Stem area from measured diameters; tree-weighted rates for the six Harvard Forest trees; woody-surface scenarios vs same-month soil flux; leaves; mixed model | `out/stand_rates_HF.csv`, `out/tree_component.csv`, `fig_SI_extrapolation_fits.png` |
 | `04_main_figures.R` | Predicted/measured ratio figure (SI) and global scenario table | `Figure2_v3.png`, `out/global_demo_v3.csv` |
-| `08_figures_v3c.R` | Main Figures 1–3 and the SI profile figure | `v3c/Fig1_D_photos_plus_B.png` (Fig. 1), `v3c/Figure2_v3c.png` (Fig. 2), `v3c/Figure3_v3c.png` (Fig. 3), `v3c/FigureS_profiles_asinh.png` (Fig. S1) |
+| `08_figures_v3c.R` | Main Figures 1–3 and the SI profile figure | `v3c/Fig1_main_raw.png` / `v3c/Fig1_main_asinh.png` (Fig. 1, raw or arcsinh flux axis), `v3c/Figure2_v3c.png` (Fig. 2), `v3c/Figure3_v3c.png` (Fig. 3), `v3c/FigS1_grid_asinh.png` / `v3c/FigS1_grid_raw.png` (Fig. S1), `out/blackgum_collar_diel_means.csv` |
 | `09_tree_weighting.R` | Pooled vs tree-weighted means; leave-one-tree-out | `out/tree_weighting.csv` |
 | `10_basal_by_site_and_blackgum.R` | Basal vs upper-stem fluxes by tree; black gum share of stem flux above 2 m and the wetland scenario | `out/tree_basal_upper_branch.csv`, `out/blackgum_scaling.csv` |
 
