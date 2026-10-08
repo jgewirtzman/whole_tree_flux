@@ -143,7 +143,10 @@ for (xs in c("raw", "asinh")) {
   bot <- (img("IMG_5926_edited.jpg", 0.5, 0.45) | img("IMG_6437.jpg", 0.5, 0.5) | pd(xs)) + plot_layout(widths = c(1, 1, 0.9))
   f1 <- prof(P1m, "row", xs) / bot + plot_layout(heights = c(1, 0.42)) + plot_annotation(tag_levels = "a")
   ggsave(file.path(FD, sprintf("Fig1_main_%s.png", xs)), f1, width = 190, height = 200, units = "mm", dpi = 300, bg = "white")
-  ggsave(file.path(FD, sprintf("FigS1_grid_%s.png", xs)), prof(P1s, "grid", xs), width = 190, height = 190, units = "mm", dpi = 300, bg = "white")
+  # Figure S1 explains compartments, MDF symbols and the scale in its caption.
+  s1 <- prof(P1s, "grid", xs) + theme(legend.position = "none") +
+    labs(x = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})))
+  ggsave(file.path(FD, sprintf("FigS1_grid_%s.png", xs)), s1, width = 190, height = 190, units = "mm", dpi = 300, bg = "white")
 }
 
 ## ============================ Figure 2
