@@ -1,6 +1,6 @@
-# Optional tree illustrations
+# Tree illustrations and figure layouts
 
-This folder contains presentation graphics, Figure 1 layout alternatives, and the selected Figure S5. The main analysis rebuilds the tree renderings through `scaling/12_tree_illustrations.R`; document builds use only the selected Figure S5 from this folder. Main Figure 1 alternatives remain drafts.
+This folder contains the selected Figures 1 and S5, presentation graphics, and alternative layouts. The main analysis rebuilds both selected figures through `scaling/12_tree_illustrations.R`. Figure 1 uses option E: faint genus silhouettes to the left of the profiles, followed by photographs and the pooled height summary.
 
 ## Outputs
 
@@ -20,7 +20,7 @@ This folder contains presentation graphics, Figure 1 layout alternatives, and th
 
 - `figure1_options/F1_G_summary_first_left.*` and `F1_H_summary_first_right.*`: E/F with the second row reordered to height summary, lift photograph, climbing photograph (relabeled b–d).
 
-PNG and vector PDF versions are provided. `*_panel_a.*` files show only the profile panels. These alternatives have not replaced the production Figure 1.
+PNG and vector PDF versions are provided. `*_panel_a.*` files show only the profile panels. Option E is the selected Figure 1; the other layouts remain alternatives.
 
 ## Rebuild
 
@@ -33,7 +33,7 @@ Rscript scaling/tree_illustrations/scripts/render_clusters.R
 Rscript scaling/tree_illustrations/scripts/render_side_silhouettes.R
 ```
 
-The first command rebuilds the selected Figure S5 and companion presentation graphics. The second rebuilds Figure 1 alternatives and the earlier illustration variants without replacing Figure S5. Scripts accept a project root and optional illustration-bundle directory as the first and second arguments. They read the existing analysis outputs; rerun the analysis first if observations or processing change. They do not regenerate the numerical analyses or modify the three main figures. Dependencies are the existing plotting packages in `renv.lock`; color conversion uses base R.
+The first command rebuilds the selected Figure S5 and companion presentation graphics. The second rebuilds Figure 1 alternatives and the earlier illustration variants without replacing Figure S5. Scripts accept a project root and optional illustration-bundle directory as the first and second arguments. They read the existing analysis outputs; rerun the analysis first if observations or processing change. They do not regenerate the numerical analyses. The fourth command rebuilds selected Figure 1 (E) and alternatives F–H. Dependencies are the existing plotting packages in `renv.lock`; color conversion uses base R.
 
 The model geometry is a frozen illustration asset stored as transparent CSV inputs, not an additional fitted scientific result. Rendering from these inputs is reproducible; changes to crown architecture require updating the illustration inputs deliberately. The renderer checks the branch:stem surface-area ratios and flux interpolation. The Figure 1 renderer additionally verifies that silhouettes leave every observation, curve and horizontal flux scale unchanged.
 

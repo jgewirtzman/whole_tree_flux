@@ -1,5 +1,7 @@
-# Rebuild Figure S5 and companion presentation graphics from frozen drawing inputs.
-# A subprocess isolates the illustration renderer from the numerical analysis.
-status <- system2(file.path(R.home("bin"), "Rscript"),
-                  "scaling/tree_illustrations/scripts/render_final_si.R")
-if (status != 0L) stop("Tree illustration rendering failed")
+# Rebuild selected Figures 1 and S5 and companion presentation graphics.
+# Subprocesses isolate illustration renderers from the numerical analysis.
+for (script in c("render_final_si.R", "render_side_silhouettes.R")) {
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+                    file.path("scaling/tree_illustrations/scripts", script))
+  if (status != 0L) stop("Figure rendering failed: ", script)
+}
