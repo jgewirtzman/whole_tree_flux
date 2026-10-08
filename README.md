@@ -60,8 +60,11 @@ All tabular scaling outputs are in `scaling/out/`. Historical version suffixes i
 | S2 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
 | S3 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
 | S4 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
+| S5 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
 
 Alternative raw/arcsinh profile renderings are also generated. Superseded figure pipelines and manuscript-building tools are not part of this public workflow.
+
+[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S5 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Presentation and Figure 1 layout alternatives remain separate from the three main figures.
 
 ## Data and assumptions
 
@@ -70,7 +73,7 @@ Alternative raw/arcsinh profile renderings are also generated. Superseded figure
 - **Meteorology:** the Fisher station input (`hf001-10-15min-m.csv`) is the existing cached Harvard Forest HF001 data used for temperature and pressure. Source and replacement instructions are in [reproduction details](docs/REPRODUCING.md).
 - **Soil comparison:** [Jevon (2023), Mendeley Data V2](https://doi.org/10.17632/z6wybrtpyk.2), downloaded separately. July–August soil measurements are from different years than the tree campaign.
 - **Geometry:** sampled stem fluxes use measured diameters and frustum areas, ending at each highest stem chamber. Stand scaling and capture use an illustrative 23 m cone; the black gum scenario uses 15.8 m. Sullivan et al. (2017), Table 6 supplies height proxies, not a taper law. Shared definitions are in `scaling/analysis_helpers.R`.
-- **Area indices:** stems 0.45, branches 1.70 and leaves 4.5 m² per m² ground are midpoints of the ranges in Whittaker and Woodwell (1967). The alternative woody-area scenario totals 3.07. These inputs are assumptions, not measurements of the sampled trees.
+- **Area indices:** stems 0.55 and branches 1.55 m² per m² ground are midpoints of the ranges reported together for three eastern North American temperate closed-canopy deciduous forests (Whittaker & Woodwell, 1967, p. 937). Leaves retain 4.5, the midpoint of the abstract’s 3–6 range. The alternative woody-area scenario totals 3.07, with the same stem index and the remaining 2.52 assigned to branches. These inputs are centralized in `scaling/analysis_helpers.R`; they are scenario assumptions, not measurements of the sampled trees.
 - **Uncertainty:** 2,000 hierarchical bootstrap draws resample trees, then closures within tree/height/component, and refit models and basal denominators. Primary all-form comparisons use five eligible trees; other forms are also summarized separately for all seven. Exponential intervals are conditional on complete valid fits. Stand intervals hold external area indices and height proxies fixed.
 
 Global products are sensitivity scenarios, **not global flux estimates**. Ground-area rates are divided by woody-area index before multiplication by global woody surface area. Signed measurements below detection remain in the primary analysis; zeroing and filtering are diagnostic alternatives.

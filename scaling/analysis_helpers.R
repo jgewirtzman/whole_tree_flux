@@ -4,6 +4,14 @@ suppressPackageStartupMessages({library(dplyr); library(tidyr)})
 N_BOOT <- as.integer(Sys.getenv("FLUX_N_BOOT", "2000"))
 stopifnot(is.finite(N_BOOT), N_BOOT >= 100)
 
+# Illustrative eastern North American temperate closed-canopy deciduous forests.
+# Whittaker & Woodwell (1967), p. 937: stem 0.5–0.6 and branch 1.5–1.6
+# m2 per m2 ground; choose the midpoints of the ranges reported together.
+# Leaf index retains the midpoint of their abstract's 3–6 range.
+# These are fixed scenario inputs, not measured areas of the sampled trees.
+STAND_AREA <- c(stem = 0.55, branch = 1.55, leaf = 4.5)
+ALTERNATIVE_WOODY_AREA <- 3.07 # Gauci et al. (2024); partition is our assumption
+
 # Representative whole-stem heights, not measured heights of our sampled trees.
 # Sullivan et al. (2017), Table 6: rounded upper-canopy proxy and Nyssa proxy.
 CANOPY_HEIGHT <- 23

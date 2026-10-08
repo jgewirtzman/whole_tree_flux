@@ -171,8 +171,9 @@ p2c <- ggplot(cone) + geom_ribbon(aes(y = h, xmin = -r, xmax = r), orientation =
   geom_ribbon(data = cone %>% filter(h <= 2), aes(y = h, xmin = -r, xmax = r), orientation = "y", fill = CC[1]) +
   geom_hline(yintercept = c(2, 10), linetype = "22", linewidth = 0.3, colour = "grey40") + coord_cartesian(xlim = c(-0.35, 0.35)) +
   labs(x = NULL, y = "Height (m)") + th + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank())
-cap <- tibble(h = seq(0, H, 0.1)) %>% mutate(s = cone_share_below(h,H), `Stem` = 100 * s, `Stem + branches` = 100 * s * 0.45 / 2.15, `All surfaces` = 100 * s * 0.45 / 6.65) %>%
+cap <- tibble(h = seq(0, H, 0.1)) %>% mutate(s = cone_share_below(h,H), `Stem` = 100 * s, `Stem + branches` = 100 * s * STAND_AREA[["stem"]] / sum(STAND_AREA[c("stem","branch")]), `All surfaces` = 100 * s * STAND_AREA[["stem"]] / sum(STAND_AREA)) %>%
   select(-s) %>% pivot_longer(-h) %>% mutate(name = factor(name, c("Stem", "Stem + branches", "All surfaces")))
+write_csv(cap, file.path(OUT, "surface_capture.csv"))
 p2d <- ggplot(cap, aes(value, h, colour = name)) + geom_hline(yintercept = c(2, 10), linetype = "22", linewidth = 0.3, colour = "grey40") + geom_path(linewidth = 0.8) +
   scale_colour_manual(values = c(Stem = CC[[2]], `Stem + branches` = CC[[3]], `All surfaces` = CC[[4]]), name = NULL) + guides(colour = guide_legend(ncol = 1)) +
   labs(x = "Area represented by stem sampling\nbelow height (%)", y = NULL) + th +

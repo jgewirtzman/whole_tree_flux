@@ -1,0 +1,9 @@
+tree,branch_source,branch_measured_heights,assigned_branch_rate,stem_low,stem_high,stem_bottom_rate,stem_top_rate,branch_stem_area_ratio
+EMS hem 321902,own measured height means,2,NA,0.5,15,0.12920448744432245,0.02534507384036375,2.8181818181818374
+Swamp Rd hem 4,assigned measured upland tree-weighted branch mean,0,0.21215113504372823,0.5,14.2,0.14995847012600283,0.024804296926185,2.8181818181818468
+EMS ro 300607,assigned measured upland tree-weighted branch mean,0,0.21215113504372823,0.5,16,1.0692847168988306,0.0573588141635707,2.8181818181818055
+EMS rm 321071,assigned measured upland tree-weighted branch mean,0,0.21215113504372823,0.5,22,2.6589888837775764,0.0483626170397156,2.8181818181818143
+Swamp Rd rm 5,own measured height means,2,NA,0.5,13,0.483217471437259,0.1294369389592932,2.818181818181823
+Swamp Rd bg 2,own measured height means,3,NA,0.5,11.7,0.221242253060688,0.2586566582846995,2.8181818181818215
+YMF black oak,assigned measured upland tree-weighted branch mean,0,0.21215113504372823,0.5,10,-0.00437387748466349,0.0306840393066931,2.8181818181818197
+Black Gum Swamp bg (2024),assigned measured upland tree-weighted branch mean,0,0.21215113504372823,0.25,3.6,151.541361698502,4.583918959729816,2.8181818181818166

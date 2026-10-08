@@ -66,10 +66,31 @@ stopifnot(max(abs(cl$t-o$t_sec[match(cl$UniqueID,o$UniqueID)]))<1e-8,all(o$t_sec
 stopifnot(nrow(F)==141,n_distinct(F$tree)==7,sum(F$component=="branch")==11)
 r<-read.csv("scaling/out/stand_rates_HF.csv");u<-read.csv("scaling/out/stand_uncertainty_HF.csv")
 stopifnot(abs(sum(r$mean*r$area)-u$estimate[u$metric=="total"])<1e-10,all(u$lo<=u$hi))
-stopifnot(abs(r$area[r$comp=="stem_lo"]/.45-cone_share_below(2,CANOPY_HEIGHT))<1e-10)
+stopifnot(abs(r$area[r$comp=="stem_lo"]/STAND_AREA[["stem"]]-cone_share_below(2,CANOPY_HEIGHT))<1e-10)
 cat("PASS: timestamp, units, geometry, extrapolation, fixed cohorts, metadata, durations and stand accounting\n")
 
 trade<-read.csv("scaling/out/rate_area_tradeoff.csv")
 stopifnot(diff(range(trade$rate_matching_basal*trade$area))<1e-10)
 budget<-read.csv("scaling/out/blackgum_component_budget.csv")
 stopifnot(all(abs(tapply(budget$share_pct,interaction(budget$form,budget$branch_rule),sum)-100)<1e-10))
+
+# Area assumptions propagate consistently to stand, sensitivity, capture and swamp outputs.
+stopifnot(abs(sum(r$area[r$comp %in% c("stem_lo","stem_up")])-STAND_AREA[["stem"]])<1e-12,
+  abs(r$area[r$comp=="branch"]-STAND_AREA[["branch"]])<1e-12,
+  all(abs(tc$stem-STAND_AREA[["stem"]])<1e-12))
+alt<-grepl("Gauci",tc$area_set)
+stopifnot(all(abs(tc$stem[alt]+tc$branch[alt]-ALTERNATIVE_WOODY_AREA)<1e-12),
+  all(abs(tc$branch[!alt]-STAND_AREA[["branch"]])<1e-12))
+cap<-read.csv("scaling/out/surface_capture.csv")
+for (nm in c("Stem","Stem + branches","All surfaces")) {
+  z<-cap[cap$name==nm,]
+  denom<-switch(nm,"Stem"=STAND_AREA[["stem"]],"Stem + branches"=sum(STAND_AREA[c("stem","branch")]),"All surfaces"=sum(STAND_AREA))
+  stopifnot(max(abs(z$value-100*cone_share_below(z$h,CANOPY_HEIGHT)*STAND_AREA[["stem"]]/denom))<1e-10)
+}
+bgs<-read.csv("scaling/out/blackgum_scaling.csv")
+for (fm in unique(budget$form)) {
+  z<-budget[budget$form==fm,]; v<-bgs[bgs$form==fm,]
+  expected<-v$mean_flux_above2*STAND_AREA[["stem"]]*(1-cone_share_below(2,BLACKGUM_HEIGHT))
+  stopifnot(all(abs(z$integrated[z$component=="stem_up"]-expected)<1e-10))
+}
+cat("PASS: shared area assumptions across stand, sensitivity, capture and swamp scenarios\n")

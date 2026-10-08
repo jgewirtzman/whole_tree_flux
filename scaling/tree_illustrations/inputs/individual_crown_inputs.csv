@@ -1,0 +1,9 @@
+tree,species,label,site,proxy,sample_top,H,dbh_cm,dbh_source,crown_width_m,reference_lcr,reference_crown_base_m,species_lowest_observed_m,presence_lower_bound_m,presence_extension,modeled_crown_base_m,modeled_crown_depth_fraction,within_width_model_dbh_range
+EMS hem 321902,hem,T. canadensis 1,Harvard Forest,20.86,15,20.86,47.68,interpolated measured diameter profile at 1.37 m,8.14071866456693,0.74,5.4236,6,5.4236,FALSE,5.4236,0.74,TRUE
+Swamp Rd hem 4,hem,T. canadensis 2,Harvard Forest,20.86,14.2,20.86,32.712,interpolated measured diameter profile at 1.37 m,6.598837500018898,0.74,5.4236,6,5.4236,FALSE,5.4236,0.74,TRUE
+EMS ro 300607,ro,Q. rubra,Harvard Forest,22.88,16,22.88,21.84,interpolated measured diameter profile at 1.37 m,5.56999176,0.54,10.524799999999999,8,8,TRUE,8,0.6503496503496503,TRUE
+EMS rm 321071,rm,A. rubrum 1,Harvard Forest,20.03,22,22,26.26,interpolated measured diameter profile at 1.37 m,6.328017571653543,0.54,10.12,4,4,TRUE,4,0.8181818181818181,TRUE
+Swamp Rd rm 5,rm,A. rubrum 2,Harvard Forest,20.03,16,20.03,26,nearest measured diameter; DBH proxy,6.2916481984251975,0.54,9.213799999999999,4,4,TRUE,4,0.8002995506739891,TRUE
+Swamp Rd bg 2,bg,N. sylvatica,Harvard Forest,15.81,11.7,15.81,31.966666666666665,interpolated measured diameter profile at 1.37 m,6.6969068,0.56,6.9563999999999995,7,6.9563999999999995,FALSE,6.9563999999999995,0.56,TRUE
+YMF black oak,qv,Q. velutina,Yale Myers,22.64,10,22.64,46,interpolated measured diameter profile at 1.37 m,9.490164000000002,0.51,11.0936,NA,11.0936,FALSE,11.0936,0.51,TRUE
+Black Gum Swamp bg (2024),bg,N. sylvatica,Swamp reference,15.81,3.6,15.81,31.053763440860216,nominal swamp graphic diameter,6.594194232258065,0.56,6.9563999999999995,7,6.9563999999999995,FALSE,6.9563999999999995,0.56,TRUE

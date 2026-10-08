@@ -6,7 +6,7 @@
 # Sampled stem flux means use measured diameters and physical height intervals.
 # Stand area is partitioned with the same Sullivan-height cone as the capture figure.
 # Applying sampled compartment rates to that area is the explicit stand scenario.
-# Woody area per m2 ground: Whittaker & Woodwell 1967 (stem 0.45, branch 1.70; LAI 4.5) or total woody area 3.07
+# Woody area per m2 ground: Whittaker & Woodwell 1967 (stem 0.55, branch 1.55; LAI 4.5) or total woody area 3.07
 #   (Gauci 2024 temperate WAI; branch = 3.07 - stem). These are scenario inputs.
 # One measured branch rate is applied to branch area; its vertical distribution is not estimated.
 # Soil: Jevon et al. 2023 (Prospect Hill, upland), July-August instantaneous fluxes 2016-17 (fluxes.csv, umol m-2 s-1).
@@ -69,7 +69,7 @@ comp_names<-c("stem_lo","stem_up","branch","leaf")
 summarize_stand <- function(cr) {
   f<-vapply(comp_names,function(k)mean(cr[[k]],na.rm=TRUE),numeric(1))
   below<-mean(cr$share_below2)
-  area<-c(.45*below,.45*(1-below),1.70,4.5)
+  area<-unname(c(STAND_AREA["stem"]*below,STAND_AREA["stem"]*(1-below),STAND_AREA["branch"],STAND_AREA["leaf"]))
   val<-f*area
   c(setNames(f,paste0("rate_",comp_names)),setNames(area,paste0("area_",comp_names)),
     setNames(val,paste0("int_",comp_names)),setNames(100*val/sum(val),paste0("pct_",comp_names)),
@@ -103,7 +103,7 @@ br<-FH %>% filter(component=="branch",tree %in% common_HF)
 lf<-FH %>% filter(component=="leaf")
 tw<-tree_mean
 BR<-c(measured_mean=mean(CRc$branch,na.rm=TRUE),measured_median=median(br$flux))
-AREA<-tribble(~area_set,~stem,~branch,"Whittaker & Woodwell 1967",.45,1.70,"Woody area index 3.07 (Gauci 2024 temperate)",.45,2.62)
+AREA<-tribble(~area_set,~stem,~branch,"Whittaker & Woodwell 1967",STAND_AREA[["stem"]],STAND_AREA[["branch"]],"Woody area index 3.07 (Gauci 2024 temperate)",STAND_AREA[["stem"]],ALTERNATIVE_WOODY_AREA-STAND_AREA[["stem"]])
 T<-crossing(upper,AREA,branch_rule=c("measured_mean","measured_median","equal_upper_stem")) %>%
   mutate(f_branch=ifelse(branch_rule=="equal_upper_stem",f_up,BR[branch_rule]),
     stem_lo_g=stem_lo*stem*f_below,stem_up_g=f_up*stem*(1-f_below),branch_g=f_branch*branch,
@@ -118,7 +118,7 @@ print(T %>% group_by(form) %>% summarise(woody_min = min(woody_component), woody
   offset_min = min(offset_pct_of_soil_sink), offset_max = max(offset_pct_of_soil_sink), .groups = "drop"))
 ## ---- leaves, separately
 LV <- tibble(leaf_rule = c("measured mean", "measured median", "zero", "uptake at -1x mean leaf rate"), f = c(mean(lf$flux), median(lf$flux), 0, -mean(lf$flux))) %>%
-  mutate(leaf_g = f * 4.5)
+  mutate(leaf_g = f * STAND_AREA[["leaf"]])
 cat("\nleaf term (LAI 4.5), nmol m-2 ground s-1; leaf fluxes below MDF (see manuscript_statistics.csv):\n"); print(LV)
 
 ## ---- mixed model on basal (< 2 m) stem data, extrapolated (asinh scale; tree random intercept and slope)

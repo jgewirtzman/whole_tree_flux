@@ -38,7 +38,7 @@ print(BGS %>% mutate(across(where(is.numeric), ~ signif(.x, 3))), n = 30)
 # Forested classes 8,10,12,14,16,18,20,22,24,26,28 from Lehner et al. 2025 ESSD Table 3 (10^3 km2); forested = >= 10 % tree cover.
 FW <- c(428.8, 378.6, 805.2, 701.2, 72.5, 138.5, 37.3, 1410.4, 431.7, 803.5, 150.8); A_fw <- sum(FW) / 1000   # M km2
 f_below <- cone_share_below(2,BLACKGUM_HEIGHT)
-SAI_up <- 0.45 * (1 - f_below)   # Whittaker & Woodwell 1967 stem area 0.45 m2 m-2 (temperate, closed canopy): illustrative
+SAI_up <- STAND_AREA[["stem"]] * (1 - f_below) # same illustrative area indices as the upland scenario
 G <- BGS %>% mutate(Tg = mean_flux_above2 * SAI_up * A_fw * 0.506)
 cat(sprintf("\nforested wetland area (GLWD v2) %.2f M km2; stem area above 2 m %.3f m2 m-2 ground (illustrative, full stocking)\n", A_fw, SAI_up))
 cat(sprintf("black gum-like stem above 2 m: %.1f-%.1f Tg/yr (all H, forms); exp/zero-above-top only %.1f-%.1f; same area at the other trees' mean above 2 m (%.2f): %.2f Tg/yr\n",
@@ -46,19 +46,19 @@ cat(sprintf("black gum-like stem above 2 m: %.1f-%.1f Tg/yr (all H, forms); exp/
 write_csv(G, file.path(ROOT, "scaling/out/blackgum_scaling.csv"))
 
 ## ---- add branches to the wetland scenario: branches were not measured on this tree, so the HF branch rates (tree-weighted mean and
-## observation median, 03_tree_component.R) are used as conservative stand-ins; branch area 1.70 m2 m-2 (W&W 1967)
+## observation median, 03_tree_component.R) are used as conservative stand-ins; branch area 1.55 m2 m-2 (W&W 1967 scenario)
 RT <- read_csv(file.path(ROOT, "scaling/out/stand_rates_HF.csv"), show_col_types = FALSE)
 br_mean <- RT$mean[RT$comp == "branch"]; br_med <- median(F$flux[F$component == "branch" & !grepl("YMF", F$tree)])
-for (bf in c(br_med, br_mean)) cat(sprintf("branches at %.3f nmol m-2 s-1 x 1.70 x %.2f M km2: %.2f Tg/yr\n", bf, A_fw, bf * 1.70 * A_fw * 0.506))
-cat(sprintf("stem above 2 m + branches: %.1f-%.1f Tg/yr\n", min(G$Tg) + br_med * 1.70 * A_fw * 0.506, max(G$Tg) + br_mean * 1.70 * A_fw * 0.506))
+for (bf in c(br_med, br_mean)) cat(sprintf("branches at %.3f nmol m-2 s-1 x %.2f x %.2f M km2: %.2f Tg/yr\n", bf, STAND_AREA[["branch"]], A_fw, bf * STAND_AREA[["branch"]] * A_fw * 0.506))
+cat(sprintf("stem above 2 m + branches: %.1f-%.1f Tg/yr\n", min(G$Tg) + br_med * STAND_AREA[["branch"]] * A_fw * 0.506, max(G$Tg) + br_mean * STAND_AREA[["branch"]] * A_fw * 0.506))
 
 ## ---- SI component budget: same stem scenarios, with explicitly assigned branches.
 # No branch or leaf flux was measured on this reference tree. This is a woody
 # budget illustration; leaves are omitted, not assumed to have zero exchange.
 BGCOMP <- tidyr::crossing(G, branch_rule = c("Upland median", "Upland tree mean")) %>%
   mutate(branch_rate = ifelse(branch_rule == "Upland median", br_med, br_mean),
-    stem_lo = mean_flux_below2 * .45 * f_below,
-    stem_up = mean_flux_above2 * .45 * (1-f_below), branch = branch_rate * 1.70) %>%
+    stem_lo = mean_flux_below2 * STAND_AREA[["stem"]] * f_below,
+    stem_up = mean_flux_above2 * STAND_AREA[["stem"]] * (1-f_below), branch = branch_rate * STAND_AREA[["branch"]]) %>%
   select(form, branch_rule, stem_lo, stem_up, branch) %>%
   tidyr::pivot_longer(c(stem_lo,stem_up,branch), names_to="component", values_to="integrated") %>%
   group_by(form,branch_rule) %>% mutate(total=sum(integrated),share_pct=100*integrated/total) %>% ungroup()
