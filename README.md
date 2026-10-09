@@ -59,14 +59,14 @@ All tabular scaling outputs are in `scaling/out/`. Historical version suffixes i
 | 3 — extrapolation assumptions and scenarios | `scaling/v3c/Figure3_v3c.png` |
 | S1 — stem, branch and foliage chambers | `scaling/v3c/FigS1_chambers.png` (also PDF) |
 | S2 — profiles on an arcsinh axis | `scaling/v3c/FigS1_grid_asinh.png` |
-| S3 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
-| S4 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
-| S5 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
-| S6 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
+| S3 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
+| S4 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
+| S5 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
+| S6 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
 
 Alternative raw/arcsinh profile renderings are also generated. Superseded figure pipelines and manuscript-building tools are not part of this public workflow.
 
-[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S6 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Figure 1 uses option E, with faint genus silhouettes to the left of the measured profiles, habitat brackets, and photographs before the pooled summary. Other layouts remain available as alternatives.
+[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S3 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Figure 1 uses option E, with faint genus silhouettes to the left of the measured profiles, habitat brackets, and photographs before the pooled summary. Other layouts remain available as alternatives.
 
 ## Data and assumptions
 
