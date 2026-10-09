@@ -164,7 +164,11 @@ bgline <- tibble(height_m = seq(0.2, 3.6, 0.05)) %>% mutate(pred = predict(bgfit
 Sx$pt <- factor(Sx$pt, levels(bgx$pt))
 PLEV <- unname(PANEL_LAB)
 lines <- lines %>% mutate(panel = PANEL_LAB[tree])
-mm <- grid %>% mutate(panel = PANEL_LAB[tree])
+# display only: clip the mixed-model line to each tree's range of plotted stem fluxes (with a 10% margin) so a single
+# extrapolated line does not set the panel's flux axis; the model and its predictions (mixed_model_pred.csv) are unchanged
+xr <- F %>% filter(component == "stem") %>% group_by(tree) %>% summarise(lo = min(flux), hi = max(flux), .groups = "drop") %>%
+  mutate(pad = 0.1 * (hi - lo), lo = lo - pad, hi = hi + pad)
+mm <- grid %>% left_join(xr, by = "tree") %>% filter(pred >= lo, pred <= hi) %>% select(-lo, -hi, -pad) %>% mutate(panel = PANEL_LAB[tree])
 tr <- scales::pseudo_log_trans(sigma = 0.02)
 fix <- function(d) { d$panel <- factor(d$panel, PLEV); d }
 Sx <- fix(Sx); bgx <- fix(bgx); bgline <- fix(bgline); lines <- fix(lines); mm <- fix(mm)
