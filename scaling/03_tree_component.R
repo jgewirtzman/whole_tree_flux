@@ -152,16 +152,19 @@ lines <- bind_rows(lapply(unique(fpts$tree), function(t) {
             tibble(tree = t, height_m = x, form = "linear", pred = if (rising) top else lin[1] + lin[2] * x),
             tibble(tree = t, height_m = x, form = "zero", pred = 0)) }))
 mic <- micro %>% select(tree, microsite)
-Sx <- F %>% filter(component == "stem") %>% left_join(mic, by = "tree") %>% mutate(panel = paste0(tree, "\n", microsite),
+PANEL_LAB <- c("EMS hem 321902" = 'italic("T. canadensis")~"1"', "Swamp Rd hem 4" = 'italic("T. canadensis")~"2"', "EMS ro 300607" = 'italic("Q. rubra")',
+  "EMS rm 321071" = 'italic("A. rubrum")~"1"', "Swamp Rd rm 5" = 'italic("A. rubrum")~"2"', "Swamp Rd bg 2" = 'italic("N. sylvatica")',
+  "YMF black oak" = 'italic("Q. velutina")~"(Yale Myers)"', "Black Gum Swamp bg (2024)" = 'italic("N. sylvatica")~"(swamp)"')
+Sx <- F %>% filter(component == "stem") %>% left_join(mic, by = "tree") %>% mutate(panel = PANEL_LAB[tree],
   pt = factor(ifelse(below_mdf, "below detection", ifelse(height_m < 2, "basal (< 2 m), used to fit", "held out (>= 2 m)")),
               c("basal (< 2 m), used to fit", "held out (>= 2 m)", "below detection")))
-bgx <- bg %>% mutate(panel = "Black Gum Swamp bg (2024)\nwetland reference (saturated peat)",
+bgx <- bg %>% mutate(panel = PANEL_LAB[["Black Gum Swamp bg (2024)"]],
   pt = factor(ifelse(below_mdf, "below detection", "wetland reference"), c("basal (< 2 m), used to fit", "held out (>= 2 m)", "below detection", "wetland reference")))
 bgline <- tibble(height_m = seq(0.2, 3.6, 0.05)) %>% mutate(pred = predict(bgfit, newdata = data.frame(height_m = height_m)), panel = bgx$panel[1])
 Sx$pt <- factor(Sx$pt, levels(bgx$pt))
-PLEV <- c(sort(unique(Sx$panel)), bgx$panel[1])
-lines <- lines %>% left_join(mic, by = "tree") %>% mutate(panel = paste0(tree, "\n", microsite))
-mm <- grid %>% left_join(mic, by = "tree") %>% mutate(panel = paste0(tree, "\n", microsite))
+PLEV <- unname(PANEL_LAB)
+lines <- lines %>% mutate(panel = PANEL_LAB[tree])
+mm <- grid %>% mutate(panel = PANEL_LAB[tree])
 tr <- scales::pseudo_log_trans(sigma = 0.02)
 fix <- function(d) { d$panel <- factor(d$panel, PLEV); d }
 Sx <- fix(Sx); bgx <- fix(bgx); bgline <- fix(bgline); lines <- fix(lines); mm <- fix(mm)
@@ -175,9 +178,8 @@ pS <- ggplot() + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2
   scale_linetype_manual(values = c("Mixed model (all trees' basal data)" = "solid", "Exponential fit (all heights)" = "22"), name = NULL) +
   scale_colour_manual(values = c(const_mean = "#E69F00", exp_decay = "#009E73", linear = "#0072B2", zero = "grey45"), labels = lab_form, name = "Per-tree extrapolation:") +
   scale_x_continuous(trans = tr, breaks = c(-1, 0, 0.1, 1, 10, 100), labels = function(x) sub("-", "−", format(x, drop0trailing = TRUE, trim = TRUE))) +
-  facet_wrap(~panel, ncol = 4, scales = "free") +
+  facet_wrap(~panel, ncol = 4, scales = "free", labeller = label_parsed) +
   guides(colour = guide_legend(nrow = 2, order = 1), shape = guide_legend(nrow = 2, order = 2), linetype = guide_legend(nrow = 2, order = 3)) +
-  labs(x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})*","~signed~log~scale), y = "Height (m)",
-       caption = "Grey band: below 2 m (the usual sampling range). Coloured lines: each tree's basal (< 2 m) data extrapolated upward (forms may not increase with height).\nBlack line: mixed model of all trees' basal data (tree-level intercept and slope) extrapolated upward. Last panel: a saturated peat-swamp black gum measured to 3.6 m (reference only).") +
-  th + theme(legend.box = "vertical", plot.caption = element_text(size = 7, hjust = 0))
+  labs(x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})*","~signed~log~scale), y = "Height (m)") +
+  th + theme(legend.box = "vertical")
 ggsave(file.path(ROOT, "scaling/fig_SI_extrapolation_fits.png"), pS, width = 230, height = 190, units = "mm", dpi = 300, bg = "white")

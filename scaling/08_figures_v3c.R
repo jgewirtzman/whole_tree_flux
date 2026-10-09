@@ -229,7 +229,7 @@ p3c <- ggplot(tc2, aes(woody_component, form)) +
   scale_colour_manual(values = BRC, labels = c(measured_mean = "measured mean", measured_median = "measured median", equal_upper_stem = "same as upper stem"), name = "Branch flux") +
   scale_shape_manual(values = c(16, 2), labels = c("Whittaker & Woodwell (1967)", "Gauci et al. (2024)"), name = "Woody area") +
   guides(colour = guide_legend(ncol = 1, title.position = "top", order = 1), shape = guide_legend(ncol = 1, title.position = "top", order = 2)) +
-  labs(x = expression(Woody~surface~CH[4]~(nmol~m^{-2}~ground~s^{-1})), y = NULL, subtitle = "Common five-tree cohort") + th
+  labs(x = expression(Woody~surface~CH[4]~(nmol~m^{-2}~ground~s^{-1})), y = NULL) + th
 WA <- c("90" = 90.4, "132" = 131.9, "207" = 206.6); WAC <- c("#D9B98A", "#A0703C", "#5C3A1A")
 gd <- tc %>% filter(form %in% names(LAB)) %>% mutate(wf = woody_component / (stem + branch)) %>% crossing(tibble(wa = names(WA), A = WA)) %>%
   mutate(Tg = wf * A * 0.506, form = factor(LAB[form], rev(LAB)), wa = factor(wa, names(WA)))
