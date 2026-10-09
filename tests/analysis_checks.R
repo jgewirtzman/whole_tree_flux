@@ -94,3 +94,5 @@ for (fm in unique(budget$form)) {
   stopifnot(all(abs(z$integrated[z$component=="stem_up"]-expected)<1e-10))
 }
 cat("PASS: shared area assumptions across stand, sensitivity, capture and swamp scenarios\n")
+
+source("tests/leaf_area_checks.R")

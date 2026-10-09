@@ -1,0 +1,17 @@
+"comp","model","above_mdf","selected_sig","n"
+"branch","HM",FALSE,FALSE,2
+"branch","HM",TRUE,FALSE,1
+"branch","HM",TRUE,TRUE,5
+"branch","LM",TRUE,FALSE,1
+"branch","LM",TRUE,TRUE,2
+"leaf","HM",FALSE,FALSE,15
+"leaf","HM",FALSE,TRUE,1
+"leaf","HM",TRUE,FALSE,3
+"leaf","HM",TRUE,TRUE,2
+"stem_lo","HM",FALSE,FALSE,2
+"stem_lo","HM",TRUE,FALSE,2
+"stem_lo","HM",TRUE,TRUE,20
+"stem_lo","LM",TRUE,TRUE,2
+"stem_up","HM",FALSE,FALSE,7
+"stem_up","HM",TRUE,TRUE,67
+"stem_up","LM",TRUE,TRUE,9

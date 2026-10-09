@@ -33,7 +33,7 @@ flux_steps <- c(
 scaling_steps <- c("scaling/01_flux_form_test.R", "scaling/03_tree_component.R",
   "scaling/04_main_figures.R", "scaling/08_figures_v3c.R",
   "scaling/09_tree_weighting.R", "scaling/10_basal_by_site_and_blackgum.R",
-  "scaling/11_summary_statistics.R", "scaling/12_tree_illustrations.R")
+  "scaling/11_summary_statistics.R", "scaling/12_tree_illustrations.R", "scaling/14_chamber_photos.R")
 steps <- switch(mode, flux = flux_steps, scaling = scaling_steps, full = c(flux_steps, scaling_steps))
 for (i in seq_along(steps)) {
   message(sprintf("\n[%d/%d] %s", i, length(steps), steps[i]))

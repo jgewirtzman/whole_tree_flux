@@ -1,3 +1,6 @@
+source("data processing/goFlux_reprocessing/leaf_area_helpers.R")
+validate_canopy_metadata()
+validate_compiled_canopy()
 # 00_load_field.R — GRL field CH4 fluxes (Harvard Forest 6 trees + Yale Myers black oak), as loaded for Figure 1.
 # Returns `F`: one row per measurement with site, tree, species, component, height_m, flux (nmol m-2 s-1), below_mdf.
 suppressPackageStartupMessages({library(dplyr); library(stringr)})

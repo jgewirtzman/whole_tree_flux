@@ -119,7 +119,7 @@ print(T %>% group_by(form) %>% summarise(woody_min = min(woody_component), woody
 ## ---- leaves, separately
 LV <- tibble(leaf_rule = c("measured mean", "measured median", "zero", "uptake at -1x mean leaf rate"), f = c(mean(lf$flux), median(lf$flux), 0, -mean(lf$flux))) %>%
   mutate(leaf_g = f * STAND_AREA[["leaf"]])
-cat("\nleaf term (LAI 4.5), nmol m-2 ground s-1; leaf fluxes below MDF (see manuscript_statistics.csv):\n"); print(LV)
+cat("\nleaf term (LAI 4.5), nmol m-2 ground s-1; leaf fluxes below MDF (see summary_statistics.csv):\n"); print(LV)
 
 ## ---- mixed model on basal (< 2 m) stem data, extrapolated (asinh scale; tree random intercept and slope)
 S <- F %>% filter(component == "stem") %>% mutate(y = asinh(flux / 0.01))

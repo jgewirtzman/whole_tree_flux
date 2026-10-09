@@ -2,7 +2,7 @@
 check_workflow <- function(mode) {
   stopifnot(mode %in% c("full", "flux", "scaling"))
   pkgs <- c("goFlux", "dplyr", "purrr", "readr", "lubridate", "openxlsx", "tidyr", "stringr", "readxl", "jsonlite")
-  if (mode != "flux") pkgs <- c(pkgs, "ggplot2", "patchwork", "scales", "jpeg", "lme4", "Matrix")
+  if (mode != "flux") pkgs <- c(pkgs, "ggplot2", "patchwork", "scales", "jpeg", "png", "lme4", "Matrix")
   missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
   if (length(missing)) stop("Missing packages: ", paste(missing, collapse = ", "), ". Restore renv.lock as described in README.md.")
   lock <- jsonlite::fromJSON("renv.lock", simplifyVector = FALSE)
@@ -14,9 +14,10 @@ check_workflow <- function(mode) {
   nboot <- suppressWarnings(as.numeric(Sys.getenv("FLUX_N_BOOT", "2000")))
   if (!is.finite(nboot) || nboot < 100 || nboot != floor(nboot)) stop("FLUX_N_BOOT must be an integer of at least 100; reported results use 2000.")
   rd <- "data processing/goFlux_reprocessing"
-  inputs <- character()
+  inputs <- c("data processing/Field Data Entry - Clean Canopy Lift Total.csv",
+    "data processing/leaf_areas.csv", "data processing/leaf_area_mapping.csv")
   if (mode != "scaling") {
-    inputs <- c("data processing/Field Data Entry - Clean Canopy Lift Total.csv", "data processing/leaf_areas.csv",
+    inputs <- c(inputs,
       "data processing/YMF Black Oak/Black Oak Tree Project Data.xlsx",
       paste0("data processing/input/times_key_tree - Canopy Lift_LGR", 1:3, " (2).csv"),
       file.path(rd, "hf001-10-15min-m.csv"),
@@ -31,7 +32,8 @@ check_workflow <- function(mode) {
     inputs <- c(inputs, raw)
   }
   if (mode != "flux") {
-    inputs <- c(inputs, "scaling/soil_jevon2023/fluxes.csv", "IMG_5926_edited.jpg", "IMG_6437.jpg")
+    inputs <- c(inputs, "scaling/soil_jevon2023/fluxes.csv", "IMG_5926_edited.jpg", "IMG_6437.jpg",
+      file.path("data processing/chamber_photos", c("IMG_5018.png", "IMG_5103.png", "IMG_5115.png", "IMG_5186.png")))
     if (mode == "scaling") inputs <- c(inputs,
       file.path(rd, "results", c("canopy_flux_goFlux_compiled.csv", "canopy_flux_goFlux_compiled_with_mdf.csv")),
       file.path(rd, "ymf_black_oak/results", c("ymf_black_oak_flux_compiled.csv", "ymf_black_oak_flux_compiled_with_mdf.csv", "ymf_field_data.csv")),
@@ -40,6 +42,9 @@ check_workflow <- function(mode) {
   missing <- inputs[!file.exists(inputs)]
   if (length(missing)) stop("Missing required input(s):\n", paste(missing, collapse = "\n"),
     "\nFor the separately distributed soil data, see scaling/soil_jevon2023/README.md.")
+  source("data processing/goFlux_reprocessing/leaf_area_helpers.R")
+  validate_canopy_metadata()
+  leaf_area_assignments()
   if (mode != "flux") {
     soil <- read.csv("scaling/soil_jevon2023/fluxes.csv")
     if (!all(c("date", "CH4.flux") %in% names(soil))) stop("Soil input must contain date and CH4.flux columns.")

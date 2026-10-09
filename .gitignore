@@ -99,3 +99,11 @@ figures/comment_response_stats.R
 /scaling/out/run_metadata.txt
 
 /MANUSCRIPT_WORKFLOW.md
+
+# Local runtime details from the flux-uncertainty sensitivity.
+/scaling/out/flux_uncertainty/sessionInfo.txt
+
+# Private continuation notes are saved through ms-git.sh only.
+/CLAUDE_HANDOFF_*.md
+/MDF_HANDOFF_*.md
+/notes/mdf-handoff-2026-10-08/

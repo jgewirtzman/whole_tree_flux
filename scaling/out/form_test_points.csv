@@ -307,9 +307,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 300607 7 stem 2,EMS,EMS ro 300607,ro,stem,7,0.085100872361674,FALSE,zero,0
 300607 9 stem 1,EMS,EMS ro 300607,ro,stem,9,0.0259977076114635,TRUE,zero,0
 300607 9 stem 2,EMS,EMS ro 300607,ro,stem,9,0.123496580439296,FALSE,zero,0
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,const_mean,0.3957748612906837
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,const_mean,0.3957748612906837
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,const_mean,0.3957748612906837
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,const_mean,0.3957748612906837
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,const_mean,0.3957748612906837
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,const_mean,0.3957748612906837
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,const_mean,0.3957748612906837
@@ -319,9 +319,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,const_mean,0.3957748612906837
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,const_mean,0.3957748612906837
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,const_mean,0.3957748612906837
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,const_top,0.520862353106457
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,const_top,0.520862353106457
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,const_top,0.520862353106457
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,const_top,0.520862353106457
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,const_top,0.520862353106457
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,const_top,0.520862353106457
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,const_top,0.520862353106457
@@ -331,9 +331,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,const_top,0.520862353106457
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,const_top,0.520862353106457
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,const_top,0.520862353106457
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,exp_decay,0.520862353106457
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,exp_decay,0.520862353106457
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,exp_decay,0.520862353106457
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,exp_decay,0.520862353106457
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,exp_decay,0.520862353106457
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,exp_decay,0.520862353106457
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,exp_decay,0.520862353106457
@@ -343,9 +343,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,exp_decay,0.520862353106457
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,exp_decay,0.520862353106457
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,exp_decay,0.520862353106457
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,exp_pooled,0.520862353106457
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,exp_pooled,0.520862353106457
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,exp_pooled,0.520862353106457
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,exp_pooled,0.520862353106457
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,exp_pooled,0.520862353106457
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,exp_pooled,0.520862353106457
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,exp_pooled,0.520862353106457
@@ -355,9 +355,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,exp_pooled,0.520862353106457
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,exp_pooled,0.520862353106457
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,exp_pooled,0.520862353106457
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,linear,0.520862353106457
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,linear,0.520862353106457
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,linear,0.520862353106457
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,linear,0.520862353106457
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,linear,0.520862353106457
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,linear,0.520862353106457
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,linear,0.520862353106457
@@ -367,9 +367,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,linear,0.520862353106457
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,linear,0.520862353106457
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,linear,0.520862353106457
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,linear_zero,0.520862353106457
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,linear_zero,0.520862353106457
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,linear_zero,0.520862353106457
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,linear_zero,0.520862353106457
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,linear_zero,0.520862353106457
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,linear_zero,0.520862353106457
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,linear_zero,0.520862353106457
@@ -379,9 +379,9 @@ uid,site,tree,species,component,height_m,flux,below_mdf,form,pred
 2 9.1 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.58550616137488,FALSE,linear_zero,0.520862353106457
 2 7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,7,1.7714978391706,FALSE,linear_zero,0.520862353106457
 2 9.1 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,9.1,0.877353333043568,FALSE,linear_zero,0.520862353106457
+2 11.7 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.36292721163086,FALSE,zero,0
 2 11.7 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,0.327540908661263,FALSE,zero,0
 2 10.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.164462859900202,FALSE,zero,0
-2 11.7 leaf 1,Swamp Rd,Swamp Rd bg 2,bg,stem,10.5,-8.96994709920407e-4,TRUE,zero,0
 2 10.5 stem 2,Swamp Rd,Swamp Rd bg 2,bg,stem,11.7,0.352850456669197,FALSE,zero,0
 2 3 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,3,1.00891744035068,FALSE,zero,0
 2 4.5 stem 1,Swamp Rd,Swamp Rd bg 2,bg,stem,4.5,1.19310316191572,FALSE,zero,0

@@ -9,6 +9,7 @@ unlink(inventory)
 paths <- strsplit(rawToChar(replace(bytes, bytes == as.raw(0), charToRaw("\n"))), "\n", fixed = TRUE)[[1]]
 private <- paste(c("(^|/)(manuscript[^/]*|DRAFT_[^/]*|WORKLOG_[^/]*|STATUS_TRACKER[^/]*|CLAUDE[^/]*|comment_responses[^/]*|prompt_for_[^/]*)(/|$)",
  "(^|/)(synthesis_merge|grl_ge2m|\\.git-manuscript|\\.claude|\\.codex)(/|$)",
+ "(^|/)(MDF_HANDOFF_[^/]*|notes/mdf-handoff-[^/]*)(/|$)",
  "(^|/)(build_manuscript\\.sh|ms-git\\.sh|comment_response_stats\\.R)$", "\\.(docx|qmd)$", "_writeup\\.", "(^|/)\\.DS_Store$"), collapse = "|")
 bad <- paths[grepl(private, paths, ignore.case = TRUE)]
 if (length(bad)) stop("Private/editorial files in public index:\n", paste(bad, collapse = "\n"))

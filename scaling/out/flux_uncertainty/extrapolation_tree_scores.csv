@@ -1,0 +1,246 @@
+"scenario","tree","form","observed","predicted"
+"selected_all","EMS hem 321902","const_mean",0.0435366167802703,0.196762716824783
+"selected_all","EMS hem 321902","const_top",0.0435366167802703,0.264320946205243
+"selected_all","EMS hem 321902","exp_decay",0.0435366167802703,0.264320946205243
+"selected_all","EMS hem 321902","exp_pooled",0.0435366167802703,0.264320946205243
+"selected_all","EMS hem 321902","linear",0.0435366167802703,0.264320946205243
+"selected_all","EMS hem 321902","linear_zero",0.0435366167802703,0.264320946205243
+"selected_all","EMS hem 321902","zero",0.0435366167802703,0
+"selected_all","EMS rm 321071","const_mean",0.255059641236761,2.42454828873249
+"selected_all","EMS rm 321071","const_top",0.255059641236761,2.1901076936874
+"selected_all","EMS rm 321071","exp_decay",0.255059641236761,0.4940210799705
+"selected_all","EMS rm 321071","exp_pooled",0.255059641236761,2.1901076936874
+"selected_all","EMS rm 321071","linear",0.255059641236761,-3.02579415031087
+"selected_all","EMS rm 321071","linear_zero",0.255059641236761,0.192035327281229
+"selected_all","EMS rm 321071","zero",0.255059641236761,0
+"selected_all","EMS ro 300607","const_mean",0.113218404558956,0.816886041182971
+"selected_all","EMS ro 300607","const_top",0.113218404558956,0.564487365467114
+"selected_all","EMS ro 300607","exp_decay",0.113218404558956,0.0312194436066317
+"selected_all","EMS ro 300607","exp_pooled",0.113218404558956,0.564487365467114
+"selected_all","EMS ro 300607","linear",0.113218404558956,-4.06353887029988
+"selected_all","EMS ro 300607","linear_zero",0.113218404558956,0.000240642220266295
+"selected_all","EMS ro 300607","zero",0.113218404558956,0
+"selected_all","Swamp Rd bg 2","const_mean",1.10533187160168,0.395774861290683
+"selected_all","Swamp Rd bg 2","const_top",1.10533187160168,0.520862353106456
+"selected_all","Swamp Rd bg 2","exp_decay",1.10533187160168,0.520862353106456
+"selected_all","Swamp Rd bg 2","exp_pooled",1.10533187160168,0.520862353106456
+"selected_all","Swamp Rd bg 2","linear",1.10533187160168,0.520862353106456
+"selected_all","Swamp Rd bg 2","linear_zero",1.10533187160168,0.520862353106456
+"selected_all","Swamp Rd bg 2","zero",1.10533187160168,0
+"selected_all","Swamp Rd rm 5","const_mean",0.31691418999988,0.510610046296862
+"selected_all","Swamp Rd rm 5","const_top",0.31691418999988,0.538002621156465
+"selected_all","Swamp Rd rm 5","exp_decay",0.31691418999988,0.538002621156465
+"selected_all","Swamp Rd rm 5","exp_pooled",0.31691418999988,0.538002621156465
+"selected_all","Swamp Rd rm 5","linear",0.31691418999988,0.538002621156465
+"selected_all","Swamp Rd rm 5","linear_zero",0.31691418999988,0.538002621156465
+"selected_all","Swamp Rd rm 5","zero",0.31691418999988,0
+"selected_mdf_zero","EMS hem 321902","const_mean",0.041863953577261,0.196762716824783
+"selected_mdf_zero","EMS hem 321902","const_top",0.041863953577261,0.264320946205243
+"selected_mdf_zero","EMS hem 321902","exp_decay",0.041863953577261,0.264320946205243
+"selected_mdf_zero","EMS hem 321902","exp_pooled",0.041863953577261,0.264320946205243
+"selected_mdf_zero","EMS hem 321902","linear",0.041863953577261,0.264320946205243
+"selected_mdf_zero","EMS hem 321902","linear_zero",0.041863953577261,0.264320946205243
+"selected_mdf_zero","EMS hem 321902","zero",0.041863953577261,0
+"selected_mdf_zero","EMS rm 321071","const_mean",0.255059641236761,2.42454828873249
+"selected_mdf_zero","EMS rm 321071","const_top",0.255059641236761,2.1901076936874
+"selected_mdf_zero","EMS rm 321071","exp_decay",0.255059641236761,0.4940210799705
+"selected_mdf_zero","EMS rm 321071","exp_pooled",0.255059641236761,2.1901076936874
+"selected_mdf_zero","EMS rm 321071","linear",0.255059641236761,-3.02579415031087
+"selected_mdf_zero","EMS rm 321071","linear_zero",0.255059641236761,0.192035327281229
+"selected_mdf_zero","EMS rm 321071","zero",0.255059641236761,0
+"selected_mdf_zero","EMS ro 300607","const_mean",0.110891353339989,0.816886041182971
+"selected_mdf_zero","EMS ro 300607","const_top",0.110891353339989,0.564487365467114
+"selected_mdf_zero","EMS ro 300607","exp_decay",0.110891353339989,0.0312194436066317
+"selected_mdf_zero","EMS ro 300607","exp_pooled",0.110891353339989,0.564487365467114
+"selected_mdf_zero","EMS ro 300607","linear",0.110891353339989,-4.06353887029988
+"selected_mdf_zero","EMS ro 300607","linear_zero",0.110891353339989,0.000240642220266295
+"selected_mdf_zero","EMS ro 300607","zero",0.110891353339989,0
+"selected_mdf_zero","Swamp Rd bg 2","const_mean",1.10533187160168,0.395774861290683
+"selected_mdf_zero","Swamp Rd bg 2","const_top",1.10533187160168,0.520862353106456
+"selected_mdf_zero","Swamp Rd bg 2","exp_decay",1.10533187160168,0.520862353106456
+"selected_mdf_zero","Swamp Rd bg 2","exp_pooled",1.10533187160168,0.520862353106456
+"selected_mdf_zero","Swamp Rd bg 2","linear",1.10533187160168,0.520862353106456
+"selected_mdf_zero","Swamp Rd bg 2","linear_zero",1.10533187160168,0.520862353106456
+"selected_mdf_zero","Swamp Rd bg 2","zero",1.10533187160168,0
+"selected_mdf_zero","Swamp Rd rm 5","const_mean",0.316993988285599,0.510610046296862
+"selected_mdf_zero","Swamp Rd rm 5","const_top",0.316993988285599,0.538002621156465
+"selected_mdf_zero","Swamp Rd rm 5","exp_decay",0.316993988285599,0.538002621156465
+"selected_mdf_zero","Swamp Rd rm 5","exp_pooled",0.316993988285599,0.538002621156465
+"selected_mdf_zero","Swamp Rd rm 5","linear",0.316993988285599,0.538002621156465
+"selected_mdf_zero","Swamp Rd rm 5","linear_zero",0.316993988285599,0.538002621156465
+"selected_mdf_zero","Swamp Rd rm 5","zero",0.316993988285599,0
+"selected_interval_zero","EMS hem 321902","const_mean",0.041863953577261,0.17978802042915
+"selected_interval_zero","EMS hem 321902","const_top",0.041863953577261,0.264320946205243
+"selected_interval_zero","EMS hem 321902","exp_decay",0.041863953577261,0.264320946205243
+"selected_interval_zero","EMS hem 321902","exp_pooled",0.041863953577261,0.264320946205243
+"selected_interval_zero","EMS hem 321902","linear",0.041863953577261,0.264320946205243
+"selected_interval_zero","EMS hem 321902","linear_zero",0.041863953577261,0.264320946205243
+"selected_interval_zero","EMS hem 321902","zero",0.041863953577261,0
+"selected_interval_zero","EMS rm 321071","const_mean",0.255059641236761,2.42454828873249
+"selected_interval_zero","EMS rm 321071","const_top",0.255059641236761,2.1901076936874
+"selected_interval_zero","EMS rm 321071","exp_decay",0.255059641236761,0.4940210799705
+"selected_interval_zero","EMS rm 321071","exp_pooled",0.255059641236761,2.1901076936874
+"selected_interval_zero","EMS rm 321071","linear",0.255059641236761,-3.02579415031087
+"selected_interval_zero","EMS rm 321071","linear_zero",0.255059641236761,0.192035327281229
+"selected_interval_zero","EMS rm 321071","zero",0.255059641236761,0
+"selected_interval_zero","EMS ro 300607","const_mean",0.110891353339989,0.816886041182971
+"selected_interval_zero","EMS ro 300607","const_top",0.110891353339989,0.564487365467114
+"selected_interval_zero","EMS ro 300607","exp_decay",0.110891353339989,0.0312194436066317
+"selected_interval_zero","EMS ro 300607","exp_pooled",0.110891353339989,0.564487365467114
+"selected_interval_zero","EMS ro 300607","linear",0.110891353339989,-4.06353887029988
+"selected_interval_zero","EMS ro 300607","linear_zero",0.110891353339989,0.000240642220266295
+"selected_interval_zero","EMS ro 300607","zero",0.110891353339989,0
+"selected_interval_zero","Swamp Rd bg 2","const_mean",1.10533187160168,0.395774861290683
+"selected_interval_zero","Swamp Rd bg 2","const_top",1.10533187160168,0.520862353106456
+"selected_interval_zero","Swamp Rd bg 2","exp_decay",1.10533187160168,0.520862353106456
+"selected_interval_zero","Swamp Rd bg 2","exp_pooled",1.10533187160168,0.520862353106456
+"selected_interval_zero","Swamp Rd bg 2","linear",1.10533187160168,0.520862353106456
+"selected_interval_zero","Swamp Rd bg 2","linear_zero",1.10533187160168,0.520862353106456
+"selected_interval_zero","Swamp Rd bg 2","zero",1.10533187160168,0
+"selected_interval_zero","Swamp Rd rm 5","const_mean",0.316993988285599,0.510610046296862
+"selected_interval_zero","Swamp Rd rm 5","const_top",0.316993988285599,0.538002621156465
+"selected_interval_zero","Swamp Rd rm 5","exp_decay",0.316993988285599,0.538002621156465
+"selected_interval_zero","Swamp Rd rm 5","exp_pooled",0.316993988285599,0.538002621156465
+"selected_interval_zero","Swamp Rd rm 5","linear",0.316993988285599,0.538002621156465
+"selected_interval_zero","Swamp Rd rm 5","linear_zero",0.316993988285599,0.538002621156465
+"selected_interval_zero","Swamp Rd rm 5","zero",0.316993988285599,0
+"linear_all","EMS hem 321902","const_mean",0.0381616590174944,0.132508192984791
+"linear_all","EMS hem 321902","const_top",0.0381616590174944,0.186359241551688
+"linear_all","EMS hem 321902","exp_decay",0.0381616590174944,0.186359241551688
+"linear_all","EMS hem 321902","exp_pooled",0.0381616590174944,0.186359241551688
+"linear_all","EMS hem 321902","linear",0.0381616590174944,0.186359241551688
+"linear_all","EMS hem 321902","linear_zero",0.0381616590174944,0.186359241551688
+"linear_all","EMS hem 321902","zero",0.0381616590174944,0
+"linear_all","EMS rm 321071","const_mean",0.226886278687333,2.00865426178129
+"linear_all","EMS rm 321071","const_top",0.226886278687333,2.04547083201163
+"linear_all","EMS rm 321071","exp_decay",0.226886278687333,2.04547083201163
+"linear_all","EMS rm 321071","exp_pooled",0.226886278687333,2.04547083201163
+"linear_all","EMS rm 321071","linear",0.226886278687333,2.04547083201163
+"linear_all","EMS rm 321071","linear_zero",0.226886278687333,2.04547083201163
+"linear_all","EMS rm 321071","zero",0.226886278687333,0
+"linear_all","EMS ro 300607","const_mean",0.0909433864247039,0.765870665492015
+"linear_all","EMS ro 300607","const_top",0.0909433864247039,0.541393479471338
+"linear_all","EMS ro 300607","exp_decay",0.0909433864247039,0.0327587579285903
+"linear_all","EMS ro 300607","exp_pooled",0.0909433864247039,0.541393479471338
+"linear_all","EMS ro 300607","linear",0.0909433864247039,-3.57465944072854
+"linear_all","EMS ro 300607","linear_zero",0.0909433864247039,0.000645430379761493
+"linear_all","EMS ro 300607","zero",0.0909433864247039,0
+"linear_all","Swamp Rd bg 2","const_mean",0.970184692194058,0.383790941585132
+"linear_all","Swamp Rd bg 2","const_top",0.970184692194058,0.488355047033273
+"linear_all","Swamp Rd bg 2","exp_decay",0.970184692194058,0.488355047033273
+"linear_all","Swamp Rd bg 2","exp_pooled",0.970184692194058,0.488355047033273
+"linear_all","Swamp Rd bg 2","linear",0.970184692194058,0.488355047033273
+"linear_all","Swamp Rd bg 2","linear_zero",0.970184692194058,0.488355047033273
+"linear_all","Swamp Rd bg 2","zero",0.970184692194058,0
+"linear_all","Swamp Rd rm 5","const_mean",0.262073984341036,0.422685921561272
+"linear_all","Swamp Rd rm 5","const_top",0.262073984341036,0.530089153274282
+"linear_all","Swamp Rd rm 5","exp_decay",0.262073984341036,0.530089153274282
+"linear_all","Swamp Rd rm 5","exp_pooled",0.262073984341036,0.530089153274282
+"linear_all","Swamp Rd rm 5","linear",0.262073984341036,0.530089153274282
+"linear_all","Swamp Rd rm 5","linear_zero",0.262073984341036,0.530089153274282
+"linear_all","Swamp Rd rm 5","zero",0.262073984341036,0
+"linear_iid_zero","EMS hem 321902","const_mean",0.0381616590174944,0.132508192984791
+"linear_iid_zero","EMS hem 321902","const_top",0.0381616590174944,0.186359241551688
+"linear_iid_zero","EMS hem 321902","exp_decay",0.0381616590174944,0.186359241551688
+"linear_iid_zero","EMS hem 321902","exp_pooled",0.0381616590174944,0.186359241551688
+"linear_iid_zero","EMS hem 321902","linear",0.0381616590174944,0.186359241551688
+"linear_iid_zero","EMS hem 321902","linear_zero",0.0381616590174944,0.186359241551688
+"linear_iid_zero","EMS hem 321902","zero",0.0381616590174944,0
+"linear_iid_zero","EMS rm 321071","const_mean",0.226886278687333,2.00865426178129
+"linear_iid_zero","EMS rm 321071","const_top",0.226886278687333,2.04547083201163
+"linear_iid_zero","EMS rm 321071","exp_decay",0.226886278687333,2.04547083201163
+"linear_iid_zero","EMS rm 321071","exp_pooled",0.226886278687333,2.04547083201163
+"linear_iid_zero","EMS rm 321071","linear",0.226886278687333,2.04547083201163
+"linear_iid_zero","EMS rm 321071","linear_zero",0.226886278687333,2.04547083201163
+"linear_iid_zero","EMS rm 321071","zero",0.226886278687333,0
+"linear_iid_zero","EMS ro 300607","const_mean",0.0909433864247039,0.765870665492015
+"linear_iid_zero","EMS ro 300607","const_top",0.0909433864247039,0.541393479471338
+"linear_iid_zero","EMS ro 300607","exp_decay",0.0909433864247039,0.0327587579285903
+"linear_iid_zero","EMS ro 300607","exp_pooled",0.0909433864247039,0.541393479471338
+"linear_iid_zero","EMS ro 300607","linear",0.0909433864247039,-3.57465944072854
+"linear_iid_zero","EMS ro 300607","linear_zero",0.0909433864247039,0.000645430379761493
+"linear_iid_zero","EMS ro 300607","zero",0.0909433864247039,0
+"linear_iid_zero","Swamp Rd bg 2","const_mean",0.970184692194058,0.383790941585132
+"linear_iid_zero","Swamp Rd bg 2","const_top",0.970184692194058,0.488355047033273
+"linear_iid_zero","Swamp Rd bg 2","exp_decay",0.970184692194058,0.488355047033273
+"linear_iid_zero","Swamp Rd bg 2","exp_pooled",0.970184692194058,0.488355047033273
+"linear_iid_zero","Swamp Rd bg 2","linear",0.970184692194058,0.488355047033273
+"linear_iid_zero","Swamp Rd bg 2","linear_zero",0.970184692194058,0.488355047033273
+"linear_iid_zero","Swamp Rd bg 2","zero",0.970184692194058,0
+"linear_iid_zero","Swamp Rd rm 5","const_mean",0.262153505387192,0.422685921561272
+"linear_iid_zero","Swamp Rd rm 5","const_top",0.262153505387192,0.530089153274282
+"linear_iid_zero","Swamp Rd rm 5","exp_decay",0.262153505387192,0.530089153274282
+"linear_iid_zero","Swamp Rd rm 5","exp_pooled",0.262153505387192,0.530089153274282
+"linear_iid_zero","Swamp Rd rm 5","linear",0.262153505387192,0.530089153274282
+"linear_iid_zero","Swamp Rd rm 5","linear_zero",0.262153505387192,0.530089153274282
+"linear_iid_zero","Swamp Rd rm 5","zero",0.262153505387192,0
+"linear_hac_zero","EMS hem 321902","const_mean",0.0381616590174944,0.132508192984791
+"linear_hac_zero","EMS hem 321902","const_top",0.0381616590174944,0.186359241551688
+"linear_hac_zero","EMS hem 321902","exp_decay",0.0381616590174944,0.186359241551688
+"linear_hac_zero","EMS hem 321902","exp_pooled",0.0381616590174944,0.186359241551688
+"linear_hac_zero","EMS hem 321902","linear",0.0381616590174944,0.186359241551688
+"linear_hac_zero","EMS hem 321902","linear_zero",0.0381616590174944,0.186359241551688
+"linear_hac_zero","EMS hem 321902","zero",0.0381616590174944,0
+"linear_hac_zero","EMS rm 321071","const_mean",0.226886278687333,2.00865426178129
+"linear_hac_zero","EMS rm 321071","const_top",0.226886278687333,2.04547083201163
+"linear_hac_zero","EMS rm 321071","exp_decay",0.226886278687333,2.04547083201163
+"linear_hac_zero","EMS rm 321071","exp_pooled",0.226886278687333,2.04547083201163
+"linear_hac_zero","EMS rm 321071","linear",0.226886278687333,2.04547083201163
+"linear_hac_zero","EMS rm 321071","linear_zero",0.226886278687333,2.04547083201163
+"linear_hac_zero","EMS rm 321071","zero",0.226886278687333,0
+"linear_hac_zero","EMS ro 300607","const_mean",0.0909433864247039,0.765870665492015
+"linear_hac_zero","EMS ro 300607","const_top",0.0909433864247039,0.541393479471338
+"linear_hac_zero","EMS ro 300607","exp_decay",0.0909433864247039,0.0327587579285903
+"linear_hac_zero","EMS ro 300607","exp_pooled",0.0909433864247039,0.541393479471338
+"linear_hac_zero","EMS ro 300607","linear",0.0909433864247039,-3.57465944072854
+"linear_hac_zero","EMS ro 300607","linear_zero",0.0909433864247039,0.000645430379761493
+"linear_hac_zero","EMS ro 300607","zero",0.0909433864247039,0
+"linear_hac_zero","Swamp Rd bg 2","const_mean",0.970184692194058,0.383790941585132
+"linear_hac_zero","Swamp Rd bg 2","const_top",0.970184692194058,0.488355047033273
+"linear_hac_zero","Swamp Rd bg 2","exp_decay",0.970184692194058,0.488355047033273
+"linear_hac_zero","Swamp Rd bg 2","exp_pooled",0.970184692194058,0.488355047033273
+"linear_hac_zero","Swamp Rd bg 2","linear",0.970184692194058,0.488355047033273
+"linear_hac_zero","Swamp Rd bg 2","linear_zero",0.970184692194058,0.488355047033273
+"linear_hac_zero","Swamp Rd bg 2","zero",0.970184692194058,0
+"linear_hac_zero","Swamp Rd rm 5","const_mean",0.262153505387192,0.422685921561272
+"linear_hac_zero","Swamp Rd rm 5","const_top",0.262153505387192,0.530089153274282
+"linear_hac_zero","Swamp Rd rm 5","exp_decay",0.262153505387192,0.530089153274282
+"linear_hac_zero","Swamp Rd rm 5","exp_pooled",0.262153505387192,0.530089153274282
+"linear_hac_zero","Swamp Rd rm 5","linear",0.262153505387192,0.530089153274282
+"linear_hac_zero","Swamp Rd rm 5","linear_zero",0.262153505387192,0.530089153274282
+"linear_hac_zero","Swamp Rd rm 5","zero",0.262153505387192,0
+"linear_hac_double_zero","EMS hem 321902","const_mean",0.0381616590174944,0.132508192984791
+"linear_hac_double_zero","EMS hem 321902","const_top",0.0381616590174944,0.186359241551688
+"linear_hac_double_zero","EMS hem 321902","exp_decay",0.0381616590174944,0.186359241551688
+"linear_hac_double_zero","EMS hem 321902","exp_pooled",0.0381616590174944,0.186359241551688
+"linear_hac_double_zero","EMS hem 321902","linear",0.0381616590174944,0.186359241551688
+"linear_hac_double_zero","EMS hem 321902","linear_zero",0.0381616590174944,0.186359241551688
+"linear_hac_double_zero","EMS hem 321902","zero",0.0381616590174944,0
+"linear_hac_double_zero","EMS rm 321071","const_mean",0.226886278687333,2.00865426178129
+"linear_hac_double_zero","EMS rm 321071","const_top",0.226886278687333,2.04547083201163
+"linear_hac_double_zero","EMS rm 321071","exp_decay",0.226886278687333,2.04547083201163
+"linear_hac_double_zero","EMS rm 321071","exp_pooled",0.226886278687333,2.04547083201163
+"linear_hac_double_zero","EMS rm 321071","linear",0.226886278687333,2.04547083201163
+"linear_hac_double_zero","EMS rm 321071","linear_zero",0.226886278687333,2.04547083201163
+"linear_hac_double_zero","EMS rm 321071","zero",0.226886278687333,0
+"linear_hac_double_zero","EMS ro 300607","const_mean",0.0909433864247039,0.765870665492015
+"linear_hac_double_zero","EMS ro 300607","const_top",0.0909433864247039,0.541393479471338
+"linear_hac_double_zero","EMS ro 300607","exp_decay",0.0909433864247039,0.0327587579285903
+"linear_hac_double_zero","EMS ro 300607","exp_pooled",0.0909433864247039,0.541393479471338
+"linear_hac_double_zero","EMS ro 300607","linear",0.0909433864247039,-3.57465944072854
+"linear_hac_double_zero","EMS ro 300607","linear_zero",0.0909433864247039,0.000645430379761493
+"linear_hac_double_zero","EMS ro 300607","zero",0.0909433864247039,0
+"linear_hac_double_zero","Swamp Rd bg 2","const_mean",0.970184692194058,0.383790941585132
+"linear_hac_double_zero","Swamp Rd bg 2","const_top",0.970184692194058,0.488355047033273
+"linear_hac_double_zero","Swamp Rd bg 2","exp_decay",0.970184692194058,0.488355047033273
+"linear_hac_double_zero","Swamp Rd bg 2","exp_pooled",0.970184692194058,0.488355047033273
+"linear_hac_double_zero","Swamp Rd bg 2","linear",0.970184692194058,0.488355047033273
+"linear_hac_double_zero","Swamp Rd bg 2","linear_zero",0.970184692194058,0.488355047033273
+"linear_hac_double_zero","Swamp Rd bg 2","zero",0.970184692194058,0
+"linear_hac_double_zero","Swamp Rd rm 5","const_mean",0.262153505387192,0.422685921561272
+"linear_hac_double_zero","Swamp Rd rm 5","const_top",0.262153505387192,0.530089153274282
+"linear_hac_double_zero","Swamp Rd rm 5","exp_decay",0.262153505387192,0.530089153274282
+"linear_hac_double_zero","Swamp Rd rm 5","exp_pooled",0.262153505387192,0.530089153274282
+"linear_hac_double_zero","Swamp Rd rm 5","linear",0.262153505387192,0.530089153274282
+"linear_hac_double_zero","Swamp Rd rm 5","linear_zero",0.262153505387192,0.530089153274282
+"linear_hac_double_zero","Swamp Rd rm 5","zero",0.262153505387192,0

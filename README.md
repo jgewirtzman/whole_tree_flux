@@ -47,6 +47,7 @@ Use `--help` for all options. `--flux-only` and `--scaling-only` cannot be combi
 | Main figures and profile SI | `scaling/08_figures_v3c.R` | `scaling/v3c/` |
 | Tree weighting sensitivity | `scaling/09_tree_weighting.R` | `tree_weighting.csv` |
 | Basal/upper and wetland reference summaries | `scaling/10_basal_by_site_and_blackgum.R` | `tree_basal_upper_branch.csv`, `blackgum_scaling.csv`, `blackgum_component_budget.csv` and SI component-budget figure |
+| Individual-flux uncertainty and model-choice sensitivity (optional separate step) | `scaling/13_flux_uncertainty.R` | `scaling/out/flux_uncertainty/` |
 | Summary statistics and filter sensitivity | `scaling/11_summary_statistics.R` | `summary_statistics.csv`, `component_summary.csv`, `filter_sensitivity_HF.csv`, `rate_area_tradeoff.csv` |
 
 All tabular scaling outputs are in `scaling/out/`. Historical version suffixes in the current figure paths are retained to keep existing references stable; the following table identifies the current set.
@@ -56,15 +57,16 @@ All tabular scaling outputs are in `scaling/out/`. Historical version suffixes i
 | 1 — measured profiles and field photographs | `scaling/tree_illustrations/figure1_options/F1_E_faint_side_left.png` |
 | 2 — surface-area coverage and scaling | `scaling/v3c/Figure2_v3c.png` |
 | 3 — extrapolation assumptions and scenarios | `scaling/v3c/Figure3_v3c.png` |
-| S1 — profiles on an arcsinh axis | `scaling/v3c/FigS1_grid_asinh.png` |
-| S2 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
-| S3 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
-| S4 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
-| S5 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
+| S1 — stem, branch and foliage chambers | `scaling/v3c/FigS1_chambers.png` (also PDF) |
+| S2 — profiles on an arcsinh axis | `scaling/v3c/FigS1_grid_asinh.png` |
+| S3 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
+| S4 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
+| S5 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
+| S6 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
 
 Alternative raw/arcsinh profile renderings are also generated. Superseded figure pipelines and manuscript-building tools are not part of this public workflow.
 
-[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S5 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Figure 1 uses option E, with faint genus silhouettes to the left of the measured profiles, habitat brackets, and photographs before the pooled summary. Other layouts remain available as alternatives.
+[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S6 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Figure 1 uses option E, with faint genus silhouettes to the left of the measured profiles, habitat brackets, and photographs before the pooled summary. Other layouts remain available as alternatives.
 
 ## Data and assumptions
 
@@ -72,6 +74,7 @@ Alternative raw/arcsinh profile renderings are also generated. Superseded figure
 - **Detection limits:** a standalone helper estimates noise from second differences within closures, grouped by analyzer, field day and recorded interval. The same empirical threshold is used in flux fitting and MDF flags; diagnostics are exported alongside the flux tables. See [method details](docs/REPRODUCING.md#empirical-noise-and-detection-limits).
 - **Meteorology:** the Fisher station input (`hf001-10-15min-m.csv`) is the existing cached Harvard Forest HF001 data used for temperature and pressure. Source and replacement instructions are in [reproduction details](docs/REPRODUCING.md).
 - **Soil comparison:** [Jevon (2023), Mendeley Data V2](https://doi.org/10.17632/z6wybrtpyk.2), downloaded separately. July–August soil measurements are from different years than the tree campaign.
+- **Leaf areas:** `data processing/leaf_areas.csv` holds measured areas; `leaf_area_mapping.csv` links closures to shoots and identified samples. Unresolved areas use within-species means, and paired light/dark closures share an area. The compiled flux tables retain each assignment and its source. See [the reproduction guide](docs/REPRODUCING.md#leaf-areas-and-corrected-field-metadata).
 - **Geometry:** sampled stem fluxes use measured diameters and frustum areas, ending at each highest stem chamber. Stand scaling and capture use an illustrative 23 m cone; the black gum scenario uses 15.8 m. Sullivan et al. (2017), Table 6 supplies height proxies, not a taper law. Shared definitions are in `scaling/analysis_helpers.R`.
 - **Area indices:** stems 0.55 and branches 1.55 m² per m² ground are midpoints of the ranges reported together for three eastern North American temperate closed-canopy deciduous forests (Whittaker & Woodwell, 1967, p. 937). Leaves retain 4.5, the midpoint of the reported 3–6 range. This is close to the approximately 4.6 inferred for Harvard Forest by subtracting the reported woody contribution (0.9) from its optical canopy area index (about 5.5; [Urbanski et al., 2007](https://doi.org/10.1029/2006JG000293), section 2.2). The alternative woody-area scenario totals 3.07, with the same stem index and the remaining 2.52 assigned to branches. These inputs are centralized in `scaling/analysis_helpers.R`; they are scenario assumptions, not measurements of the sampled trees.
 - **Uncertainty:** 2,000 hierarchical bootstrap draws resample trees, then closures within tree/height/component, and refit models and basal denominators. Primary all-form comparisons use five eligible trees; other forms are also summarized separately for all seven. Exponential intervals are conditional on complete valid fits. Stand intervals hold external area indices and height proxies fixed.
@@ -89,3 +92,9 @@ Rscript tests/public_files.R     # No private/editorial files in the public Git 
 Enable the included privacy check before each local commit with `git config core.hooksPath .githooks`. This setting applies to this checkout only.
 
 Each successful run saves `scaling/out/sessionInfo.txt` and local input checksums/run metadata. Numerical changes should be reviewed against the committed tables. See [reproduction details](docs/REPRODUCING.md) for expected warnings and reproducibility limits.
+
+## Flux uncertainty sensitivity
+
+After rebuilding fluxes and scaling, run `Rscript scaling/13_flux_uncertainty.R` to reproduce the model-specific interval classifications, correlated-residual sensitivity, and alternative budget and extrapolation point estimates. It uses archived fit standard errors, preserves the primary signed flux estimates, and writes separate tables to `scaling/out/flux_uncertainty/`. The swamp fit archive is rebuilt by `Rscript run_analysis.R --flux-only` and is not redistributed. Restore the updated `renv.lock` for the `sandwich` dependency. Nonlinear intervals are approximate and conditional on the selected fit; zeroing rules are sensitivity scenarios.
+
+Chamber photographs for the SI can be rebuilt with `Rscript scaling/14_chamber_photos.R` from the supplied images in `data processing/chamber_photos/`. Figure numbers in historical output filenames may differ from their current manuscript captions.

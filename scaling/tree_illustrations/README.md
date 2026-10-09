@@ -1,6 +1,6 @@
 # Tree illustrations and figure layouts
 
-This folder contains the selected Figures 1 and S5, presentation graphics, and alternative layouts. The main analysis rebuilds both selected figures through `scaling/12_tree_illustrations.R`. Figure 1 uses option E: faint genus silhouettes to the left of the profiles, followed by photographs and the pooled height summary.
+This folder contains the selected Figures 1 and S6, presentation graphics, and alternative layouts. The main analysis rebuilds both selected figures through `scaling/12_tree_illustrations.R`. Figure 1 uses option E: faint genus silhouettes to the left of the profiles, followed by photographs and the pooled height summary.
 
 ## Outputs
 
@@ -9,7 +9,7 @@ This folder contains the selected Figures 1 and S5, presentation graphics, and a
 - Corresponding `*_gray_branches.*` files retain stem flux colors and use neutral branches.
 - `presentations/T_structure.*`: neutral woody geometry, without flux colors.
 - `presentations/genus_cluster_*.*`: overlapping genus illustrations for slide decoration.
-- **Selected Figure S5:** `si_candidates/FigS5_tree_flux.*` shows all eight trees in the original two-row layout, with one shared nonlinear color scale, gray branches, and labels below. No measurement ticks or Yale Myers subtitle are drawn.
+- **Selected Figure S6:** `si_candidates/FigS5_tree_flux.*` shows all eight trees in the original two-row layout, with one shared nonlinear color scale, gray branches, and labels below. No measurement ticks or Yale Myers subtitle are drawn.
 - `si_candidates/upland_stem_flux_sampling_two_rows.*` and `all_stem_flux_sampling_two_rows.*` preserve the alternative seven-tree and shared-scale eight-tree layouts.
 - `si_candidates/upland_stem_flux_sampling.*`: upland row with slightly darker gray branches and small notches marking measured stem heights.
 - `figure1_options/F1_A_data_only.*`: measured profiles, habitat brackets, photographs and pooled height summary.
@@ -33,7 +33,7 @@ Rscript scaling/tree_illustrations/scripts/render_clusters.R
 Rscript scaling/tree_illustrations/scripts/render_side_silhouettes.R
 ```
 
-The first command rebuilds the selected Figure S5 and companion presentation graphics. The second rebuilds Figure 1 alternatives and the earlier illustration variants without replacing Figure S5. Scripts accept a project root and optional illustration-bundle directory as the first and second arguments. They read the existing analysis outputs; rerun the analysis first if observations or processing change. They do not regenerate the numerical analyses. The fourth command rebuilds selected Figure 1 (E) and alternatives F–H. Dependencies are the existing plotting packages in `renv.lock`; color conversion uses base R.
+The first command rebuilds the selected Figure S6 and companion presentation graphics. The second rebuilds Figure 1 alternatives and the earlier illustration variants without replacing Figure S6. Scripts accept a project root and optional illustration-bundle directory as the first and second arguments. They read the existing analysis outputs; rerun the analysis first if observations or processing change. They do not regenerate the numerical analyses. The fourth command rebuilds selected Figure 1 (E) and alternatives F–H. Dependencies are the existing plotting packages in `renv.lock`; color conversion uses base R.
 
 The model geometry is a frozen illustration asset stored as transparent CSV inputs, not an additional fitted scientific result. Rendering from these inputs is reproducible; changes to crown architecture require updating the illustration inputs deliberately. The renderer checks the branch:stem surface-area ratios and flux interpolation. The Figure 1 renderer additionally verifies that silhouettes leave every observation, curve and horizontal flux scale unchanged.
 
@@ -45,12 +45,12 @@ The model geometry is a frozen illustration asset stored as transparent CSV inpu
 - Every woody model has branch:stem lateral surface area `1.55 / 0.55 = 2.81818`. This is the common stand-scenario ratio imposed on the drawings, not a measured individual or species ratio. Segment frusta omit junction overlaps and end caps. Leaves are not drawn.
 - Stem color interpolates measured height means linearly and holds endpoint rates constant below/above the sampled profile. It does not represent a fitted whole-tree budget or uncertainty. In the sampling-notch version, each notch marks a measured stem height, regardless of its detection flag.
 - Colored branches use their own tree's measured branch height means where available. Asterisks mark trees whose branches instead use the measured upland tree-weighted mean. Gray branches carry no flux meaning; they do not indicate zero flux or the absence of branch measurements.
-- The upland-only color range is −0.04 to 3 nmol m⁻² s⁻¹. The presentation layout sharing one scale with the wetland reference spans −0.05 to 160. Selected Figure S5 uses the same shared −0.05 to 160 scale as the eight-tree presentation layout. White is zero; equal absolute rates have matched color intensity. Color spacing uses an asinh transformation. Separate-scale versions remain exploratory alternatives.
+- The upland-only color range is −0.04 to 3 nmol m⁻² s⁻¹. The presentation layout sharing one scale with the wetland reference spans −0.05 to 160. Selected Figure S6 uses the same shared −0.05 to 160 scale as the eight-tree presentation layout. White is zero; equal absolute rates have matched color intensity. Color spacing uses an asinh transformation. Separate-scale versions remain exploratory alternatives.
 - Simple Figure 1 silhouettes use the same height proxies and lower crown extents as the detailed drawings. Crown widths and stem widths are adapted to the flux-panel layout. Their horizontal positions have no spatial or flux meaning. They share the profiles' height-axis compression above 15 m.
 
 Input parameter and surface-area tables in `inputs/` distinguish published crown parameters from assumed drawing rules. Output assignment and color-check tables accompany the presentation exports.
 
-## Figure S5 color options
+## Figure S6 color options
 
 The compact two-row options remove all sampling-height ticks and the Yale Myers subtitle. Model geometry and flux interpolation remain unchanged. A thin neutral stem edge makes near-zero white colors visible. These are archived alternatives; the selected figure uses the earlier shared asinh scale.
 

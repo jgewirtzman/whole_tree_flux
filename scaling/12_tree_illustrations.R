@@ -1,4 +1,4 @@
-# Rebuild selected Figures 1 and S5 and companion presentation graphics.
+# Rebuild selected Figures 1 and S6 and companion presentation graphics.
 # Subprocesses isolate illustration renderers from the numerical analysis.
 for (script in c("render_final_si.R", "render_side_silhouettes.R")) {
   status <- system2(file.path(R.home("bin"), "Rscript"),

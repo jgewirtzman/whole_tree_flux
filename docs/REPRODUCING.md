@@ -14,7 +14,8 @@ The goFlux revision is `aee8456e62a016b6b496eb669e7445b160e65a9d`. Preflight che
 |---|---|---|
 | `data processing/input/` | Harvard Forest raw analyzer files and timing keys | Yes |
 | `data processing/Field Data Entry - Clean Canopy Lift Total.csv` | Tree, chamber and measurement metadata | Yes |
-| `data processing/leaf_areas.csv` | Measured leaf areas | Yes |
+| `data processing/leaf_areas.csv` | Measured leaf areas (cm²); authoritative area input | Yes |
+| `data processing/leaf_area_mapping.csv` | Closure-to-shoot identities and measured-area links | Yes |
 | `data processing/YMF Black Oak/` | Yale Myers raw records and field workbook; other ancillary field files | Yes |
 | `data processing/goFlux_reprocessing/RData/manID_LGR*.RData` | Selected Harvard Forest windows and their concentration records | Yes; preserve these selections |
 | `data processing/goFlux_reprocessing/RData/imp_LGR*_combined.RData` | Imported Harvard Forest series for legacy precision comparisons | Yes |
@@ -79,3 +80,9 @@ Fixed seeds and 2,000 draws define the reported bootstrap results. `FLUX_N_BOOT`
 Sparse-profile LOESS fits can issue near-singularity warnings, and the recorded ggplot version may warn about deprecated horizontal error bars. The LOESS curves are descriptive and do not determine flux estimates or bootstrap intervals. Font/rendering differences across systems can change figure pixels without changing tabular results; compare numeric tables separately from image files.
 
 `tests/public_files.R` checks the current public Git index, including staged additions and removals, for manuscript text, Word files, editorial scripts and internal notes. It does not audit past commits or guarantee removal from remote history. Keep private editorial material outside this public index.
+
+## Leaf areas and corrected field metadata
+
+`leaf_areas.csv` is the authoritative table of measured areas in cm²; the XLSX is a matching convenience copy. `leaf_area_mapping.csv` assigns every foliage closure to a shoot and, where identifiable, a measured sample. Missing or unresolved assignments use the mean of measured areas within the same species. The four recovered July black-gum areas are 262.8, 319.8, 334.2 and 228.8 cm² (mean 286.4). Separate closures do not necessarily represent separate shoots: the 13:24 and 13:28:30 closures on July 18 share one shoot in light and dark and therefore share one area. Their conflicting field sample numbers are retained in Notes; the mapping documents use of the species mean. The 12:09 and 12:27 closures are treated as separate shoots. No shared-area assignment is inferred solely from repetition numbers.
+
+Field tissue/chamber labels for the July 18 12:56 stem and 13:15 foliage records were corrected following review of field records and author confirmation. Timing-key heights now match the field-height column. Original UniqueIDs are retained as stable join keys; their embedded heights are not authoritative. The shared area helper validates timing/field metadata, exports the exact leaf-area assignments used, and prevents scaling from using compiled tables with outdated metadata. Saved concentration windows are retained.

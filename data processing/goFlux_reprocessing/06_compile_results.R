@@ -86,6 +86,9 @@ message("Flux results: ", nrow(flux_combined), " unique measurements")
 # --- Merge with field data ----------------------------------------------------
 
 final_data <- left_join(field_data, flux_combined, by = "UniqueID")
+source(file.path(reprocess_dir, "leaf_area_helpers.R"))
+validate_canopy_metadata(base_dir)
+final_data <- left_join(final_data, leaf_area_assignments(base_dir), by="UniqueID")
 
 # --- Check for unmatched records ----------------------------------------------
 
