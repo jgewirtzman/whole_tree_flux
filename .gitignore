@@ -109,3 +109,7 @@ figures/comment_response_stats.R
 /notes/
 # Superseded drafts, manuscript backups and third-party files (private; saved through ms-git.sh)
 /archive/
+
+# GRL submission builds (private)
+/build_submission.sh
+/submission/
