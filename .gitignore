@@ -106,4 +106,6 @@ figures/comment_response_stats.R
 # Private continuation notes are saved through ms-git.sh only.
 /CLAUDE_HANDOFF_*.md
 /MDF_HANDOFF_*.md
-/notes/mdf-handoff-2026-10-08/
+/notes/
+# Superseded drafts, manuscript backups and third-party files (private; saved through ms-git.sh)
+/archive/
