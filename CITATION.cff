@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use these data or code, please cite them as below."
+title: "Data and code for \"Ground-to-canopy tree methane fluxes: Implications for scaling and forest budgets\""
+type: dataset
+version: v1.0.0
+repository-code: "https://github.com/jgewirtzman/whole_tree_flux"
+license: CC-BY-4.0
+authors:
+  - family-names: Gewirtzman
+    given-names: Jonathan
+    orcid: "https://orcid.org/0000-0003-3959-3758"
+    affiliation: "Yale School of the Environment, Yale University"
+  - family-names: Raymond
+    given-names: Peter A.
+    orcid: "https://orcid.org/0000-0002-8564-7860"
+    affiliation: "Yale School of the Environment, Yale University"
+  - family-names: Burrows
+    given-names: Hannah
+    orcid: "https://orcid.org/0009-0000-9253-906X"
+    affiliation: "Department of Earth and Planetary Sciences, Harvard University"
+  - family-names: Jeffrey
+    given-names: Luke
+    orcid: "https://orcid.org/0000-0001-6536-6757"
+    affiliation: "Southern Cross University"
+  - family-names: Maher
+    given-names: Damien
+    orcid: "https://orcid.org/0000-0003-1899-005X"
+    affiliation: "Southern Cross University"
+  - family-names: Bradford
+    given-names: Mark A.
+    orcid: "https://orcid.org/0000-0002-2022-8331"
+    affiliation: "Yale School of the Environment, Yale University"
+  - family-names: Hatala Matthes
+    given-names: Jaclyn
+    orcid: "https://orcid.org/0000-0001-8999-8062"
+    affiliation: "Harvard Forest, Harvard University"

@@ -119,3 +119,8 @@ Rscript tests/public_files.R       # only project files are tracked
 
 `run_analysis.R` runs the first two automatically. Each run writes `scaling/out/sessionInfo.txt` and local input
 checksums. See [docs/REPRODUCING.md](docs/REPRODUCING.md) for expected warnings and reproducibility limits.
+
+## License and citation
+
+Code: MIT. Data, results and figures: CC BY 4.0 (see `LICENSE`). Please cite the dataset as given in
+`CITATION.cff`.
