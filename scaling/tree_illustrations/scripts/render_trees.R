@@ -4,10 +4,14 @@ suppressPackageStartupMessages({library(ggplot2);library(dplyr);library(tidyr);l
 args <- commandArgs(trailingOnly=TRUE)
 PROJECT_ROOT <- normalizePath(if(length(args)) args[1] else '.', mustWork=TRUE)
 BUNDLE <- normalizePath(if(length(args)>1) args[2] else file.path(PROJECT_ROOT,'scaling/tree_illustrations'),mustWork=TRUE)
+# Audit tables go to checks/. Presentation layouts and alternative SI layouts are written only
+# when EXPORT_ILLUSTRATION_ALTERNATIVES=1 (to presentations/ and si_candidates/, not tracked).
+CHECKS <- file.path(BUNDLE,'checks')
+ALTERNATIVES <- Sys.getenv('EXPORT_ILLUSTRATION_ALTERNATIVES','0')=='1'
 DEST <- file.path(BUNDLE,'presentations')
 CANDIDATES <- file.path(BUNDLE,'si_candidates')
-dir.create(DEST,recursive=TRUE,showWarnings=FALSE)
-dir.create(CANDIDATES,recursive=TRUE,showWarnings=FALSE)
+dir.create(CHECKS,recursive=TRUE,showWarnings=FALSE)
+if(ALTERNATIVES) {dir.create(DEST,recursive=TRUE,showWarnings=FALSE);dir.create(CANDIDATES,recursive=TRUE,showWarnings=FALSE)}
 oldwd <- setwd(PROJECT_ROOT)
 source('scaling/00_load_field.R')
 ROOT <- PROJECT_ROOT
@@ -76,9 +80,9 @@ for(i in 1:8) {
  painted[[i]]<-list(stem=a,branch=b,assigned=nrow(br)==0)
  assignment[[i]]<-tibble(tree=m$tree,branch_source=if(nrow(br))'own measured height means' else if(mode=='assigned')'assigned measured upland tree-weighted branch mean' else 'unmeasured: gray',branch_measured_heights=nrow(br),assigned_branch_rate=if(nrow(br)||mode=='gray')NA_real_ else BRANCH_MEAN,stem_low=min(st$height_m),stem_high=max(st$height_m),stem_bottom_rate=interp(st,0),stem_top_rate=interp(st,m$H),branch_stem_area_ratio=area(b)/area(a))
 }
-write_csv(bind_rows(assignment),file.path(DEST,'painted_flux_assignment.csv'))
-write_csv(M,file.path(DEST,'painted_input_height_means.csv'))
-if(Sys.getenv('EXPORT_PAINTED_SEGMENTS','0')=='1') write_csv(bind_rows(lapply(1:8,function(i)bind_rows(painted[[i]]$stem %>% mutate(component='stem'),painted[[i]]$branch %>% mutate(component='branch')) %>% mutate(tree=meta$tree[i]))),file.path(DEST,'painted_segment_rates.csv'))
+write_csv(bind_rows(assignment),file.path(CHECKS,'painted_flux_assignment.csv'))
+write_csv(M,file.path(CHECKS,'painted_input_height_means.csv'))
+if(Sys.getenv('EXPORT_PAINTED_SEGMENTS','0')=='1') write_csv(bind_rows(lapply(1:8,function(i)bind_rows(painted[[i]]$stem %>% mutate(component='stem'),painted[[i]]$branch %>% mutate(component='branch')) %>% mutate(tree=meta$tree[i]))),file.path(CHECKS,'painted_segment_rates.csv'))
 # Draw each stem as ONE filled path. Adjacent opaque quadrilaterals can expose
 # white antialias seams in PNG/PDF viewers even when their edges coincide.
 # A native continuous gradient removes all internal polygon boundaries.
@@ -139,16 +143,17 @@ for(branch_style in c('flux','light_gray')) for(layout in c('upland_row','all_tw
  p<-wrap_plots(lapply(ids,plot_tree,ncol=nc,color_scale=make_scale(limits,breaks),reference=reference),ncol=nc,guides='collect') & theme(legend.position='bottom')
  p<-p+plot_annotation(theme=theme(plot.margin=margin(8,8,8,8)))
  tree_layouts[[paste(layout,branch_style,sep='_')]] <- p
- save(p,paste0('T_',layout,if(branch_style=='light_gray')'_gray_branches' else ''),if(nc==7)16 else 12,if(nc==7)6.2 else 12.2)
+ if(ALTERNATIVES) save(p,paste0('T_',layout,if(branch_style=='light_gray')'_gray_branches' else ''),if(nc==7)16 else 12,if(nc==7)6.2 else 12.2)
 }
 cat('PASS: all painted geometries preserve their audited skeleton area; stem interpolation passes through means; color limits retain all rates.\n')
 
 cat('PASS: blue and red have matched lightness/chroma at equal magnitudes; white is zero.\n')
 
-write_csv(bind_rows(scale_audit),file.path(DEST,'color_scale_ranges.csv'))
-write_csv(bind_rows(color_checks),file.path(DEST,'color_balance_check.csv'))
+write_csv(bind_rows(scale_audit),file.path(CHECKS,'color_scale_ranges.csv'))
+write_csv(bind_rows(color_checks),file.path(CHECKS,'color_balance_check.csv'))
 print(bind_rows(scale_audit))
 
+if(ALTERNATIVES) {
 # A separate publication candidate: slightly darker gray branches and precise
 # sampling-height notches; no assigned branch colors. Presentation exports above
 # retain the original uncluttered versions.
@@ -181,5 +186,5 @@ for(include_wetland in c(FALSE,TRUE)) {
   do.call(ggsave,args_out)
  }
 }
-
-# Current Figure S5 and color comparisons are rendered by render_color_options.R.
+}
+# The selected Figure S3 is written by render_final_si.R.

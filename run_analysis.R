@@ -45,4 +45,4 @@ writeLines(trimws(capture.output(sessionInfo()), which = "right"), "scaling/out/
 write.csv(data.frame(path = names(input_md5), md5 = unname(input_md5)), "scaling/out/run_inputs.csv", row.names = FALSE)
 writeLines(c(paste("mode:", mode), paste("completed_utc:", format(Sys.time(), tz = "UTC", usetz = TRUE)),
   paste("bootstrap_draws:", Sys.getenv("FLUX_N_BOOT", "2000"))), "scaling/out/run_metadata.txt")
-message("Analysis complete. Outputs: scaling/out/ and scaling/v3c/. See README.md for the figure map.")
+message("Analysis complete. Outputs: scaling/out/ (tables) and figures/ (Figures 1-3, S1-S6). See README.md for the figure map.")

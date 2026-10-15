@@ -15,7 +15,7 @@
 source("scaling/00_load_field.R")
 source("scaling/analysis_helpers.R")
 suppressPackageStartupMessages({library(tidyr); library(ggplot2); library(readr); library(patchwork); library(jpeg); library(grid)})
-OUT <- file.path(ROOT, "scaling/out"); FD <- file.path(ROOT, "scaling/v3c"); dir.create(FD, showWarnings = FALSE)
+OUT <- file.path(ROOT, "scaling/out"); FD <- file.path(ROOT, "figures"); dir.create(FD, showWarnings = FALSE)
 FONT <- "Helvetica"
 th <- theme_classic(base_size = 8.5, base_family = FONT) + theme(legend.position = "bottom", strip.background = element_blank(),
   strip.text = element_text(size = 7, hjust = 0, lineheight = 0.9), plot.tag = element_text(size = 10, face = "bold"), legend.text = element_text(size = 7))
@@ -139,15 +139,12 @@ pd <- function(xs) {
     th + theme(axis.text.y = element_text(size = 6.5))
   if (xs == "raw") p + coord_cartesian(xlim = c(-0.2, XM)) + scale_x_continuous(breaks = seq(0, 3, 0.5), expand = expansion(mult = c(0.02, 0.03)))
   else p + scale_x_continuous(trans = tr_as, breaks = c(-0.1, 0, 0.1, 1, 10), labels = lab_sl) }
-for (xs in c("raw", "asinh")) {
-  bot <- (img("IMG_5926_edited.jpg", 0.5, 0.45) | img("IMG_6437.jpg", 0.5, 0.5) | pd(xs)) + plot_layout(widths = c(1, 1, 0.9))
-  f1 <- prof(P1m, "row", xs) / bot + plot_layout(heights = c(1, 0.42)) + plot_annotation(tag_levels = "a")
-  ggsave(file.path(FD, sprintf("Fig1_main_%s.png", xs)), f1, width = 190, height = 200, units = "mm", dpi = 300, bg = "white")
-  # Figure S1 explains compartments, MDF symbols and the scale in its caption.
-  s1 <- prof(P1s, "grid", xs) + theme(legend.position = "none") +
-    labs(x = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})))
-  ggsave(file.path(FD, sprintf("FigS1_grid_%s.png", xs)), s1, width = 190, height = 190, units = "mm", dpi = 300, bg = "white")
-}
+# Figure 1 (profiles with silhouettes and photographs) is assembled by
+# scaling/tree_illustrations/scripts/render_side_silhouettes.R from the functions above.
+# Figure S2: all profiles on an arcsinh axis; compartments, MDF symbols and the scale are in its caption.
+s1 <- prof(P1s, "grid", "asinh") + theme(legend.position = "none") +
+  labs(x = expression(CH[4]~flux~(nmol~m^{-2}~s^{-1})))
+ggsave(file.path(FD, "FigureS2.png"), s1, width = 190, height = 190, units = "mm", dpi = 300, bg = "white")
 
 ## ============================ Figure 2
 hf <- read.csv(file.path(DATA, "data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv")) %>%
@@ -194,7 +191,7 @@ p2e <- ggplot(TH, aes(as.numeric(what), f)) +
   labs(x = NULL, y = expression(atop(Flux~on~surfaces~omitted~by~basal~sampling, (nmol~m^{-2}~s^{-1})))) + th
 f2 <- ((p2a | p2b) + plot_layout(widths = c(1.6, 0.6))) / ((p2c | p2d | p2e) + plot_layout(widths = c(0.45, 1, 1))) +
   plot_layout(heights = c(1, 1)) + plot_annotation(tag_levels = "a")
-ggsave(file.path(FD, "Figure2_v3c.png"), f2, width = 180, height = 180, units = "mm", dpi = 300, bg = "white")
+ggsave(file.path(FD, "Figure2.png"), f2, width = 180, height = 180, units = "mm", dpi = 300, bg = "white")
 
 ## ============================ Figure 3
 hb <- c(0.5, 1.25); fbas <- c(1.3, 0.7); lin <- coef(lm(fbas ~ hb)); ex <- coef(lm(log(fbas) ~ hb)); top <- 0.7; x <- seq(0.3, 22, 0.05)
@@ -242,4 +239,4 @@ thL <- theme(legend.key.height = unit(3, "mm"), legend.key.width = unit(5, "mm")
 top3 <- wrap_plots(p3a + labs(tag = "a"), p3b + labs(tag = "b"), nrow = 1) + plot_layout(guides = "collect") & theme(legend.position = "bottom") & thL
 # (A) tightened: forms legend in two rows, shorter figure
 f3 <- (wrap_elements(full = top3) / (wrap_plots((p3c + labs(tag = "c")) & thL, (p3d + labs(tag = "d")) & thL, nrow = 1, widths = c(1.35, 0.9)))) + plot_layout(heights = c(1, 0.85))
-ggsave(file.path(FD, "Figure3_v3c.png"), f3, width = 180, height = 165, units = "mm", dpi = 300, bg = "white")
+ggsave(file.path(FD, "Figure3.png"), f3, width = 180, height = 165, units = "mm", dpi = 300, bg = "white")

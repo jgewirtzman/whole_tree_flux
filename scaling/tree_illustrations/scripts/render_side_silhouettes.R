@@ -34,7 +34,11 @@ for(j in seq_along(ids)) {
  check[[j]] <- tibble(tree=meta$tree[i],base_m=0,base_panel_fraction=y_npc(0),height_proxy_m=meta$H[i],top_panel_fraction=y_npc(meta$H[i]),height_axis='same compression above 15 m and same expansion as data')
 }
 cluster <- do.call(grobTree,children)
-for(side in c('left','right')) {
+# Figure 1: silhouettes to the left of the profiles (layout E). Set
+# EXPORT_ILLUSTRATION_ALTERNATIVES=1 to also write the right-side and reordered layouts.
+ALTERNATIVES <- Sys.getenv('EXPORT_ILLUSTRATION_ALTERNATIVES','0')=='1'
+if(ALTERNATIVES) dir.create(DEST_F1,showWarnings=FALSE)
+for(side in if(ALTERNATIVES) c('left','right') else 'left') {
  gt <- habitat_header(p)
  # Insert outside the complete axes so tree silhouettes cannot cover the data.
  if(side=='left') {
@@ -47,15 +51,23 @@ for(side in c('left','right')) {
  gt <- gtable_add_grob(gt,cluster,t=panels$t[1],b=panels$b[1],l=col,r=col,clip='on',name=paste0('aligned-silhouettes-',side))
  top <- wrap_elements(full=gt)+labs(tag='a')
  full <- (top/bottom)+plot_layout(heights=c(1,.42))+plot_annotation(theme=theme(plot.margin=margin(6,6,6,6)))
+ if(side=='left') {
+  for(ext in c('png','pdf')) {
+   out <- list(filename=file.path(PROJECT_ROOT,'figures',paste0('Figure1.',ext)),plot=full,width=190,height=205,units='mm',bg='white',limitsize=FALSE)
+   if(ext=='png') out$dpi <- 300 else out$device <- cairo_pdf
+   do.call(ggsave,out)
+  }
+ }
+ if(!ALTERNATIVES) next
  name <- paste0('F1_',if(side=='left')'E'else'F','_faint_side_',side)
  save_figure(full,name)
  save_figure(top,paste0(name,'_panel_a'),height=147)
  # Reorder the second-row panels: summary first, followed by both photographs.
- swapped_bottom <- (pd('raw')+labs(tag='b') | img('IMG_5926_edited.jpg',.5,.45)+labs(tag='c') | img('IMG_6437.jpg',.5,.5)+labs(tag='d'))+plot_layout(widths=c(.9,1,1))
+ swapped_bottom <- (pd('raw')+labs(tag='b') | img('data processing/field_photos/IMG_5926_edited.jpg',.5,.45)+labs(tag='c') | img('data processing/field_photos/IMG_6437.jpg',.5,.5)+labs(tag='d'))+plot_layout(widths=c(.9,1,1))
  swapped <- (top/swapped_bottom)+plot_layout(heights=c(1,.42))+plot_annotation(theme=theme(plot.margin=margin(6,6,6,6)))
  swapped_name <- paste0('F1_',if(side=='left')'G'else'H','_summary_first_',side)
  save_figure(swapped,swapped_name)
  save_figure(top,paste0(swapped_name,'_panel_a'),height=147)
 }
-write_csv(bind_rows(check),file.path(DEST_F1,'side_silhouette_alignment.csv'))
+write_csv(bind_rows(check),file.path(BUNDLE,'checks','figure1_silhouette_alignment.csv'))
 cat('PASS: both side clusters occupy the exact data-panel row; tree bases map to the same y=0; all heights use the same transformed range. Data-only profiles are reused unchanged.\n')

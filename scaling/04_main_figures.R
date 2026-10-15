@@ -24,8 +24,8 @@ f2 <- ggplot(d2, aes(ratio, form)) +
   scale_x_continuous(breaks = seq(-4, ceiling(label_x), 2)) + coord_cartesian(xlim = c(-5, label_x + 1.1), clip = "off") +
   labs(x = "Predicted / measured upper-stem flux (area weighted)", y = "Basal flux extrapolated as:") + th +
   theme(plot.margin = margin(14, 30, 4, 4))
-ggsave(file.path(ROOT, "scaling/Figure2_v3.png"), f2, width = 160, height = 80, units = "mm", dpi = 300, bg = "white")
-ggsave(file.path(ROOT, "scaling/Figure2_v3.pdf"), f2, width = 160, height = 80, units = "mm", device = cairo_pdf)
+ggsave(file.path(ROOT, "figures/FigureS5.png"), f2, width = 160, height = 80, units = "mm", dpi = 300, bg = "white")
+ggsave(file.path(ROOT, "figures/FigureS5.pdf"), f2, width = 160, height = 80, units = "mm", device = cairo_pdf)
 cat("Figure 2 values:\n"); print(d2 %>% select(form, ratio, ratio_lo, ratio_hi, trees_pred_net_uptake, trees))
 
 ## Global sensitivity table: convert ground-area rates to woody-surface rates.

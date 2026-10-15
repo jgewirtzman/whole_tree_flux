@@ -11,7 +11,7 @@
 # One measured branch rate is applied to branch area; its vertical distribution is not estimated.
 # Soil: Jevon et al. 2023 (Prospect Hill, upland), July-August instantaneous fluxes 2016-17 (fluxes.csv, umol m-2 s-1).
 # Outputs: scaling/out/tree_component.csv, microsite.csv, mixed_model_pred.csv; figures fig_tree_component.png,
-#   fig_SI_extrapolation_fits.png
+#   figures/FigureS4.png
 # Run: LANG=en_US.UTF-8 Rscript scaling/03_tree_component.R   (from whole_tree_flux/)
 # =============================================================================
 source("scaling/00_load_field.R")
@@ -186,4 +186,4 @@ pS <- ggplot() + annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = 2
   guides(colour = guide_legend(nrow = 2, order = 1), shape = guide_legend(nrow = 2, order = 2), linetype = guide_legend(nrow = 2, order = 3)) +
   labs(x = expression(Stem~CH[4]~flux~(nmol~m^{-2}~s^{-1})*","~signed~log~scale), y = "Height (m)") +
   th + theme(legend.box = "vertical")
-ggsave(file.path(ROOT, "scaling/fig_SI_extrapolation_fits.png"), pS, width = 230, height = 190, units = "mm", dpi = 300, bg = "white")
+ggsave(file.path(ROOT, "figures/FigureS4.png"), pS, width = 230, height = 190, units = "mm", dpi = 300, bg = "white")

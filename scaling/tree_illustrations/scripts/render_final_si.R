@@ -1,4 +1,4 @@
-# Selected Figure S5: original eight-tree layout, labels below, gray branches.
+# Figure S3: original eight-tree layout, labels below, gray branches.
 args <- commandArgs(trailingOnly=TRUE)
 project <- normalizePath(if(length(args))args[1]else'.',mustWork=TRUE)
 bundle <- normalizePath(if(length(args)>1)args[2]else file.path(project,'scaling/tree_illustrations'),mustWork=TRUE)
@@ -18,7 +18,7 @@ plots <- lapply(1:8,function(i) {
 p <- wrap_plots(plots,ncol=4,guides='collect') & theme(legend.position='bottom')
 p <- p+plot_annotation(theme=theme(plot.margin=margin(8,8,8,8)))
 for(ext in c('png','pdf')) {
- out<-list(filename=file.path(CANDIDATES,paste0('FigS5_tree_flux.',ext)),plot=p,width=12,height=12.2,units='in',bg='white')
+ out<-list(filename=file.path(PROJECT_ROOT,'figures',paste0('FigureS3.',ext)),plot=p,width=12,height=12.2,units='in',bg='white')
  if(ext=='png')out$dpi<-300 else out$device<-cairo_pdf
  do.call(ggsave,out)
 }

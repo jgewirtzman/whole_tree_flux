@@ -23,7 +23,7 @@ The goFlux revision is `aee8456e62a016b6b496eb669e7445b160e65a9d`. Preflight che
 | `data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/` | Black gum analyzer files, field windows and chamber volumes | Yes |
 | `data processing/goFlux_reprocessing/hf001-10-15min-m.csv` | Fisher station meteorology for 2022–2024 campaigns | Existing cached input included |
 | `scaling/soil_jevon2023/fluxes.csv` | Independent soil comparison | No; download separately |
-| `IMG_5926_edited.jpg`, `IMG_6437.jpg` | Field photographs in Figure 1 | Yes |
+| `data processing/field_photos/IMG_5926_edited.jpg`, `IMG_6437.jpg` | Field photographs in Figure 1 | Yes |
 
 The [soil folder README](../scaling/soil_jevon2023/README.md) identifies the deposited input and required columns. It is needed for full and scaling-only runs, but not flux-only runs.
 

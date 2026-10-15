@@ -44,29 +44,29 @@ Use `--help` for all options. `--flux-only` and `--scaling-only` cannot be combi
 | Basal extrapolation tests | `scaling/01_flux_form_test.R` | `scaling/out/form_test_*.csv` |
 | Measured stem geometry and stand scenarios | `scaling/03_tree_component.R` | Geometry, component rates, stand totals, uncertainty and SI fit figure |
 | Prediction/observation comparison | `scaling/04_main_figures.R` | SI ratio figure and `global_demo_v3.csv` |
-| Main figures and profile SI | `scaling/08_figures_v3c.R` | `scaling/v3c/` |
+| Main figures and profile SI | `scaling/08_figures_v3c.R` | Figures 2, 3 and S2 |
+| Tree illustrations | `scaling/12_tree_illustrations.R` | Figures 1 and S3 |
+| Chamber photographs | `scaling/14_chamber_photos.R` | Figure S1 |
 | Tree weighting sensitivity | `scaling/09_tree_weighting.R` | `tree_weighting.csv` |
 | Basal/upper and wetland reference summaries | `scaling/10_basal_by_site_and_blackgum.R` | `tree_basal_upper_branch.csv`, `blackgum_scaling.csv`, `blackgum_component_budget.csv` and SI component-budget figure |
 | Individual-flux uncertainty and model-choice sensitivity (optional separate step) | `scaling/13_flux_uncertainty.R` | `scaling/out/flux_uncertainty/` |
 | Summary statistics and filter sensitivity | `scaling/11_summary_statistics.R` | `summary_statistics.csv`, `component_summary.csv`, `filter_sensitivity_HF.csv`, `rate_area_tradeoff.csv` |
 
-All tabular scaling outputs are in `scaling/out/`. Historical version suffixes in the current figure paths are retained to keep existing references stable; the following table identifies the current set.
+All tabular scaling outputs are in `scaling/out/`. All figures are written to `figures/` under their manuscript numbers (PNG; PDF also for Figures 1, S1, S3, S5 and S6):
 
-| Figure | File |
-|---|---|
-| 1 — measured profiles and field photographs | `scaling/tree_illustrations/figure1_options/F1_E_faint_side_left.png` |
-| 2 — surface-area coverage and scaling | `scaling/v3c/Figure2_v3c.png` |
-| 3 — extrapolation assumptions and scenarios | `scaling/v3c/Figure3_v3c.png` |
-| S1 — stem, branch and foliage chambers | `scaling/v3c/FigS1_chambers.png` (also PDF) |
-| S2 — profiles on an arcsinh axis | `scaling/v3c/FigS1_grid_asinh.png` |
-| S3 — tree illustrations with stem flux | `scaling/tree_illustrations/si_candidates/FigS5_tree_flux.png` (also PDF) |
-| S4 — fitted extrapolations by tree | `scaling/fig_SI_extrapolation_fits.png` |
-| S5 — predicted/measured upper-stem ratios | `scaling/Figure2_v3.png` (also PDF) |
-| S6 — swamp black gum component-budget scenarios | `scaling/v3c/FigS4_blackgum_budget.png` (also PDF) |
+| Figure | Content | Made by |
+|---|---|---|
+| `Figure1` | Measured profiles, tree silhouettes, field photographs and height-band summary | `scaling/tree_illustrations/scripts/render_side_silhouettes.R` |
+| `Figure2` | Surface-area coverage and scaling | `scaling/08_figures_v3c.R` |
+| `Figure3` | Extrapolation assumptions and scenarios | `scaling/08_figures_v3c.R` |
+| `FigureS1` | Stem, branch and foliage chambers | `scaling/14_chamber_photos.R` |
+| `FigureS2` | All profiles on an arcsinh axis | `scaling/08_figures_v3c.R` |
+| `FigureS3` | Tree illustrations with stem flux | `scaling/tree_illustrations/scripts/render_final_si.R` |
+| `FigureS4` | Fitted extrapolations by tree | `scaling/03_tree_component.R` |
+| `FigureS5` | Predicted/measured upper-stem ratios | `scaling/04_main_figures.R` |
+| `FigureS6` | Swamp black gum component-budget scenarios | `scaling/10_basal_by_site_and_blackgum.R` |
 
-Alternative raw/arcsinh profile renderings are also generated. Superseded figure pipelines and manuscript-building tools are not part of this public workflow.
-
-[Tree illustrations and Figure 1 layout alternatives](scaling/tree_illustrations/README.md) are saved separately. That folder includes PNG/PDF presentation graphics, gray-branch illustrations and color-scale alternatives, and eight Figure 1 layout options with upland/wetland brackets. Rendering scripts and explicit geometry inputs are included. The selected two-row Figure S3 uses one shared color scale, gray branches, and labels below the trees; `scaling/12_tree_illustrations.R` rebuilds it with the main analysis. Figure 1 uses option E, with faint genus silhouettes to the left of the measured profiles, habitat brackets, and photographs before the pooled summary. Other layouts remain available as alternatives.
+The tree drawings in Figures 1 and S3 are illustrations built from explicit geometry inputs; see [the tree-illustration notes](scaling/tree_illustrations/README.md).
 
 ## Data and assumptions
 
@@ -97,4 +97,4 @@ Each successful run saves `scaling/out/sessionInfo.txt` and local input checksum
 
 After rebuilding fluxes and scaling, run `Rscript scaling/13_flux_uncertainty.R` to reproduce the model-specific interval classifications, correlated-residual sensitivity, and alternative budget and extrapolation point estimates. It uses archived fit standard errors, preserves the primary signed flux estimates, and writes separate tables to `scaling/out/flux_uncertainty/`. The swamp fit archive is rebuilt by `Rscript run_analysis.R --flux-only` and is not redistributed. Restore the updated `renv.lock` for the `sandwich` dependency. Nonlinear intervals are approximate and conditional on the selected fit; zeroing rules are sensitivity scenarios.
 
-Chamber photographs for the SI can be rebuilt with `Rscript scaling/14_chamber_photos.R` from the supplied images in `data processing/chamber_photos/`. Figure numbers in historical output filenames may differ from their current manuscript captions.
+Field photographs for Figure 1 are in `data processing/field_photos/`; chamber photographs for Figure S1 are in `data processing/chamber_photos/`.

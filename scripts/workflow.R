@@ -32,7 +32,7 @@ check_workflow <- function(mode) {
     inputs <- c(inputs, raw)
   }
   if (mode != "flux") {
-    inputs <- c(inputs, "scaling/soil_jevon2023/fluxes.csv", "IMG_5926_edited.jpg", "IMG_6437.jpg",
+    inputs <- c(inputs, "scaling/soil_jevon2023/fluxes.csv", file.path("data processing/field_photos", c("IMG_5926_edited.jpg", "IMG_6437.jpg")),
       file.path("data processing/chamber_photos", c("IMG_5018.png", "IMG_5103.png", "IMG_5115.png", "IMG_5186.png")))
     if (mode == "scaling") inputs <- c(inputs,
       file.path(rd, "results", c("canopy_flux_goFlux_compiled.csv", "canopy_flux_goFlux_compiled_with_mdf.csv")),

@@ -17,7 +17,7 @@ draw <- function() {
               gp=gpar(fontsize=15,fontface='bold',col='black'))
   }
 }
-png('scaling/v3c/FigS1_chambers.png',width=8,height=6.4,units='in',res=300)
+png('figures/FigureS1.png',width=8,height=6.4,units='in',res=300)
 draw();invisible(dev.off())
-pdf('scaling/v3c/FigS1_chambers.pdf',width=8,height=6.4)
+pdf('figures/FigureS1.pdf',width=8,height=6.4)
 draw();invisible(dev.off())

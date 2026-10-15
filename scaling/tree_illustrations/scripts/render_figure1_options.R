@@ -83,7 +83,7 @@ save_figure <- function(p,name,width=190,height=205) {
  ggsave(file.path(DEST_F1,paste0(name,'.png')),p,width=width,height=height,units='mm',dpi=300,bg='white',limitsize=FALSE)
  ggsave(file.path(DEST_F1,paste0(name,'.pdf')),p,width=width,height=height,units='mm',device=cairo_pdf,bg='white',limitsize=FALSE)
 }
-bottom <- (img('IMG_5926_edited.jpg',.5,.45)+labs(tag='b') | img('IMG_6437.jpg',.5,.5)+labs(tag='c') | pd('raw')+labs(tag='d'))+plot_layout(widths=c(1,1,.9))
+bottom <- (img('data processing/field_photos/IMG_5926_edited.jpg',.5,.45)+labs(tag='b') | img('data processing/field_photos/IMG_6437.jpg',.5,.5)+labs(tag='c') | pd('raw')+labs(tag='d'))+plot_layout(widths=c(1,1,.9))
 for(bg in c(FALSE,TRUE)) {
  name <- if(bg)'F1_B_faint_aligned' else 'F1_A_data_only'
  pg <- profile(bg)

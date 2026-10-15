@@ -27,10 +27,6 @@ CLAUDE.local.md
 
 # --- Analysis outputs and inputs that are not redistributed ---
 # superseded drafts kept locally only
-scaling/archive/
-scaling/FigureS4_v3.*
-scaling/fig_form_test.png
-scaling/fig_tree_component.png
 # third-party data: download instructions in the folder README
 scaling/soil_jevon2023/*
 !scaling/soil_jevon2023/README.md
@@ -49,23 +45,14 @@ STATUS_TRACKER.md
 comment_responses_APPROVAL_LIST.md
 .git-manuscript/
 ms-git.sh
-# figure drafts and options (final figures are listed in the README)
-scaling/v3c/Fig1_A_*.png
-scaling/v3c/Fig1_B_*.png
-scaling/v3c/Fig1_C_*.png
-scaling/v3c/Fig1_D_photos_plus_B_logd.png
-scaling/v3c/Fig1d_truncation_options.png
-scaling/v3c/Figure3_v3c_equal.png
 # earlier field-processing scripts copied with the black gum raw data (superseded by bg_run.R)
 data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/functions/
 data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/diurnal_flux_processing.R
 
 # Private backup drafts and transient Office lock files
 manuscript_*.md
-~$*.docx
+~$*
 
-# Internal coauthor-response calculations (superseded by public statistics).
-figures/comment_response_stats.R
 
 # Editorial tooling and all Word drafts belong outside the public repository.
 *.docx
@@ -76,14 +63,6 @@ figures/comment_response_stats.R
 /scaling/11_manuscript_statistics.R
 /scaling/out/manuscript_*.csv
 
-# Superseded code/figures retained locally; the active workflow is in scaling/.
-/figures/
-/deprecated/
-/truncation/
-/data processing/Canopy_Fluxes.R
-/data processing/analysis (1).R
-/data processing/chamberflux_workflow (1).R
-/data processing/functions/
 
 # Rebuildable staging copies and optional QC exports.
 /data processing/goFlux_reprocessing/import/
@@ -113,3 +92,7 @@ figures/comment_response_stats.R
 # GRL submission builds (private)
 /build_submission.sh
 /submission/
+# Illustration alternatives (written only with EXPORT_ILLUSTRATION_ALTERNATIVES=1)
+/scaling/tree_illustrations/presentations/
+/scaling/tree_illustrations/si_candidates/
+/scaling/tree_illustrations/figure1_options/

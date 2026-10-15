@@ -79,5 +79,5 @@ p <- ggplot(BGCOMP,aes(form,share_pct,fill=component))+
   theme_classic(base_size=10,base_family="Helvetica")+
   theme(legend.position="bottom",strip.background=element_blank(),strip.text=element_text(face="bold"),
         axis.text.x=element_text(size=9),legend.text=element_text(size=9))
-ggsave(file.path(ROOT,"scaling/v3c/FigS4_blackgum_budget.png"),p,width=7.2,height=4.7,dpi=320,bg="white")
-ggsave(file.path(ROOT,"scaling/v3c/FigS4_blackgum_budget.pdf"),p,width=7.2,height=4.7,device=cairo_pdf)
+ggsave(file.path(ROOT,"figures/FigureS6.png"),p,width=7.2,height=4.7,dpi=320,bg="white")
+ggsave(file.path(ROOT,"figures/FigureS6.pdf"),p,width=7.2,height=4.7,device=cairo_pdf)
