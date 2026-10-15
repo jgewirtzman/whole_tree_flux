@@ -1,6 +1,6 @@
 # Scientific regression tests: trend invariance, gap boundaries, grouping,
 # and consistency of the noise threshold used in fitting and reporting.
-source("data processing/goFlux_reprocessing/precision_helpers.R")
+source("flux/precision_helpers.R")
 set.seed(1207)
 t <- 0:9999; e <- rnorm(length(t),sd=2)
 a <- closure_noise(e,t); b <- closure_noise(e+20*t,t)

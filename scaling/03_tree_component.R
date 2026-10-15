@@ -1,5 +1,5 @@
 # =============================================================================
-# 03_tree_component.R — GRL: the TREE COMPONENT of the forest CH4 exchange (not an ecosystem budget), per m2 ground,
+# 03_tree_component.R — the TREE COMPONENT of the forest CH4 exchange (not an ecosystem budget), per m2 ground,
 # compared with same-month soil uptake at Harvard Forest; leaves treated separately; microsite table; black gum
 # (saturated peat swamp) as a wetland reference profile; mixed-model extrapolation from basal data.
 # Inputs: 00_load_field.R (field fluxes), out/form_test_scores.csv (01), black gum compiled fluxes, Jevon 2023 soil data.
@@ -10,8 +10,7 @@
 #   (Gauci 2024 temperate WAI; branch = 3.07 - stem). These are scenario inputs.
 # One measured branch rate is applied to branch area; its vertical distribution is not estimated.
 # Soil: Jevon et al. 2023 (Prospect Hill, upland), July-August instantaneous fluxes 2016-17 (fluxes.csv, umol m-2 s-1).
-# Outputs: scaling/out/tree_component.csv, microsite.csv, mixed_model_pred.csv; figures fig_tree_component.png,
-#   figures/FigureS4.png
+# Outputs: scaling/out/tree_component.csv, microsite.csv, mixed_model_pred.csv and related tables; figures/FigureS4.png
 # Run: LANG=en_US.UTF-8 Rscript scaling/03_tree_component.R   (from whole_tree_flux/)
 # =============================================================================
 source("scaling/00_load_field.R")
@@ -21,7 +20,7 @@ OUT <- file.path(ROOT, "scaling/out")
 num <- function(x) suppressWarnings(as.numeric(x))
 
 ## ---- microsite table (field sheet soil moisture and temperature)
-hf <- read.csv(file.path(DATA, "data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv"), stringsAsFactors = FALSE) %>%
+hf <- read.csv(file.path(DATA, "flux/out/harvard_forest_fluxes.csv"), stringsAsFactors = FALSE) %>%
   filter(!(Species == "bg" & Tree_Tag == 3))
 micro <- hf %>% mutate(tree = paste(Site, Species, Tree_Tag)) %>% group_by(tree, Site, Species) %>%
   summarise(date = paste(unique(Date), collapse = ", "), soil_T = paste(unique(Soil_Temp_C), collapse = ", "),
@@ -29,8 +28,8 @@ micro <- hf %>% mutate(tree = paste(Site, Species, Tree_Tag)) %>% group_by(tree,
   mutate(microsite = case_when(grepl("sat", VWC) ~ "saturated soil (wetland-like)",
                                Site == "Swamp Rd" ~ "wetland margin (Swamp Rd)",
                                TRUE ~ "upland"))
-micro <- bind_rows(micro, tibble(tree = "YMF black oak", Site = "Yale Myers", Species = "qv", date = "10-04-2022", soil_T = NA, VWC = NA, microsite = "upland"),
-                   tibble(tree = "Black Gum Swamp bg (2024)", Site = "Black Gum Swamp", Species = "bg", date = "08-28/29-2024", soil_T = NA, VWC = "saturated peat (site)", microsite = "wetland (saturated peat swamp)"))
+micro <- bind_rows(micro, tibble(tree = "YMF black oak", Site = "Yale Myers", Species = "qv", date = "2022-10-04", soil_T = NA, VWC = NA, microsite = "upland"),
+                   tibble(tree = "Black Gum Swamp bg (2024)", Site = "Black Gum Swamp", Species = "bg", date = "2024-08-28/29", soil_T = NA, VWC = "saturated peat (site)", microsite = "wetland (saturated peat swamp)"))
 write_csv(micro, file.path(OUT, "microsite.csv")); print(micro %>% select(tree, VWC, microsite), width = 200)
 
 ## ---- measured geometry and integrated upper-stem profiles
@@ -109,7 +108,7 @@ T<-crossing(upper,AREA,branch_rule=c("measured_mean","measured_median","equal_up
     stem_lo_g=stem_lo*stem*f_below,stem_up_g=f_up*stem*(1-f_below),branch_g=f_branch*branch,
     woody_component=stem_lo_g+stem_up_g+branch_g,ntree=length(common_HF),cohort=paste(sort(common_HF),collapse="; "))
 ## ---- soil, same months (July-August), Jevon et al. 2023
-soil <- read.csv(file.path(ROOT, "scaling/soil_jevon2023/fluxes.csv")) %>% mutate(m = format(as.Date(date, "%m/%d/%y"), "%m"), f = CH4.flux * 1000) %>% filter(m %in% c("07", "08"))
+soil <- read.csv(file.path(ROOT, "data/soil_jevon2023/fluxes.csv")) %>% mutate(m = format(as.Date(date, "%m/%d/%y"), "%m"), f = CH4.flux * 1000) %>% filter(m %in% c("07", "08"))
 S_mean <- mean(soil$f); S_q <- quantile(soil$f, c(0.25, 0.75))
 T <- T %>% mutate(soil_JulAug = S_mean, offset_pct_of_soil_sink = 100 * woody_component / abs(S_mean))
 write_csv(T, file.path(OUT, "tree_component.csv"))
@@ -131,7 +130,7 @@ grid$pred <- 0.01 * sinh(predict(m, newdata = grid, re.form = NULL, allow.new.le
 write_csv(grid, file.path(OUT, "mixed_model_pred.csv"))
 
 ## ---- black gum reference (saturated peat swamp)
-bg <- read.csv(file.path(ROOT, "data processing/goFlux_reprocessing/diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv")) %>%
+bg <- read.csv(file.path(ROOT, "flux/out/black_gum_swamp_fluxes.csv")) %>%
   transmute(tree = "Black Gum Swamp bg (2024)", height_m, flux = CH4_best.flux, below_mdf = CH4_below_MDF)
 bgfit <- nls(flux ~ a * exp(-b * height_m), data = bg, start = list(a = 200, b = 1))
 cat("black gum: exponential fit a =", round(coef(bgfit)[1], 1), "b =", round(coef(bgfit)[2], 3), "per m (e-folding", round(1 / coef(bgfit)[2], 2), "m); all", nrow(bg), "fluxes > 0:", all(bg$flux > 0), "\n")

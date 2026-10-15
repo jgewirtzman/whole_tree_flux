@@ -19,7 +19,7 @@ ct <- cor.test(TM$basal, TM$upper, method = "spearman"); cat("basal vs upper mea
 write_csv(TM, file.path(ROOT, "scaling/out/tree_basal_upper_branch.csv"))
 
 ## ---- black gum
-bg <- read.csv(file.path(ROOT, "data processing/goFlux_reprocessing/diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv"))
+bg <- read.csv(file.path(ROOT, "flux/out/black_gum_swamp_fluxes.csv"))
 fit <- nls(CH4_best.flux ~ a * exp(-b * height_m), data = bg, start = list(a = 200, b = 1)); a <- coef(fit)[1]; b <- coef(fit)[2]
 top <- bg %>% filter(height_m == max(height_m)) %>% summarise(f = mean(CH4_best.flux)) %>% pull(f)
 prof <- bg %>% group_by(height_m) %>% summarise(f = mean(CH4_best.flux), n = n()); print(prof)

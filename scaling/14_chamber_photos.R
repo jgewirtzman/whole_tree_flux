@@ -2,7 +2,7 @@
 # Run from the repository root: Rscript scaling/14_chamber_photos.R
 library(grid)
 files <- c('IMG_5103.png','IMG_5018.png','IMG_5186.png','IMG_5115.png')
-photos <- lapply(files,function(n) png::readPNG(file.path('data processing/chamber_photos',n)))
+photos <- lapply(files,function(n) png::readPNG(file.path('data/photos/chambers',n)))
 draw <- function() {
   grid.newpage()
   # The portrait view fills the left; three landscape details stack at right.

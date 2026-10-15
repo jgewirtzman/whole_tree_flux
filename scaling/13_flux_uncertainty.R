@@ -9,15 +9,14 @@ dir.create(out,recursive=TRUE,showWarnings=FALSE);setwd(root)
 suppressPackageStartupMessages({library(dplyr);library(tidyr);library(sandwich)})
 source('scaling/00_load_field.R');source('scaling/analysis_helpers.R')
 stopifnot(nrow(F)==141,!anyDuplicated(F$uid))
-base<-'data processing/goFlux_reprocessing'
+# Fitted models and windowed traces are cached by the flux steps (flux/cache/, not tracked).
+cache<-c(harvard_forest='flux/cache/harvard_forest.rds',yale_myers='flux/cache/yale_myers.rds',black_gum_swamp='flux/cache/black_gum_swamp.rds')
+if(!all(file.exists(cache))) stop('Rebuild the flux cache first: Rscript run_analysis.R --flux-only')
+cached<-c(readRDS(cache[['harvard_forest']]),readRDS(cache[['yale_myers']]))
 fits<-list();traces<-list();input_paths<-c('scaling/00_load_field.R','scaling/analysis_helpers.R')
 for(inst in c('LGR1','LGR2','LGR3','YMF')) {
- sub<-if(inst=='YMF')'ymf_black_oak/RData' else 'RData'
- pf<-file.path(base,sub,paste0('flux_results_',inst,'.RData'))
- pt<-file.path(base,sub,paste0('manID_',inst,'.RData'))
- e<-new.env();load(pf,e);r<-get(paste0('CH4_best.',inst),e);r$instrument<-inst;fits[[inst]]<-r
- e<-new.env();load(pt,e);traces[[inst]]<-get(paste0('manID.',inst),e)
- input_paths<-c(input_paths,pf,pt)
+ r<-cached[[inst]]$CH4;r$instrument<-inst;fits[[inst]]<-r
+ traces[[inst]]<-cached[[inst]]$traces
 }
 fit<-bind_rows(fits);stopifnot(!anyDuplicated(fit$UniqueID))
 a<-F %>% left_join(fit,by=c('uid'='UniqueID'))
@@ -113,19 +112,16 @@ ref<-read.csv('scaling/out/stand_rates_HF.csv');st0<-filter(st,scenario=='select
 wr(bind_rows(paired),'basal_upper_comparison');wr(bind_rows(prof),'stem_profiles');fo<-bind_rows(forms);wr(fo,'extrapolation_tree_scores')
 wr(fo %>% group_by(scenario,form) %>% summarise(n_tree=n(),n_valid=sum(is.finite(predicted)),ratio=if(all(is.finite(predicted)))sum(predicted)/sum(observed) else NA_real_,predicted_negative=sum(predicted<0,na.rm=TRUE),observed_negative=sum(observed<0),.groups='drop'),'extrapolation_summary')
 # Wetland reference is separate from the 141-observation upland cohort.
-bgp<-file.path(base,'diurnal_blackgum/results/blackgum_goflux.RData')
-if(!file.exists(bgp)) stop('Rebuild archived swamp fits first: Rscript run_analysis.R --flux-only')
-e<-new.env();load(bgp,e)
-bgc<-read.csv(file.path(base,'diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv'))
-bg<-get('CH4',e);j<-match(bg$UniqueID,bgc$UniqueID)
+bgc<-read.csv('flux/out/black_gum_swamp_fluxes.csv')
+bg<-readRDS(cache[['black_gum_swamp']])$BG$CH4;j<-match(bg$UniqueID,bgc$UniqueID)
 stopifnot(!anyNA(j),max(abs(bg$best.flux-bgc$CH4_best.flux[j]))<1e-10)
 bg<-bg %>% mutate(height_m=bgc$height_m[j],selected_se=ifelse(model=='LM',LM.SE,HM.SE),
  selected_df=nb.obs-ifelse(model=='LM',2,3),selected_lo=best.flux-qt(.975,selected_df)*selected_se,
  selected_hi=best.flux+qt(.975,selected_df)*selected_se,selected_sig=selected_lo>0|selected_hi<0)
 wr(bg,'wetland_reference_audit')
 wr(bg %>% group_by(height_m) %>% summarise(n=n(),positive=sum(best.flux>0),selected_significant=sum(selected_sig),linear_significant=sum(LM.p.val<.05),selected_mean=mean(best.flux),linear_mean=mean(LM.flux),.groups='drop'),'wetland_reference_summary')
-input_paths<-c(input_paths,bgp,file.path(base,'diurnal_blackgum/results/blackgum_flux_compiled_with_mdf.csv'))
+input_paths<-c(input_paths,'flux/out/black_gum_swamp_fluxes.csv')
 writeLines(capture.output(sessionInfo()),file.path(out,'sessionInfo.txt'))
-input_paths<-c(input_paths,file.path(base,'results/canopy_flux_goFlux_compiled_with_mdf.csv'),file.path(base,'ymf_black_oak/results/ymf_black_oak_flux_compiled_with_mdf.csv'),'scaling/out/stand_rates_HF.csv','scaling/out/form_test_coverage.csv')
+input_paths<-c(input_paths,'flux/out/harvard_forest_fluxes.csv','flux/out/yale_myers_fluxes.csv','scaling/out/stand_rates_HF.csv','scaling/out/form_test_coverage.csv')
 wr(data.frame(path=input_paths,md5=unname(tools::md5sum(input_paths))),'input_checksums')
 print(read.csv(file.path(out,'component_counts.csv')));print(read.csv(file.path(out,'stand_totals.csv')));print(read.csv(file.path(out,'negative_fluxes.csv')))

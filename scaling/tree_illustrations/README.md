@@ -11,7 +11,7 @@ The main analysis rebuilds both figures through `scaling/12_tree_illustrations.R
 - `scripts/render_trees.R`: shared geometry, flux painting and color scale.
 - `scripts/render_final_si.R`: Figure S3, with all eight trees in two rows, one shared color scale and gray branches.
 - `scripts/render_side_silhouettes.R`: Figure 1, with faint genus silhouettes to the left of the measured profiles.
-  It reuses plotting functions from `scaling/08_figures_v3c.R` and `scripts/render_figure1_options.R`.
+  It reuses plotting functions from `scaling/08_figures.R` and `scripts/render_figure1_options.R`.
 - `checks/`: audit tables written on each run. They cover flux assignment, color balance, color-scale ranges and the
   Figure 1 silhouette alignment.
 

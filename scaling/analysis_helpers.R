@@ -26,13 +26,13 @@ cone_share_below <- function(h, H) {
 }
 
 load_geometry <- function(F) {
-  hf <- read.csv("data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv")
-  ym <- read.csv("data processing/goFlux_reprocessing/ymf_black_oak/results/ymf_field_data.csv")
+  hf <- read.csv("flux/out/harvard_forest_fluxes.csv")
+  ym <- read.csv("flux/out/yale_myers_fluxes.csv")
   g <- bind_rows(
     hf %>% filter(Type == "stem") %>% transmute(tree = paste(Site, Species, Tree_Tag), h = Height_m,
       d = suppressWarnings(as.numeric(DBH_cm)) / 100),
     ym %>% transmute(tree = "YMF black oak", h = suppressWarnings(as.numeric(stringr::str_extract(as.character(Height_m), "^[0-9.]+"))),
-      d = Stem_Diam_mm / 100)) # original column name says mm; field values are cm
+      d = Stem_diameter_cm / 100))
   g <- g %>% filter(tree %in% F$tree, is.finite(h), is.finite(d), d > 0) %>%
     group_by(tree, h) %>% summarise(d = mean(d), .groups = "drop")
   tops <- F %>% filter(component == "stem") %>% group_by(tree) %>% summarise(top = max(height_m), .groups = "drop")

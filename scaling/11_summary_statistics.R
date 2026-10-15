@@ -1,4 +1,4 @@
-# Current manuscript numbers, with tree-level inference instead of closure-level tests.
+# Summary statistics reported in the paper, with tree-level inference instead of closure-level tests.
 source("scaling/00_load_field.R")
 source("scaling/analysis_helpers.R")
 suppressPackageStartupMessages(library(readr))
@@ -16,8 +16,8 @@ TM<-comp(F) %>% filter(component=="stem") %>% group_by(tree,comp,height_m) %>% s
   group_by(tree,comp) %>% summarise(f=mean(f),.groups="drop") %>% pivot_wider(names_from=comp,values_from=f)
 wt<-wilcox.test(TM$stem_lo,TM$stem_up,paired=TRUE,alternative="two.sided",exact=TRUE)
 brat<-bo %>% select(b,comp,mean) %>% filter(comp %in% c("stem_lo","stem_up")) %>% pivot_wider(names_from=comp,values_from=mean) %>% mutate(ratio=stem_lo/stem_up)
-hf<-read.csv("data processing/goFlux_reprocessing/results/canopy_flux_goFlux_compiled_with_mdf.csv")
-ym<-read.csv("data processing/goFlux_reprocessing/ymf_black_oak/results/ymf_black_oak_flux_compiled_with_mdf.csv")
+hf<-read.csv("flux/out/harvard_forest_fluxes.csv")
+ym<-read.csv("flux/out/yale_myers_fluxes.csv")
 dat<-bind_rows(hf %>% select(UniqueID,starts_with("CH4_"),starts_with("CO2_")),ym %>% select(UniqueID,starts_with("CH4_"),starts_with("CO2_"))) %>% filter(UniqueID %in% F$uid)
 metrics<-c(n=nrow(F),ntree=n_distinct(F$tree),mdf_median=median(dat$CH4_MDF_wass95),
   basal_upper_ratio=mean(TM$stem_lo)/mean(TM$stem_up),ratio_lo=unname(ci95(brat$ratio)[1]),ratio_hi=unname(ci95(brat$ratio)[2]),

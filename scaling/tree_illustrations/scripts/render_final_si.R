@@ -23,4 +23,4 @@ for(ext in c('png','pdf')) {
  do.call(ggsave,out)
 }
 stopifnot(!sampling_marks,flux_colors(0,160)=='#FFFFFF')
-cat('PASS: finalized S5 retains original spacing and colors, labels below, gray branches, no measurement ticks.\n')
+cat('PASS: Figure S3 retains original spacing and colors, labels below, gray branches, no measurement ticks.\n')

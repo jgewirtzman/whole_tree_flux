@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-# Reproduce the analysis from the repository root; retain selected chamber windows.
+# Reproduce the analysis from the repository root: raw analyzer files and closure metadata -> fluxes ->
+# scaling analyses, figures and summary tables.
 args <- commandArgs(trailingOnly = TRUE)
 allowed <- c("--help", "--check", "--flux-only", "--scaling-only")
 if (any(!args %in% allowed)) stop("Unknown option: ", paste(setdiff(args, allowed), collapse = ", "), ". Use --help.")
@@ -7,8 +8,8 @@ if (all(c("--flux-only", "--scaling-only") %in% args)) stop("Choose only one of 
 if ("--help" %in% args) {
   cat("Usage: Rscript run_analysis.R [--flux-only | --scaling-only] [--check]\n",
       "  no options      rebuild fluxes, analyses, figures and summaries; run checks\n",
-      "  --flux-only     recalculate fluxes and detection flags from saved windows\n",
-      "  --scaling-only  use committed flux tables to rebuild analyses and figures\n",
+      "  --flux-only     recalculate fluxes and detection limits from the raw analyzer files\n",
+      "  --scaling-only  use the committed flux tables (flux/out/) to rebuild analyses and figures\n",
       "  --check         check dependencies and inputs without writing outputs\n",
       "See README.md and docs/REPRODUCING.md for environment setup and soil data.\n", sep = "")
   quit(status = 0)
@@ -20,18 +21,10 @@ inputs <- check_workflow(mode)
 if ("--check" %in% args) quit(status = 0)
 sys.source("tests/precision_checks.R", envir = new.env(parent = globalenv()))
 input_md5 <- tools::md5sum(inputs)
-Sys.setenv(FLUX_LEGACY_QC = "0")
-flux_steps <- c(
-  "data processing/goFlux_reprocessing/03_build_auxfiles.R",
-  "data processing/goFlux_reprocessing/ymf_black_oak/ymf_03_build_auxfile.R",
-  "data processing/goFlux_reprocessing/05_flux_calculation.R",
-  "data processing/goFlux_reprocessing/06_compile_results.R",
-  "data processing/goFlux_reprocessing/ymf_black_oak/ymf_05_flux_calculation.R",
-  "data processing/goFlux_reprocessing/ymf_black_oak/ymf_06_compile_results.R",
-  "data processing/goFlux_reprocessing/09_mdf_lod_comparison.R",
-  "data processing/goFlux_reprocessing/diurnal_blackgum/bg_run.R")
+flux_steps <- c("flux/01_harvard_forest.R", "flux/02_yale_myers.R", "flux/03_black_gum_swamp.R",
+  "flux/04_detection_limits.R")
 scaling_steps <- c("scaling/01_flux_form_test.R", "scaling/03_tree_component.R",
-  "scaling/04_main_figures.R", "scaling/08_figures_v3c.R",
+  "scaling/04_main_figures.R", "scaling/08_figures.R",
   "scaling/09_tree_weighting.R", "scaling/10_basal_by_site_and_blackgum.R",
   "scaling/11_summary_statistics.R", "scaling/12_tree_illustrations.R", "scaling/14_chamber_photos.R")
 steps <- switch(mode, flux = flux_steps, scaling = scaling_steps, full = c(flux_steps, scaling_steps))

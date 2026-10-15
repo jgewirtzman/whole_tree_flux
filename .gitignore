@@ -1,98 +1,45 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-.DS_Store
-.claude/
-Rplots.pdf
+# Only the listed project paths are shared; anything else in a local checkout stays local.
+/*
+!/.gitignore
+!/.githooks/
+!/README.md
+!/LICENSE
+!/CITATION.cff
+!/.zenodo.json
+!/run_analysis.R
+!/renv.lock
+!/whole_tree_flux.Rproj
+!/data/
+!/flux/
+!/scaling/
+!/figures/
+!/docs/
+!/scripts/
+!/tests/
 
-# Manuscript/writeup files (not for public repos)
-manuscript.md
-*.qmd
-*_writeup.md
-*_writeup.qmd
+# Third-party soil data: download instructions only
+/data/soil_jevon2023/*
+!/data/soil_jevon2023/README.md
 
-# Private working files (coauthor drafts, comment responses, writeups, worklogs)
-DRAFT_*.docx
-comment_responses.md
-WORKLOG_*.md
-*_writeup.docx
-*_writeup.pdf
-
-# Private Wu/Zhao synthesis comparison (third-party data, not for public repo)
-synthesis_merge/
-
-# Claude Code local instructions (private)
-CLAUDE.local.md
-
-# --- Analysis outputs and inputs that are not redistributed ---
-# superseded drafts kept locally only
-# third-party data: download instructions in the folder README
-scaling/soil_jevon2023/*
-!scaling/soil_jevon2023/README.md
-1-s2.0-S0168192324000911-mmc2.xlsx
-# black gum: regenerable staging files and large intermediates
-data processing/goFlux_reprocessing/diurnal_blackgum/import/
-data processing/goFlux_reprocessing/diurnal_blackgum/results/*.RData
-data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/fisher_met_09012024.csv
-data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/output/
-data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/*.numbers
-# private literature compilation (database paper) and manuscript planning notes
-grl_ge2m/
-GRL_REVISED_OUTLINE.md
-NOTES_global_estimates_for_GRL.md
-STATUS_TRACKER.md
-comment_responses_APPROVAL_LIST.md
-.git-manuscript/
-ms-git.sh
-# earlier field-processing scripts copied with the black gum raw data (superseded by bg_run.R)
-data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/functions/
-data processing/goFlux_reprocessing/diurnal_blackgum/raw/diurnal/diurnal_final/diurnal_flux_processing.R
-
-# Private backup drafts and transient Office lock files
-manuscript_*.md
-~$*
-
-
-# Editorial tooling and all Word drafts belong outside the public repository.
-*.docx
-/build_manuscript.sh
-/manuscript_layout.lua
-/manuscript_reference.docx
-/prompt_for_*.md
-/scaling/11_manuscript_statistics.R
-/scaling/out/manuscript_*.csv
-
-
-# Rebuildable staging copies and optional QC exports.
-/data processing/goFlux_reprocessing/import/
-/data processing/goFlux_reprocessing/plots/
-/data processing/goFlux_reprocessing/RData/LGR*/
-/data processing/goFlux_reprocessing/ymf_black_oak/import/
-/data processing/goFlux_reprocessing/ymf_black_oak/plots/
-
-# Local dependency libraries and per-run provenance (not reference outputs).
-/renv/
-/.Rprofile
+# Regenerated locally: fitted-model cache, per-run provenance, optional illustration alternatives
+/flux/cache/
 /scaling/out/run_inputs.csv
 /scaling/out/run_metadata.txt
-
-/MANUSCRIPT_WORKFLOW.md
-
-# Local runtime details from the flux-uncertainty sensitivity.
 /scaling/out/flux_uncertainty/sessionInfo.txt
-
-# Private continuation notes are saved through ms-git.sh only.
-/CLAUDE_HANDOFF_*.md
-/MDF_HANDOFF_*.md
-/notes/
-# Superseded drafts, manuscript backups and third-party files (private; saved through ms-git.sh)
-/archive/
-
-# GRL submission builds (private)
-/build_submission.sh
-/submission/
-# Illustration alternatives (written only with EXPORT_ILLUSTRATION_ALTERNATIVES=1)
 /scaling/tree_illustrations/presentations/
 /scaling/tree_illustrations/si_candidates/
 /scaling/tree_illustrations/figure1_options/
+
+# Local files
+*manuscript*
+*.docx
+*.qmd
+~$*
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.Rprofile
+renv/
+Rplots.pdf

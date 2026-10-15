@@ -13,7 +13,7 @@ models <- lapply(meta$tree,function(id)list(stem=filter(st,tree==id),branch=filt
 load_assignments <- function(path,names_keep) {
  for(e in parse(path)) if(is.call(e)&&identical(e[[1]],as.name('<-'))&&is.symbol(e[[2]])&&as.character(e[[2]]) %in% names_keep) eval(e,envir=.GlobalEnv)
 }
-load_assignments(file.path(ROOT,'scaling/08_figures_v3c.R'),c('FONT','th','COMP','CC','bg_all','bg_raw','bg_col','LAB1','prep1','P1m','ASC','tr_as','sq','prof','img','pd'))
+load_assignments(file.path(ROOT,'scaling/08_figures.R'),c('FONT','th','COMP','CC','bg_all','bg_raw','bg_col','LAB1','prep1','P1m','ASC','tr_as','sq','prof','img','pd'))
 LAB1$lab[8] <- 'italic("N. sylvatica")~""';P1m <- prep1(bg_col)
 NS <- read_csv(file.path(ROOT,'scaling/out/fig1_heightbin_means.csv'),show_col_types=FALSE)
 NS$hb <- factor(NS$hb,levels=paste0(seq(0,22,2),'–',seq(2,24,2)))
@@ -63,7 +63,7 @@ for(side in if(ALTERNATIVES) c('left','right') else 'left') {
  save_figure(full,name)
  save_figure(top,paste0(name,'_panel_a'),height=147)
  # Reorder the second-row panels: summary first, followed by both photographs.
- swapped_bottom <- (pd('raw')+labs(tag='b') | img('data processing/field_photos/IMG_5926_edited.jpg',.5,.45)+labs(tag='c') | img('data processing/field_photos/IMG_6437.jpg',.5,.5)+labs(tag='d'))+plot_layout(widths=c(.9,1,1))
+ swapped_bottom <- (pd('raw')+labs(tag='b') | img('data/photos/field/IMG_5926_edited.jpg',.5,.45)+labs(tag='c') | img('data/photos/field/IMG_6437.jpg',.5,.5)+labs(tag='d'))+plot_layout(widths=c(.9,1,1))
  swapped <- (top/swapped_bottom)+plot_layout(heights=c(1,.42))+plot_annotation(theme=theme(plot.margin=margin(6,6,6,6)))
  swapped_name <- paste0('F1_',if(side=='left')'G'else'H','_summary_first_',side)
  save_figure(swapped,swapped_name)

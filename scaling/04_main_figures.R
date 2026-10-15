@@ -5,7 +5,7 @@ ROOT <- "."; OUT <- file.path(ROOT, "scaling/out")   # run all scripts from the 
 th <- theme_classic(base_size = 8.5, base_family = "Helvetica") + theme(plot.title = element_text(size = 8.5, face = "bold"), legend.position = "bottom")
 LAB <- c(measured = "Measured above 2 m", exp_decay = "Exponential decay", linear_zero = "Linear, floored at zero", const_top = "Constant (top chamber)",
          const_mean = "Constant (basal mean)", linear = "Linear (unbounded)", zero = "Zero above 2 m")
-## ---- Figure 2
+## ---- Figure S5
 bs <- read_csv(file.path(OUT, "form_test_bootstrap.csv"), show_col_types = FALSE) %>% filter(form %in% names(LAB)) %>% select(-trees)
 pt <- read_csv(file.path(OUT, "form_test_pooled.csv"), show_col_types = FALSE) %>% select(form, ratio = ratio_pred_obs_area, trees_pred_net_uptake, trees)
 d2 <- bs %>% left_join(pt, by = "form") %>% mutate(form = factor(LAB[form], rev(LAB[c("const_mean", "const_top", "exp_decay", "linear_zero", "linear", "zero")])))
@@ -34,5 +34,5 @@ lev <- c("measured", "exp_decay", "linear_zero", "const_top", "const_mean", "lin
 WA <- c("MODIS VCF (90 M km²)" = 90.4, "Consensus (132 M km²)" = 131.9, "Consensus + shrubs (207 M km²)" = 206.6); K <- 0.506
 gd <- tc %>% filter(form %in% lev) %>% mutate(woody_flux = woody_component / (stem + branch)) %>% crossing(tibble(wa = names(WA), A = WA)) %>%
   mutate(Tg = woody_flux * A * K, form = factor(LAB[form], rev(LAB[lev])), wa = factor(wa, names(WA)))
-write_csv(gd, file.path(OUT, "global_demo_v3.csv")); cat("\nDEMONSTRATION range (Tg yr-1):", paste(round(range(gd$Tg), 1), collapse = " to "),
+write_csv(gd, file.path(OUT, "global_scenarios.csv")); cat("\nDEMONSTRATION range (Tg yr-1):", paste(round(range(gd$Tg), 1), collapse = " to "),
   "| measured above 2 m:", paste(round(range(gd$Tg[gd$form == LAB["measured"]]), 1), collapse = " to "), "\n")
