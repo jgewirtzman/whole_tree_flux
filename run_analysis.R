@@ -24,9 +24,11 @@ input_md5 <- tools::md5sum(inputs)
 flux_steps <- c("flux/01_harvard_forest.R", "flux/02_yale_myers.R", "flux/03_black_gum_swamp.R",
   "flux/04_detection_limits.R")
 scaling_steps <- c("scaling/01_flux_form_test.R", "scaling/03_tree_component.R",
-  "scaling/04_main_figures.R", "scaling/08_figures.R",
-  "scaling/09_tree_weighting.R", "scaling/10_basal_by_site_and_blackgum.R",
+  "scaling/04_extrapolation_ratios.R", "scaling/08_figures.R",
+  "scaling/10_basal_by_site_and_blackgum.R",
   "scaling/11_summary_statistics.R", "scaling/12_tree_illustrations.R", "scaling/14_chamber_photos.R")
+# Fit-level uncertainty (Table S2) needs the fitted models cached by the flux steps.
+if (mode == "full" || file.exists("flux/cache/harvard_forest.rds")) scaling_steps <- c(scaling_steps, "scaling/13_flux_uncertainty.R")
 steps <- switch(mode, flux = flux_steps, scaling = scaling_steps, full = c(flux_steps, scaling_steps))
 for (i in seq_along(steps)) {
   message(sprintf("\n[%d/%d] %s", i, length(steps), steps[i]))

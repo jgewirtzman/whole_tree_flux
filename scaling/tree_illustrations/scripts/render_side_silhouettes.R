@@ -18,10 +18,54 @@ LAB1$lab[8] <- 'italic("N. sylvatica")~""';P1m <- prep1(bg_col)
 NS <- read_csv(file.path(ROOT,'scaling/out/fig1_heightbin_means.csv'),show_col_types=FALSE)
 NS$hb <- factor(NS$hb,levels=paste0(seq(0,22,2),'–',seq(2,24,2)))
 NH <- P1m %>% filter(site!='Black Gum Swamp',component=='stem') %>% mutate(hb=cut(height_m,seq(0,24,2),right=FALSE,labels=levels(NS$hb)))
-load_assignments(file.path(BUNDLE,'scripts/render_figure1_options.R'),c('shape_data','profile','habitat_header','save_figure','bottom'))
+# Simple filled crowns retain the latest modeled height and lower crown extent.
+# Horizontal positions are decorative within free flux axes, never spatial data.
+shape_data <- function(i,cx,hscale) {
+ m <- meta[i,]; br <- models[[i]]$branch; st <- models[[i]]$stem
+ low <- min(m$modeled_crown_base_m,br$y0,br$y1)
+ H <- m$H; w <- m$crown_width_m/2*hscale
+ if(m$species=='hem') {
+  # A single stepped conifer outline, with no overlapping translucent polygons.
+  t <- sort(unique(c(0,seq(.06,.94,length.out=9),seq(.06,.94,length.out=9)+.025,1)))
+  t <- t[t<=1]; breadth <- (1-t)^.85*(.86+.14*(seq_along(t)%%2))
+  breadth[1] <- .35; breadth[length(breadth)] <- 0
+ } else {
+  t <- seq(0,1,length.out=220)
+  breadth <- sin(pi*t)^.38*(1+.025*sin(11*pi*t))
+  if(m$species=='bg') breadth <- breadth*(1-.18*t)
+  breadth <- breadth/max(breadth)
+ }
+ crown <- tibble(x=c(cx-w*breadth,rev(cx+w*breadth)),y=c(low+(H-low)*t,rev(low+(H-low)*t)),id=i)
+ h <- c(st$y0,tail(st$y1,1)); r <- c(st$r0,tail(st$r1,1))*hscale
+ # Slight common enlargement keeps the illustrative stems visible at panel size.
+ stem <- tibble(x=c(cx-r*1.6,rev(cx+r*1.6)),y=c(h,rev(h)),id=i)
+ list(crown=crown,stem=stem,lower=low)
+}
+profile <- function() {
+ p <- prof(P1m,'row','raw')
+ suppressMessages(p+scale_y_continuous(trans=sq,limits=c(0,24),breaks=c(0,5,10,15,20)))
+}
+# Brackets span exact facet-panel columns, excluding the y-axis and outer margin.
+habitat_header <- function(p) {
+ gt <- ggplotGrob(p)
+ panels <- gt$layout[grepl('^panel',gt$layout$name),]; panels <- panels[order(panels$l),]
+ stopifnot(nrow(panels)==8)
+ gt <- gtable_add_rows(gt,unit(7,'mm'),pos=0)
+ for(ids in list(1:7,8)) {
+  lab <- if(length(ids)==7)'Upland' else 'Wetland'
+  g <- grobTree(segmentsGrob(x0=unit(c(0,0,1),'npc'),x1=unit(c(1,0,1),'npc'),y0=unit(c(.18,.18,.18),'npc'),y1=unit(c(.18,.04,.04),'npc'),gp=gpar(col='#737373',lwd=.6)),textGrob(lab,x=.5,y=.64,gp=gpar(fontfamily=FONT,fontsize=8,col='#404040')))
+  gt <- gtable_add_grob(gt,g,t=1,l=min(panels$l[ids]),r=max(panels$r[ids]),clip='off',name=paste0('habitat-',lab))
+ }
+ gt
+}
+save_figure <- function(p,name,width=190,height=205) {
+ ggsave(file.path(DEST_F1,paste0(name,'.png')),p,width=width,height=height,units='mm',dpi=300,bg='white',limitsize=FALSE)
+ ggsave(file.path(DEST_F1,paste0(name,'.pdf')),p,width=width,height=height,units='mm',device=cairo_pdf,bg='white',limitsize=FALSE)
+}
+bottom <- (img('data/photos/field/IMG_5926_edited.jpg',.5,.45)+labs(tag='b') | img('data/photos/field/IMG_6437.jpg',.5,.5)+labs(tag='c') | pd('raw')+labs(tag='d'))+plot_layout(widths=c(1,1,.9))
 # Use the exact transformed panel range including its expansion, not an
 # independently laid-out ggplot. This aligns y=0 and every other height exactly.
-p <- profile(FALSE)+theme(strip.text=element_text(size=6.2))
+p <- profile()+theme(strip.text=element_text(size=6.2))
 built <- ggplot_build(p);yrange <- built$layout$panel_params[[1]]$y.range
 stopifnot(all(vapply(built$layout$panel_params,function(z)isTRUE(all.equal(z$y.range,yrange)),logical(1))))
 y_npc <- function(y)(sq$transform(y)-yrange[1])/diff(yrange)

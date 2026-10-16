@@ -45,7 +45,7 @@ fit-level checks) and per-run provenance files are regenerated locally and not t
 4. Load retained field measurements; test basal extrapolations on held-out upper-stem observations.
 5. Integrate measured stem geometry; calculate component means, stand scenarios and uncertainty.
 6. Generate figures and the global sensitivity table.
-7. Export tree-weighting, wetland-reference and summary statistics; run analysis checks.
+7. Export wetland-reference and summary statistics and the fit-uncertainty sensitivity (Table S2); run analysis checks.
 
 `--scaling-only` starts at step 4 using the committed flux tables. `--flux-only` stops after step 3. `--check` writes
 no outputs.

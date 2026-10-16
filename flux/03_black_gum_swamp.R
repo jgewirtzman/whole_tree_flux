@@ -1,5 +1,6 @@
 # Black Gum Swamp reference tree (Nyssa sylvatica in saturated peat, Harvard Forest), 28-29 August 2024:
-# 105 repeated stem closures at 0.25, 1, 2, 3 and 3.6 m (three collars per height and one rigid chamber).
+# 105 repeated stem closures at 0.25, 1, 2, 3 and 3.6 m (collars at three positions at 0.25 and 1 m; a rigid chamber
+# moved among positions at 1-3.6 m).
 # Windows are the field-recorded start and end times converted to the analyzer clock (no interactive
 # selection). The MDF uses the same empirical threshold as the fits.
 # Output: flux/out/black_gum_swamp_fluxes.csv

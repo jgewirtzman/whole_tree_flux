@@ -36,7 +36,6 @@ Rscript run_analysis.R --check          # verify packages and inputs; writes not
 Rscript run_analysis.R                  # fluxes, analyses, figures and summaries (about 3 min)
 Rscript run_analysis.R --flux-only      # fluxes and detection limits only (no soil file needed)
 Rscript run_analysis.R --scaling-only   # analyses and figures from the committed flux tables
-Rscript scaling/13_flux_uncertainty.R   # optional: fit-uncertainty sensitivity (after a flux run)
 ```
 
 No step is interactive. The measurement window of each closure is recorded in the metadata (see
@@ -52,13 +51,13 @@ No step is interactive. The measurement window of each closure is recorded in th
 | Detection limits (Harvard Forest, Yale Myers) | `flux/04_detection_limits.R` | `flux/out/harvard_forest_fluxes.csv`, `yale_myers_fluxes.csv`, `precision_comparison.csv` |
 | Basal extrapolation tests | `scaling/01_flux_form_test.R` | `scaling/out/form_test_*.csv` |
 | Stem geometry, component rates and stand scenarios | `scaling/03_tree_component.R` | component and stand tables; Figure S4 |
-| Predicted/measured comparison; global scenarios | `scaling/04_main_figures.R` | Figure S5; `global_scenarios.csv` |
+| Predicted/measured comparison; global scenarios | `scaling/04_extrapolation_ratios.R` | Figure S5; `global_scenarios.csv` |
 | Main figures | `scaling/08_figures.R` | Figures 2, 3 and S2 |
-| Tree weighting sensitivity | `scaling/09_tree_weighting.R` | `tree_weighting.csv` |
 | Basal/upper summaries; wetland reference | `scaling/10_basal_by_site_and_blackgum.R` | `blackgum_*.csv`; Figure S6 |
 | Summary statistics and filter sensitivity | `scaling/11_summary_statistics.R` | `summary_statistics.csv`, `component_summary.csv`, `filter_sensitivity_HF.csv` |
 | Tree illustrations | `scaling/12_tree_illustrations.R` | Figures 1 and S3 |
 | Chamber photographs | `scaling/14_chamber_photos.R` | Figure S1 |
+| Fit uncertainty and model-choice sensitivity | `scaling/13_flux_uncertainty.R` | `scaling/out/flux_uncertainty/` (Table S2) |
 
 Each flux step imports the site's analyzer files, cuts each closure's window, attaches chamber area, system volume
 and station temperature and pressure, estimates analyzer noise, and fits linear and Hutchinson–Mosier models with
