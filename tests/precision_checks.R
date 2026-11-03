@@ -22,18 +22,14 @@ p<-estimate_precision(d,"test",warn=FALSE)
 stopifnot(nrow(p$groups)==4,all(p$groups$dt_s==10),
  all(abs(p$groups$sigma[p$groups$field_day=="2023-07-18"]-1)<.1),
  all(abs(p$groups$sigma[p$groups$field_day=="2023-07-19"]-4)<.3))
-# Real fitting smoke check: the adapter matches unmodified goFlux at 1 Hz and
-# uses physical seconds for slow logging.
+# Real fitting smoke check: with precision sigma = 1 and conf = 0.95, the MDF is
+# 1.96 / t x flux term with t in physical seconds (span plus one logging interval).
 library(goFlux)
 for(dt in c(1,5,10)) {
  z<-0:99
  w<-data.frame(UniqueID="test",flag=1,Etime=z*dt,CH4dry_ppb=2000+.05*z*dt+rnorm(100),
- H2O_ppm=10000,CH4_prec=1.96,Vtot=.2,Area=100,Pcham=101.3,Tcham=20)
- r<-suppressWarnings(goFlux_at_interval(w,"CH4dry_ppb"))
- stopifnot(abs(r$MDF-1.96/(100*dt)*r$flux.term)<1e-10)
- if(dt==1) {
-  ref<-suppressWarnings(goFlux(w,"CH4dry_ppb"))
-  stopifnot(isTRUE(all.equal(ref,r)))
- }
+ H2O_ppm=10000,CH4_prec=1,Vtot=.2,Area=100,Pcham=101.3,Tcham=20)
+ r<-suppressWarnings(fit_gas(w,"CH4dry_ppb"))
+ stopifnot(abs(r$MDF-qnorm(.975)/(100*dt)*r$flux.term)<1e-10)
 }
-cat("PASS: empirical precision, trend/gap/missing-data handling, day grouping and goFlux duration adapter\n")
+cat("PASS: empirical precision, trend/gap/missing-data handling, day grouping and MDF at the logging interval\n")

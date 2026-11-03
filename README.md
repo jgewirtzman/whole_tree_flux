@@ -22,7 +22,7 @@ docs/        reproduction details and methods notes
 
 ## Reproduce the results
 
-Use **R 4.4.3** and the package versions in `renv.lock` (goFlux 0.4.0, commit `aee8456`). From the repository root:
+Use **R 4.4.3** and the package versions in `renv.lock` (goFlux fork v0.5.0.9003, doi:10.5281/zenodo.23383778; github.com/jgewirtzman/goFlux). From the repository root:
 
 ```sh
 # One-time setup: restore and activate a project library
@@ -85,8 +85,9 @@ m⁻² s⁻¹ of enclosed surface; positive values are emission.
   one of the six profiled trees) and 8 of the 9 Yale Myers closures (the closure recorded as "Seam" has no height).
   These rules are in `scaling/00_load_field.R`.
 - **Detection limits:** analyzer noise is estimated from second differences within each closure, grouped by
-  analyzer, field day and logging interval (`flux/precision_helpers.R`). The same empirical threshold (1.96 σ) is used
-  in flux fitting and as the minimum detectable flux (MDF). See
+  analyzer, field day and logging interval (`flux/precision_helpers.R`). Fits use σ as the precision (a fit is noisy when its
+  residual scatter exceeds σ), and the minimum detectable flux (MDF) is 1.96σ/t × flux term, which also bounds
+  the Hutchinson–Mosier curvature. See
   [docs/REPRODUCING.md](docs/REPRODUCING.md#empirical-noise-and-detection-limits).
 - **Weather:** air temperature and pressure from Harvard Forest dataset HF001 (Fisher station; Boose & VanScoy,
   Harvard Forest Data Archive), included for the campaign periods under its CC0 1.0 release. Please cite the dataset

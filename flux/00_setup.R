@@ -26,7 +26,7 @@ for (d in c(FLUX_OUT, CACHE)) dir.create(d, recursive = TRUE, showWarnings = FAL
 analyzer_vol <- 0.028  # L, ABB GLA131-GGA microportable
 
 # Datasheet precision of the GLA131-GGA (1 sigma at 1 s): CO2 ppm, CH4 ppb, H2O ppm. These are import
-# defaults only; apply_precision() replaces CO2 and CH4 with 1.96 x the empirical group noise before fitting.
+# defaults only; apply_precision() replaces CO2 and CH4 with the empirical group noise (sigma) before fitting.
 ugga_prec <- c(0.35, 0.9, 200)
 
 # goFlux best.flux() selection criteria
@@ -92,8 +92,8 @@ fit_fluxes <- function(traces, label) {
   stopifnot(all(traces$Area > 0), all(traces$Vtot > 0), all(traces$Pcham > 0))
   traces <- apply_precision(traces, label, FLUX_OUT)
   list(traces = traces,
-       CO2 = best.flux(goFlux_at_interval(traces, "CO2dry_ppm"), flux_criteria),
-       CH4 = best.flux(goFlux_at_interval(traces, "CH4dry_ppb"), flux_criteria))
+       CO2 = best.flux(fit_gas(traces, "CO2dry_ppm"), flux_criteria),
+       CH4 = best.flux(fit_gas(traces, "CH4dry_ppb"), flux_criteria))
 }
 
 # One row per closure: selected model, fit diagnostics and goFlux MDF, prefixed by gas.

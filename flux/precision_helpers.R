@@ -78,7 +78,7 @@ apply_precision <- function(traces, instrument, out_dir = NULL) {
   p <- estimate_precision(traces,instrument)
   for (gas in c("CH4","CO2")) {
     r <- p$closures[p$closures$gas==gas,]
-    traces[[paste0(gas,"_prec")]] <- qnorm(.975)*r$sigma_group[match(traces$UniqueID,r$UniqueID)]
+    traces[[paste0(gas,"_prec")]] <- r$sigma_group[match(traces$UniqueID,r$UniqueID)]
   }
   stopifnot(all(is.finite(traces$CH4_prec)),all(is.finite(traces$CO2_prec)))
   if (!is.null(out_dir)) {
@@ -88,22 +88,8 @@ apply_precision <- function(traces, instrument, out_dir = NULL) {
   traces
 }
 
-# The pinned goFlux release uses max(Etime)+1 in two places, assuming 1 Hz.
-# Adapt only those duration expressions in a local copy; the installed package
-# is unchanged. The MDF and curvature bound then use the same span+dt convention
-# as our reported MDF. Fail closed if a future release changes this code.
-goFlux_at_interval <- function(dataframe, gastype, ...) {
-  f <- goFlux::goFlux
-  target <- quote(max(data_split[[f]]$Etime) + 1)
-  replacement <- quote(diff(range(data_split[[f]]$Etime)) +
-    median(diff(data_split[[f]]$Etime)))
-  n <- 0L
-  walk <- function(x) {
-    if (identical(x,target)) {n <<- n+1L; return(replacement)}
-    if (is.call(x)) for (i in seq_along(x)) x[i] <- list(walk(x[[i]]))
-    x
-  }
-  body(f) <- walk(body(f))
-  if (n != 2L) stop("Pinned goFlux duration expressions changed; review adapter")
-  f(dataframe,gastype,...)
-}
+# goFlux (fork v0.5.0.9003) with the campaign sigma as precision and conf = 0.95: the MDF is
+# 1.96 sigma / t x flux term, with t the window span plus one logging interval (closure.time()),
+# and it bounds the Hutchinson-Mosier curvature (Hueppi et al. 2018). best.flux() then flags a fit
+# as noisy when its residual scatter exceeds sigma.
+fit_gas <- function(dataframe, gastype) goFlux::goFlux(dataframe, gastype, conf = 0.95)

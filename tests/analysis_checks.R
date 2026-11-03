@@ -40,7 +40,7 @@ if (all(file.exists(file.path("flux/cache", c("harvard_forest.rds", "yale_myers.
   p <- estimate_precision(m, inst, warn = FALSE)
   for (gas in c("CH4","CO2")) {
    pc <- p$closures[p$closures$gas == gas, ]
-   stopifnot(max(abs(m[[paste0(gas,"_prec")]] - qnorm(.975)*pc$sigma_group[match(m$UniqueID, pc$UniqueID)])) < 1e-10)
+   stopifnot(max(abs(m[[paste0(gas,"_prec")]] - pc$sigma_group[match(m$UniqueID, pc$UniqueID)])) < 1e-10)
   }
   # Windows in the traces are exactly the metadata windows.
   w <- m %>% group_by(UniqueID) %>% summarise(s = min(POSIX.time), e = max(POSIX.time), .groups = "drop")

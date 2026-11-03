@@ -621,13 +621,13 @@
     },
     "goFlux": {
       "Package": "goFlux",
-      "Version": "0.4.0",
+      "Version": "0.5.0.9003",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "goFlux",
-      "RemoteUsername": "Qepanna",
-      "RemoteSha": "aee8456e62a016b6b496eb669e7445b160e65a9d",
+      "RemoteUsername": "jgewirtzman",
+      "RemoteSha": "dd36b345f59537693a16202265ce5b32ba7f7c28",
       "Requirements": [
         "AICcmodavg",
         "R",
@@ -660,7 +660,7 @@
         "utils",
         "zoo"
       ],
-      "Hash": "c7d85fc9877150c121f962ed21944f93"
+      "RemoteRef": "v0.5.0.9003"
     },
     "gridExtra": {
       "Package": "gridExtra",

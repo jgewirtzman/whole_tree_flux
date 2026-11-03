@@ -5,7 +5,7 @@
 #      Christiansen et al. 2015).
 #   2. Empirical (REFERENCE; column suffix `wass*` retained for compatibility): MDF = z x sigma / t x flux.term,
 #      z = 1.96 for 95 %; sigma = median over closures of MAD(second differences) / sqrt(6) (MAD scaled by 1.4826),
-#      per analyzer x field day x logging interval. This is the same threshold used inside the fits.
+#      per analyzer x field day x logging interval. This equals goFlux's MDF in the fits (precision sigma, conf = 0.95).
 #   3. x3 t-critical variant (suffix `chr*`): MDF = (per-closure first-difference SD x 3 x t) / t_closure x flux.term.
 #      This is a quantification-limit style comparison, not the Christiansen et al. (2015) MDF.
 # t is the closure length in seconds (span of the window + one logging interval), not the number of observations.
