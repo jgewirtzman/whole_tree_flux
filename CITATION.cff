@@ -3,6 +3,8 @@ message: "If you use these data or code, please cite them as below."
 title: "Data and code for \"Ground-to-canopy tree methane fluxes: Implications for scaling and forest budgets\""
 type: dataset
 version: v1.0.0
+doi: 10.5281/zenodo.24061307
+date-released: 2026-11-08
 repository-code: "https://github.com/jgewirtzman/whole_tree_flux"
 license: CC-BY-4.0
 authors:
